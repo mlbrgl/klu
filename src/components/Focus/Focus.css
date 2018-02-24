@@ -1,0 +1,16 @@
+.focus {
+  height: 100%;
+  overflow: auto;
+}
+
+::-webkit-scrollbar {
+  width: 0.8rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(0,0,0,0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #fff;
+}
