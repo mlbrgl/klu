@@ -29,7 +29,8 @@ class FocusItem extends Component {
     // From https://github.com/lovasoa/react-contenteditable/blob/master/src/react-contenteditable.js
     // "We need not rerender if the change of props simply reflects the user's edits.
     // Rerendering in this case would make the cursor/caret jump"
-    return nextProps.index === 0 && nextProps.children === '';
+    // return nextProps.index === 0 && nextProps.children === '';
+    return nextProps.children !== this.ref.innerHTML;
   }
 
   render() {
@@ -38,7 +39,6 @@ class FocusItem extends Component {
         <span className="icon-right-open-big" onClick={this.props.deleted}></span>
         <div
           className="edit"
-          dangerouslySetInnerHTML={{__html: this.props.children}}
           onKeyDown={this.props.keypressed}
           onInput={this.props.changed}
           ref={el => this.ref = el}
@@ -50,16 +50,19 @@ class FocusItem extends Component {
   }
 
   componentDidMount() {
+    // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
+    this.updateInnerHtml();
     // A bit of an overkill but covers both initial load and subsequent adds.
     // Will focus on the last element during the initial load sequence.
     this.setCaretEnd(this.ref);
   }
 
   componentDidUpdate() {
-    // No idea why this is required. Even though the render does happen, and this.props.children
-    // is saying holding the right value at console.log() time, the DOM is not being updated.
-    // Demo of the issue: https://codepen.io/mlbrgl/pen/QQVMRP
-    // Arrived at the same solution as https://github.com/lovasoa/react-contenteditable/blob/master/src/react-contenteditable.js
+    // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
+    this.updateInnerHtml();
+  }
+
+  updateInnerHtml() {
     this.ref.innerHTML = this.props.children;
   }
 
