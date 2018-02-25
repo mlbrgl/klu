@@ -10,7 +10,7 @@ class App extends Component {
 
   localStorageKey = 'klu';
 
-  keyPressedHandler = (itemId, event) => {
+  keyPressedItemHandler = (itemId, event) => {
     const focusItems = [...this.state.focusItems]; // without the spread operator we
     const index = focusItems.findIndex((el) => el.id === itemId);
 
@@ -60,6 +60,10 @@ class App extends Component {
     this.setState({focusItems: focusItems});
   }
 
+  resetInputFocusItemHandler = () => {
+    this.setState({setInputFocus: null});
+  }
+
   // called when state is updated and component re-rendered
   // (cf.https://reactjs.org/docs/react-component.html#setstate)
   componentDidUpdate = () => {
@@ -81,9 +85,10 @@ class App extends Component {
         <Frame>
           <Thoughts />
           <Focus
-            changed={this.changeItemHandler}
-            deleted={this.deleteItemHandler}
-            keypressed={this.keyPressedHandler}
+            changedItem={this.changeItemHandler}
+            deletedItem={this.deleteItemHandler}
+            keyPressedItem={this.keyPressedItemHandler}
+            resetInputFocusItem={this.resetInputFocusItemHandler}
             items={this.state.focusItems}
             focus={this.state.setInputFocus}/>
         </Frame>

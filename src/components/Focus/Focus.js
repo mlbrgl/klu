@@ -8,9 +8,10 @@ const focus =  (props) => {
       {props.items.map((item, index) => {
         return(
           <FocusItem
-            changed={props.changed.bind(null, item.id)}
-            deleted={props.deleted.bind(null, item.id)}
-            keypressed={props.keypressed.bind(null, item.id)}
+            changed={props.changedItem.bind(null, item.id)}
+            deleted={props.deletedItem.bind(null, item.id)}
+            keyPressed={props.keyPressedItem.bind(null, item.id)}
+            resetInputFocus={props.resetInputFocusItem}
             key={item.id}
             id={item.id}
             index={index}

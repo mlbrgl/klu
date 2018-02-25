@@ -20,8 +20,10 @@ class FocusItem extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
+    // Covers cases when deleted an element, so that focus is regained somewhere
     if(nextProps.focus === nextProps.id) {
       this.setCaretEnd(this.ref);
+      this.props.resetInputFocus(); // Otherwise we can't edit in the middle of the text
     }
   }
 
@@ -39,7 +41,7 @@ class FocusItem extends Component {
         <span className="icon-right-open-big" onClick={this.props.deleted}></span>
         <div
           className="edit"
-          onKeyDown={this.props.keypressed}
+          onKeyDown={this.props.keyPressed}
           onInput={this.props.changed}
           ref={el => this.ref = el}
           spellCheck="false"
@@ -60,6 +62,7 @@ class FocusItem extends Component {
   componentDidUpdate() {
     // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
     this.updateInnerHtml();
+    this.setCaretEnd(this.ref);
   }
 
   updateInnerHtml() {
