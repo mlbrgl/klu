@@ -26,6 +26,17 @@ class App extends Component {
           this.deleteItemHandler(itemId)
         }
         break;
+      case 'ArrowUp':
+        if(index > 0) {
+          event.preventDefault();
+          this.setState({setInputFocus: focusItems[index - 1].id});
+        }
+        break;
+      case 'ArrowDown':
+        if(index < focusItems.length - 1) {
+          this.setState({setInputFocus: focusItems[index + 1].id});
+        }
+        break;
       default:
     }
   }
