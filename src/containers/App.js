@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import debounce from 'lodash.debounce';
 
 import Frame from '../components/Frame/Frame';
 import Thoughts from '../components/Thoughts/Thoughts';
@@ -8,7 +9,11 @@ import './App.css'
 
 class App extends Component {
 
-  localStorageKey = 'klu';
+  constructor(props) {
+    super(props);
+    this.localStorageKey = 'klu';
+    this.debouncedCommitStorage = debounce(this.commitStorage, 250)
+  }
 
   keyPressedItemHandler = (itemId, event) => {
     const focusItems = [...this.state.focusItems]; // without the spread operator we
@@ -75,10 +80,12 @@ class App extends Component {
     this.setState({setInputFocus: null});
   }
 
-  // called when state is updated and component re-rendered
-  // (cf.https://reactjs.org/docs/react-component.html#setstate)
-  componentDidUpdate = () => {
+  commitStorage() {
     localStorage.setItem(this.localStorageKey, JSON.stringify(this.state));
+  }
+
+  componentDidUpdate = () => {
+    this.debouncedCommitStorage();
   }
 
   componentWillMount = () => {
