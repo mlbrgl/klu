@@ -15,7 +15,7 @@ class App extends Component {
     this.debouncedCommitStorage = debounce(this.commitStorage, 250)
   }
 
-  keyPressedItemHandler = (itemId, event) => {
+  onKeyDownItemHandler = (itemId, event) => {
     const focusItems = [...this.state.focusItems]; // without the spread operator we
     const index = focusItems.findIndex((el) => el.id === itemId);
 
@@ -23,61 +23,61 @@ class App extends Component {
       case 'Enter':
         event.preventDefault();
         focusItems.splice(index + 1, 0, {id: Date.now(), value: ''})
-        this.setState({focusItems: focusItems, setInputFocus: null})
+        this.setState({focusItems: focusItems, inputFocus: null})
         break;
       case 'Backspace':
         if(focusItems[index].value.length === 0) {
           event.preventDefault();
-          this.deleteItemHandler(itemId)
+          this.onDeletedItemHandler(itemId)
         }
         break;
       case 'ArrowUp':
         if(index > 0) {
           event.preventDefault();
-          this.setState({setInputFocus: focusItems[index - 1].id});
+          this.setState({inputFocus: focusItems[index - 1].id});
         }
         break;
       case 'ArrowDown':
         if(index < focusItems.length - 1) {
-          this.setState({setInputFocus: focusItems[index + 1].id});
+          this.setState({inputFocus: focusItems[index + 1].id});
         }
         break;
       default:
     }
   }
 
-  changeItemHandler = (itemId, event) => {
+  onInputItemHandler = (itemId, event) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     focusItems[index].value = event.target.innerHTML
     this.setState({focusItems: focusItems})
   }
 
-  deleteItemHandler = (itemId) => {
+  onDeletedItemHandler = (itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    let setInputFocus = this.state.setInputFocus;
+    let inputFocus = this.state.inputFocus;
 
     if(focusItems.length === 1) {
       focusItems[0] = {id: itemId, value: ''};
-      setInputFocus = itemId;
+      inputFocus = itemId;
     } else {
       if(index === 0) {
-        setInputFocus = focusItems[1].id;
+        inputFocus = focusItems[1].id;
       } else if(index === focusItems.length - 1) {
-        setInputFocus = focusItems[focusItems.length - 2].id;
+        inputFocus = focusItems[focusItems.length - 2].id;
       } else {
-        setInputFocus = focusItems[index + 1].id;
+        inputFocus = focusItems[index + 1].id;
       }
       focusItems.splice(index, 1);
     }
 
-    this.setState({setInputFocus: setInputFocus});
+    this.setState({inputFocus: inputFocus});
     this.setState({focusItems: focusItems});
   }
 
   resetInputFocusItemHandler = () => {
-    this.setState({setInputFocus: null});
+    this.setState({inputFocus: null});
   }
 
   commitStorage() {
@@ -103,12 +103,12 @@ class App extends Component {
         <Frame>
           <Thoughts />
           <Focus
-            changedItem={this.changeItemHandler}
-            deletedItem={this.deleteItemHandler}
-            keyPressedItem={this.keyPressedItemHandler}
+            onInputItem={this.onInputItemHandler}
+            onDeletedItem={this.onDeletedItemHandler}
+            onKeyDownItem={this.onKeyDownItemHandler}
+            inputFocusItem={this.state.inputFocus}
             resetInputFocusItem={this.resetInputFocusItemHandler}
-            items={this.state.focusItems}
-            focus={this.state.setInputFocus}/>
+            items={this.state.focusItems}/>
         </Frame>
       </div>
     );

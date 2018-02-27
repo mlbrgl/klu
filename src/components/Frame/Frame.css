@@ -9,7 +9,7 @@
 .frame .inner {
   width: 100%;
   height: 100%;
-  padding: 4rem;
+  padding: 3rem;
   border: 0.75rem solid white;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0,0,0,0.6);
 }

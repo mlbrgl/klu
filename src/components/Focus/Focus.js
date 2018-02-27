@@ -1,21 +1,21 @@
 import React from 'react';
 import FocusItem from './FocusItem/FocusItem';
-import './Focus.css';
+import styles from './Focus.module.css';
 
 const focus =  (props) => {
   return (
-    <div className="focus">
+    <div className={styles.component}>
       {props.items.map((item, index) => {
         return(
           <FocusItem
-            changed={props.changedItem.bind(null, item.id)}
-            deleted={props.deletedItem.bind(null, item.id)}
-            keyPressed={props.keyPressedItem.bind(null, item.id)}
+            onInput={props.onInputItem.bind(null, item.id)}
+            onDeleted={props.onDeletedItem.bind(null, item.id)}
+            onKeyDown={props.onKeyDownItem.bind(null, item.id)}
             resetInputFocus={props.resetInputFocusItem}
+            inputFocus={props.inputFocusItem}
             key={item.id}
             id={item.id}
             index={index}
-            focus={props.focus}
           >
             {item.value}
           </FocusItem>)
