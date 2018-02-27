@@ -28,9 +28,10 @@ class App extends Component {
         // No need to set focus, as the new element gets it automatically
         break;
       case 'Backspace':
+      case 'Delete':
         if(focusItems[index].value.length === 0) {
           event.preventDefault();
-          this.onDeletedItemHandler(itemId)
+          this.onDeletedItemHandler(itemId, event.key)
         }
         break;
       case 'ArrowUp':
@@ -55,19 +56,19 @@ class App extends Component {
     this.setState({focusItems: focusItems})
   }
 
-  onDeletedItemHandler = (itemId) => {
+  onDeletedItemHandler = (itemId, key) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     let inputFocus;
 
-    if(focusItems.length === 1) { // Specific for deletion by click
+    if(focusItems.length === 1) { // Necessary for deletion by click
       focusItems[0] = {id: itemId, value: ''};
       inputFocus = itemId;
     } else {
-      if(index === 0) {
-        inputFocus = focusItems[1].id;
-      } else {
+      if(index === focusItems.length - 1 || key === 'Backspace') {
         inputFocus = focusItems[index - 1].id;
+      } else if(index === 0 || key === 'Delete') {
+        inputFocus = focusItems[index + 1].id;
       }
       focusItems.splice(index, 1);
     }
