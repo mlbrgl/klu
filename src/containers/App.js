@@ -22,8 +22,10 @@ class App extends Component {
     switch (event.key) {
       case 'Enter':
         event.preventDefault();
-        focusItems.splice(index + 1, 0, {id: Date.now(), value: ''})
-        this.setState({focusItems: focusItems, inputFocus: null})
+        const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
+        focusItems.splice(indexNewItem, 0, {id: Date.now(), value: ''})
+        this.setState({focusItems: focusItems})
+        // No need to set focus, as the new element gets it automatically
         break;
       case 'Backspace':
         if(focusItems[index].value.length === 0) {
@@ -56,18 +58,16 @@ class App extends Component {
   onDeletedItemHandler = (itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    let inputFocus = this.state.inputFocus;
+    let inputFocus;
 
-    if(focusItems.length === 1) {
+    if(focusItems.length === 1) { // Specific for deletion by click
       focusItems[0] = {id: itemId, value: ''};
       inputFocus = itemId;
     } else {
       if(index === 0) {
         inputFocus = focusItems[1].id;
-      } else if(index === focusItems.length - 1) {
-        inputFocus = focusItems[focusItems.length - 2].id;
       } else {
-        inputFocus = focusItems[index + 1].id;
+        inputFocus = focusItems[index - 1].id;
       }
       focusItems.splice(index, 1);
     }
