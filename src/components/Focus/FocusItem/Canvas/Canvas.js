@@ -6,9 +6,6 @@ class Canvas extends Component  {
   constructor (props) {
     super(props);
     this.particles = [];
-    // this.ctx = null;
-    // this.canvas = null;
-    // this.imageData = null;
     this.progress = this.frameIdx = 0;
   }
 
@@ -68,9 +65,12 @@ class Canvas extends Component  {
     }
 
     // Render particles at new position
-    this.ctx.globalAlpha = this.ctx.globalAlpha - this.progress / 50 ;
+    this.ctx.globalAlpha = this.ctx.globalAlpha - this.progress / 100 ;
     for(let i = 0; i < this.particles.length; i++) {
-      this.particles[i] = {x: this.particles[i].x + this.getRandomIntInclusive(- this.progress, this.progress), y: this.particles[i].y - this.getRandomIntInclusive(0 + this.progress , 4 + this.progress)}
+      this.particles[i] = {
+        x: this.particles[i].x + this.getRandomIntInclusive(- this.progress - 2, this.progress + 2),
+        y: this.particles[i].y + this.getRandomIntInclusive(this.progress , - 2 - this.progress)
+      }
       this.ctx.fillRect(this.particles[i].x, this.particles[i].y, 1, 1);
     }
 
