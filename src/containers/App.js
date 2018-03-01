@@ -61,15 +61,23 @@ class App extends Component {
     const index = focusItems.findIndex((el) => el.id === itemId);
     let inputFocus;
 
-    if(focusItems.length === 1) { // Necessary for deletion by click
-      focusItems[0] = {id: itemId, value: ''};
-      inputFocus = itemId;
+    if(focusItems.length === 1) {
+      // Necessary for deletion by click
+      focusItems[0] = {id: Date.now(), value: ''};
+      // No need to set the inputFocus since we are recreating a new component
     } else {
-      if(index === focusItems.length - 1 || key === 'Backspace') {
-        inputFocus = focusItems[index - 1].id;
-      } else if(index === 0 || key === 'Delete') {
-        inputFocus = focusItems[index + 1].id;
+      let newIndex;
+      switch (key) {
+        case 'Backspace':
+          newIndex = index === 0 ? index + 1 : index - 1;
+          break;
+        case 'Delete':
+        case 'Click':
+          newIndex = index === focusItems.length - 1 ? index - 1 : index + 1;
+          break;
+        default:
       }
+      inputFocus = focusItems[newIndex].id;
       focusItems.splice(index, 1);
     }
 

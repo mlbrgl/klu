@@ -1,8 +1,11 @@
 .focusitem {
-  /* display: grid;
-  grid-template-columns: 5rem 1fr; */
   color: grey;
   clear: both;
+  font-size: 4rem;
+}
+
+.focusitem:first-child {
+  color: #fff;
 }
 
 .delete {
@@ -10,10 +13,4 @@
   margin-top: 1rem;
   float:left;
   cursor: pointer;
-  /* align-self: start; */
-  /* justify-self: center; */
-}
-
-.focusitem:first-child {
-  color: #fff;
 }
