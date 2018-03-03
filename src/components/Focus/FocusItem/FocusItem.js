@@ -9,6 +9,7 @@ class FocusItem extends Component {
 
   state = {};
 
+  // @TODO
   delete = (event) => {
     let editable = ReactDOM.findDOMNode(this.editableRef)
     if(editable.innerHTML !== '') {
@@ -22,12 +23,12 @@ class FocusItem extends Component {
     let focusItemStyles = [];
     let icon = this.props.category.icon;
 
-    if (this.props.delete === true) {
+    if (this.props.delete) {
       focusItemStyles.push(styles.delete);
       icon = 'circle-with-minus';
     } else if (this.props.category.name !== 'inbox') {
       focusItemStyles.push(styles.processed);
-    } else if (this.props.focus === true) {
+    } else if (this.props.focus) {
       focusItemStyles.push(styles.focused);
     } else {
       focusItemStyles.push(styles.focusitem);

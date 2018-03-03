@@ -101,12 +101,8 @@ class App extends Component {
         case 'Backspace':
           newIndex = index === 0 ? index + 1 : index - 1;
           break;
-        case 'Delete':
-        case 'Click':
-        case 'Enter':
+        default: //'Delete', 'Click', 'Enter'
           newIndex = index === focusItems.length - 1 ? index - 1 : index + 1;
-          break;
-        default:
       }
       inputFocusItemId = focusItems[newIndex].id;
       focusItems.splice(index, 1);
