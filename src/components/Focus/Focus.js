@@ -6,7 +6,7 @@ const focus =  (props) => {
   return (
     <div className={styles.focus}>
       {props.items
-        .filter((item) => { return props.focusItem === null || props.focusItem === item.id })
+        .filter((item) => { return props.focusItemId === null || props.focusItemId === item.id })
         .map((item, index) => {
         return(
           <FocusItem
@@ -14,13 +14,13 @@ const focus =  (props) => {
             onDeleted={props.onDeletedItem.bind(null, item.id, 'Click')}
             onKeyDown={props.onKeyDownItem.bind(null, item.id)}
             onToggleFocus={props.onToggleFocusItem.bind(null, item.id)}
-            focus={props.focusItem}
+            focus={props.focusItemId === item.id ? true : false}
             resetInputFocus={props.resetInputFocusItem}
-            inputFocus={props.inputFocusItem}
+            inputFocus={props.inputFocusItemId === item.id ? true : false}
             key={item.id}
             id={item.id}
-            index={index}
             category={item.category}
+            delete={props.deleteItemId === item.id ? true : false}
           >
             {item.value}
           </FocusItem>)

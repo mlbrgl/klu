@@ -15,3 +15,8 @@
   composes: focusitem;
   opacity: 0.5;
 }
+
+.delete {
+  composes: focusitem;
+  color: red;
+}

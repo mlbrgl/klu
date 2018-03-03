@@ -15,8 +15,9 @@ class App extends Component {
     this.debouncedCommitStorage = debounce(this.commitStorage, 250);
     this.state = {
       focusItems: [this.getNewFocusItem()],
-      focusItem: null,
-      inputFocusItem: null,
+      focusItemId: null,
+      inputFocusItemId: null,
+      deleteItemId: null
     }
     this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'nurture', icon: 'leaf'}, {name: 'energy', icon: 'light-up'}];
   }
@@ -25,13 +26,21 @@ class App extends Component {
     const focusItems = [...this.state.focusItems]; // without the spread operator we
     const index = focusItems.findIndex((el) => el.id === itemId);
 
+    if(event.key !== 'Enter' && this.state.deleteItemId !== null) {
+      this.setState({deleteItemId: null});
+    }
+
     switch (event.key) {
       case 'Enter':
         event.preventDefault();
-        const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
-        focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
-        this.setState({focusItems: focusItems})
-        // No need to set focus, as the new element gets it automatically
+        if(this.state.deleteItemId !== null) {
+          this.onDeletedItemHandler(itemId, event.key)
+        } else {
+          const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
+          focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
+          this.setState({focusItems: focusItems})
+          // No need to set focus, as the new element gets it automatically
+        }
         break;
       case 'Backspace':
       case 'Delete':
@@ -43,13 +52,13 @@ class App extends Component {
       case 'ArrowUp':
         if(index > 0) {
           event.preventDefault();
-          this.setState({inputFocusItem: focusItems[index - 1].id});
+          this.setState({inputFocusItemId: focusItems[index - 1].id});
         }
         break;
       case 'ArrowDown':
         if(index < focusItems.length - 1) {
           event.preventDefault();
-          this.setState({inputFocusItem: focusItems[index + 1].id});
+          this.setState({inputFocusItemId: focusItems[index + 1].id});
         }
         break;
       case 'ArrowRight':
@@ -59,6 +68,11 @@ class App extends Component {
           let idxOfNextCategory = (idxOfCurrentCategory + 1) % this.categories.length;
           focusItems[index].category = {...this.categories[idxOfNextCategory]};
           this.setState({focusItems: focusItems});
+        }
+        break;
+      case 'ArrowLeft':
+        if(window.getSelection().anchorOffset === 0) {
+          this.setState({deleteItemId: itemId});
         }
         break;
       default:
@@ -75,12 +89,12 @@ class App extends Component {
   onDeletedItemHandler = (itemId, key) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    let inputFocusItem;
+    let inputFocusItemId;
 
     if(focusItems.length === 1) {
       // Necessary for deletion by click
       focusItems[0] = this.getNewFocusItem();
-      // No need to set the inputFocusItem since we are recreating a new component
+      // No need to set the inputFocusItemId since we are recreating a new component
     } else {
       let newIndex;
       switch (key) {
@@ -89,20 +103,19 @@ class App extends Component {
           break;
         case 'Delete':
         case 'Click':
+        case 'Enter':
           newIndex = index === focusItems.length - 1 ? index - 1 : index + 1;
           break;
         default:
       }
-      inputFocusItem = focusItems[newIndex].id;
+      inputFocusItemId = focusItems[newIndex].id;
       focusItems.splice(index, 1);
     }
-
-    this.setState({inputFocusItem: inputFocusItem});
-    this.setState({focusItems: focusItems});
+    this.setState({inputFocusItemId: inputFocusItemId, focusItems: focusItems, deleteItemId: null});
   }
 
   onToggleFocusItemHandler = (itemId) => {
-    this.setState({focusItem: this.state.focusItem === itemId ? null : itemId})
+    this.setState({focusItemId: this.state.focusItemId === itemId ? null : itemId})
   }
 
   componentDidUpdate = () => {
@@ -126,8 +139,9 @@ class App extends Component {
             onDeletedItem={this.onDeletedItemHandler}
             onKeyDownItem={this.onKeyDownItemHandler}
             onToggleFocusItem={this.onToggleFocusItemHandler}
-            focusItem={this.state.focusItem}
-            inputFocusItem={this.state.inputFocusItem}
+            focusItemId={this.state.focusItemId}
+            deleteItemId={this.state.deleteItemId}
+            inputFocusItemId={this.state.inputFocusItemId}
             resetInputFocusItem={this.resetInputFocusItemHandler}
             items={this.state.focusItems}/>
         </Frame>
@@ -138,7 +152,7 @@ class App extends Component {
   /** Helpers **/
   // @TODO: check if merging inputFocusItem with resetInputFocusItemHandler makes sense
   resetInputFocusItemHandler = () => {
-    this.setState({inputFocusItem: null});
+    this.setState({inputFocusItemId: null});
   }
 
   commitStorage() {
@@ -146,7 +160,11 @@ class App extends Component {
   }
 
   getNewFocusItem () {
-    return {id: Date.now(), value: '', category: {name: 'inbox', icon: 'inbox'}};
+    return {
+      id: Date.now(),
+      value: '',
+      category: {name: 'inbox', icon: 'inbox'}
+    };
   }
 
 

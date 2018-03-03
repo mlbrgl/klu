@@ -25,7 +25,7 @@ class Editable extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     // Covers cases when deleted an element, so that focus is regained somewhere
-    if(nextProps.inputFocus === nextProps.id) {
+    if(nextProps.inputFocus === true) {
       this.setCaretEnd(this.ref);
       this.props.resetInputFocus(); // Otherwise we can't edit in the middle of the text
     }

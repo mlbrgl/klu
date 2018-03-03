@@ -20,9 +20,14 @@ class FocusItem extends Component {
 
   render(){
     let focusItemStyles = [];
-    if(this.props.category.name !== 'inbox') {
+    let icon = this.props.category.icon;
+
+    if (this.props.delete === true) {
+      focusItemStyles.push(styles.delete);
+      icon = 'circle-with-minus';
+    } else if (this.props.category.name !== 'inbox') {
       focusItemStyles.push(styles.processed);
-    } else if (this.props.focus === this.props.id) {
+    } else if (this.props.focus === true) {
       focusItemStyles.push(styles.focused);
     } else {
       focusItemStyles.push(styles.focusitem);
@@ -33,7 +38,7 @@ class FocusItem extends Component {
         <div className={focusItemStyles}>
           <Category
             name={this.props.category.name}
-            icon={this.props.category.icon}
+            icon={icon}
             onToggleFocus={this.props.onToggleFocus}
           />
           <Editable
@@ -41,8 +46,6 @@ class FocusItem extends Component {
             onInput={this.props.onInput}
             resetInputFocus={this.props.resetInputFocus}
             inputFocus={this.props.inputFocus}
-            id={this.props.id}
-            index={this.props.index}
             ref={el => this.editableRef = el}
           >
             {this.props.children}
@@ -54,8 +57,7 @@ class FocusItem extends Component {
         <div className={focusItemStyles}>
           <Category
             name={this.props.category.name}
-            icon={this.props.category.icon}
-            onToggleFocus={this.props.onToggleFocus}
+            icon={icon}
           />
           <div>&nbsp;</div>
           <Canvas
