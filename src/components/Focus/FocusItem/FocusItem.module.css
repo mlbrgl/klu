@@ -1,16 +1,17 @@
 .focusitem {
-  color: grey;
-  clear: both;
-  font-size: 4rem;
-}
-
-.focusitem:first-child {
   color: #fff;
+  clear: both;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 100;
 }
 
-.delete {
-  font-size: 3rem;
-  margin-top: 1rem;
-  float:left;
-  cursor: pointer;
+.focused {
+  composes: focusitem;
+  color: salmon;
+}
+
+.processed {
+  composes: focusitem;
+  opacity: 0.5;
 }

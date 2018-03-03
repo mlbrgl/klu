@@ -3,12 +3,13 @@ import ReactDOM from 'react-dom';
 import styles from './FocusItem.module.css';
 import Editable from '../../Editable/Editable'
 import Canvas from './Canvas/Canvas'
+import Category from './Category/Category'
 
 class FocusItem extends Component {
 
   state = {};
 
-  deleteItem = (event) => {
+  delete = (event) => {
     let editable = ReactDOM.findDOMNode(this.editableRef)
     if(editable.innerHTML !== '') {
       this.setState({animateDelete: true, editableBoundingRect: editable.getBoundingClientRect()});
@@ -18,10 +19,23 @@ class FocusItem extends Component {
   }
 
   render(){
+    let focusItemStyles = [];
+    if(this.props.category.name !== 'inbox') {
+      focusItemStyles.push(styles.processed);
+    } else if (this.props.focus === this.props.id) {
+      focusItemStyles.push(styles.focused);
+    } else {
+      focusItemStyles.push(styles.focusitem);
+    }
+
     if(!this.state.animateDelete) {
       this.componentToRender = (
-        <div className={styles.focusitem}>
-          <span className={styles.delete + " icon-right-open-big"}  onClick={this.deleteItem}></span>
+        <div className={focusItemStyles}>
+          <Category
+            name={this.props.category.name}
+            icon={this.props.category.icon}
+            onToggleFocus={this.props.onToggleFocus}
+          />
           <Editable
             onKeyDown={this.props.onKeyDown}
             onInput={this.props.onInput}
@@ -37,8 +51,12 @@ class FocusItem extends Component {
       )
     } else {
       this.componentToRender = (
-        <div className={styles.focusitem}>
-          <span className={styles.delete + " icon-right-open-big"}></span>
+        <div className={focusItemStyles}>
+          <Category
+            name={this.props.category.name}
+            icon={this.props.category.icon}
+            onToggleFocus={this.props.onToggleFocus}
+          />
           <div>&nbsp;</div>
           <Canvas
             onFinishAnimation={this.props.onDeleted}
