@@ -4,6 +4,7 @@ import styles from './FocusItem.module.css';
 import Editable from '../../Editable/Editable'
 import Canvas from './Canvas/Canvas'
 import Category from './Category/Category'
+import Actions from './Actions/Actions'
 
 class FocusItem extends Component {
 
@@ -20,7 +21,7 @@ class FocusItem extends Component {
   }
 
   render(){
-    let focusItemStyles = [];
+    let focusItemStyles = [styles.focusitem];
     let icon = this.props.category.icon;
 
     if (this.props.delete) {
@@ -28,11 +29,12 @@ class FocusItem extends Component {
       icon = 'circle-with-minus';
     } else if (this.props.category.name !== 'inbox') {
       focusItemStyles.push(styles.processed);
-    } else if (this.props.focus) {
-      focusItemStyles.push(styles.focused);
-    } else {
-      focusItemStyles.push(styles.focusitem);
     }
+    if (this.props.focus) {
+      focusItemStyles.push(styles.focused);
+    }
+
+    focusItemStyles = focusItemStyles.join(' ');
 
     if(!this.state.animateDelete) {
       this.componentToRender = (
@@ -51,6 +53,12 @@ class FocusItem extends Component {
           >
             {this.props.children}
           </Editable>
+          {this.props.focus ?
+            <Actions
+            className={styles.actions}
+            onDone={this.props.onDone}/>
+            : null
+          }
         </div>
       )
     } else {

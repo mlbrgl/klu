@@ -47,7 +47,7 @@ class Editable extends Component {
         onInput={this.props.onInput}
         ref={el => this.ref = el}
         spellCheck="false"
-        contentEditable>
+        contentEditable="true">
       </div>
     )
   }

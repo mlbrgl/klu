@@ -1,0 +1,20 @@
+.actions {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 1.5rem;
+}
+
+.actions span {
+  color: grey;
+  transition: 0.5s;
+  padding: 0 1rem;
+  cursor: pointer;
+}
+
+.actions span:first-child:hover {
+  color: blue;
+}
+.actions span:hover {
+  color: green;
+}

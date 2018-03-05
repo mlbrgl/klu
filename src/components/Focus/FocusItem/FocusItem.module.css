@@ -6,17 +6,14 @@
   font-weight: 100;
 }
 
-.focused {
-  composes: focusitem;
-  color: salmon;
-}
-
 .processed {
-  composes: focusitem;
   opacity: 0.5;
 }
 
+.focused {
+  font-size: 3rem;
+}
+
 .delete {
-  composes: focusitem;
   color: red;
 }

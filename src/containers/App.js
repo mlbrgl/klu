@@ -114,6 +114,13 @@ class App extends Component {
     this.setState({focusItemId: this.state.focusItemId === itemId ? null : itemId})
   }
 
+  onDoneItemHandler = (itemId) => {
+    const focusItems = [...this.state.focusItems];
+    const index = focusItems.findIndex((el) => el.id === itemId);
+    focusItems[index].done = true;
+    this.setState({focusItems: focusItems});
+  };
+
   componentDidUpdate = () => {
     this.debouncedCommitStorage();
   }
@@ -128,12 +135,14 @@ class App extends Component {
   render() {
     return (
       <div className="app">
-        <Frame>
+        <Frame
+          focus={!!this.state.focusItemId}>
           <Thoughts />
           <Focus
             onInputItem={this.onInputItemHandler}
             onDeletedItem={this.onDeletedItemHandler}
             onKeyDownItem={this.onKeyDownItemHandler}
+            onDoneItem={this.onDoneItemHandler}
             onToggleFocusItem={this.onToggleFocusItemHandler}
             focusItemId={this.state.focusItemId}
             deleteItemId={this.state.deleteItemId}
@@ -159,7 +168,8 @@ class App extends Component {
     return {
       id: Date.now(),
       value: '',
-      category: {name: 'inbox', icon: 'inbox'}
+      category: {name: 'inbox', icon: 'inbox'},
+      done: null
     };
   }
 

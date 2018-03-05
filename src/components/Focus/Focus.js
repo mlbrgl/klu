@@ -13,6 +13,7 @@ const focus =  (props) => {
             onInput={props.onInputItem.bind(null, item.id)}
             onDeleted={props.onDeletedItem.bind(null, item.id)}
             onKeyDown={props.onKeyDownItem.bind(null, item.id)}
+            onDone={props.onDoneItem.bind(null, item.id)}
             onToggleFocus={props.onToggleFocusItem.bind(null, item.id)}
             focus={props.focusItemId === item.id ? true : false}
             resetInputFocus={props.resetInputFocusItem}

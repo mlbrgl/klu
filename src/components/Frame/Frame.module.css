@@ -6,7 +6,12 @@
   padding: 1rem;
 }
 
-.frame .inner {
+.focused {
+  composes: frame;
+  padding: 10vw;
+}
+
+.inner {
   width: 100%;
   height: 100%;
   padding: 3rem;
