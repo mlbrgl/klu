@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
+import { DateTime } from 'luxon';
 
 import Frame from '../components/Frame/Frame';
 import Thoughts from '../components/Thoughts/Thoughts';
@@ -30,8 +31,9 @@ class App extends Component {
       this.setState({deleteItemId: null});
     }
 
-    switch (event.key) {
-      case 'Enter':
+    if(!event.shiftKey) {
+      switch (event.key) {
+        case 'Enter':
         event.preventDefault();
         if(this.state.deleteItemId !== null) {
           this.onDeletedItemHandler(itemId, event.key)
@@ -42,26 +44,26 @@ class App extends Component {
           // No need to set focus, as the new element gets it automatically
         }
         break;
-      case 'Backspace':
-      case 'Delete':
+        case 'Backspace':
+        case 'Delete':
         if(focusItems[index].value.length === 0) {
           event.preventDefault();
           this.onDeletedItemHandler(itemId, event.key)
         }
         break;
-      case 'ArrowUp':
+        case 'ArrowUp':
         if(index > 0) {
           event.preventDefault();
           this.setState({inputFocusItemId: focusItems[index - 1].id});
         }
         break;
-      case 'ArrowDown':
+        case 'ArrowDown':
         if(index < focusItems.length - 1) {
           event.preventDefault();
           this.setState({inputFocusItemId: focusItems[index + 1].id});
         }
         break;
-      case 'ArrowRight':
+        case 'ArrowRight':
         if(window.getSelection().anchorOffset === this.state.focusItems[index].value.length) {
           //cycle through categories
           let idxOfCurrentCategory = focusItems[index].category !== null ? this.categories.map((category) => category.name).indexOf(focusItems[index].category.name) : 0;
@@ -70,12 +72,13 @@ class App extends Component {
           this.setState({focusItems: focusItems});
         }
         break;
-      case 'ArrowLeft':
+        case 'ArrowLeft':
         if(window.getSelection().anchorOffset === 0) {
           this.setState({deleteItemId: itemId});
         }
         break;
-      default:
+        default:
+      }
     }
   }
 
@@ -83,6 +86,22 @@ class App extends Component {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     focusItems[index].value = event.target.innerHTML
+
+    // Set start or due date
+    focusItems[index].duedate = focusItems[index].startdate = null;
+    const timeOffsetRegex = new RegExp(/(?:^|\s)@(:?)(m*)(w*)(d*)(?:$|\s)/);
+    let matches = timeOffsetRegex.exec(focusItems[index].value);
+    console.log(matches)
+    if(matches !== null && matches[0].trim() !== '@') {
+      let currentTime = DateTime.local();
+      let nextTime = currentTime.plus({months: matches[2].length, weeks: matches[3].length, days: matches[4].length}).toISO();
+      if(matches[1].length) {
+        focusItems[index].duedate = nextTime;
+      } else {
+        focusItems[index].startdate = nextTime;
+      }
+    }
+
     this.setState({focusItems: focusItems})
   }
 
@@ -169,7 +188,9 @@ class App extends Component {
       id: Date.now(),
       value: '',
       category: {name: 'inbox', icon: 'inbox'},
-      done: null
+      done: null,
+      startdate: null,
+      duedate: null
     };
   }
 

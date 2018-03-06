@@ -6,6 +6,11 @@
   font-weight: 100;
 }
 
+.content {
+  margin-left: 3rem;
+  padding-right: 1rem;
+}
+
 .processed {
   opacity: 0.5;
 }

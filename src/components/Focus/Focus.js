@@ -21,6 +21,8 @@ const focus =  (props) => {
             key={item.id}
             id={item.id}
             category={item.category}
+            startdate={item.startdate}
+            duedate={item.duedate}
             delete={props.deleteItemId === item.id ? true : false}
           >
             {item.value}

@@ -4,6 +4,7 @@ import styles from './FocusItem.module.css';
 import Editable from '../../Editable/Editable'
 import Canvas from './Canvas/Canvas'
 import Category from './Category/Category'
+import Dates from './Dates/Dates'
 import Actions from './Actions/Actions'
 
 class FocusItem extends Component {
@@ -44,15 +45,21 @@ class FocusItem extends Component {
             icon={icon}
             onToggleFocus={this.props.onToggleFocus}
           />
-          <Editable
-            onKeyDown={this.props.onKeyDown}
-            onInput={this.props.onInput}
-            resetInputFocus={this.props.resetInputFocus}
-            inputFocus={this.props.inputFocus}
-            ref={el => this.editableRef = el}
-          >
-            {this.props.children}
-          </Editable>
+          <div className={styles.content}>
+            <Editable
+              onKeyDown={this.props.onKeyDown}
+              onInput={this.props.onInput}
+              resetInputFocus={this.props.resetInputFocus}
+              inputFocus={this.props.inputFocus}
+              ref={el => this.editableRef = el}
+            >
+              {this.props.children}
+            </Editable>
+            <Dates
+              startdate={this.props.startdate}
+              duedate={this.props.duedate} />
+          </div>
+
           {this.props.focus ?
             <Actions
             className={styles.actions}
