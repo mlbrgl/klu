@@ -55,9 +55,10 @@ class Editable extends Component {
   componentDidMount() {
     // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
     this.updateInnerHtml();
-    // A bit of an overkill but covers both initial load and subsequent adds.
-    // Will focus on the last element during the initial load sequence.
-    this.setCaretEnd(this.ref);
+
+    if(this.props.inputFocus === true) {
+      this.setCaretEnd(this.ref);
+    }
   }
 
   componentDidUpdate() {

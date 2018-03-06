@@ -35,13 +35,14 @@ class App extends Component {
       switch (event.key) {
         case 'Enter':
           event.preventDefault();
-          if(this.state.deleteItemId !== null) {
+          if(event.metaKey) {
+            this.onToggleFocusItemHandler(itemId);
+          } else if(this.state.deleteItemId !== null) {
             this.onDeletedItemHandler(itemId, event.key)
           } else {
             const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
             focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
-            this.setState({focusItems: focusItems})
-            // No need to set focus, as the new element gets it automatically
+            this.setState({focusItems: focusItems, inputFocusItemId: focusItems[indexNewItem].id});
           }
           break;
 
@@ -228,7 +229,5 @@ class App extends Component {
 
 
 }
-
-
 
 export default App;
