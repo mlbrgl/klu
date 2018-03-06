@@ -4,6 +4,12 @@
   align-items: flex-start;
 }
 
-.dates span:first-child {
+.date {
+  display: flex;
+  align-items: flex-start;
+  margin-right: 2rem;
+}
+
+.date span:first-child {
   padding: 0.22rem 0.8rem 0 0;
 }

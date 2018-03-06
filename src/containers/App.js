@@ -34,49 +34,62 @@ class App extends Component {
     if(!event.shiftKey) {
       switch (event.key) {
         case 'Enter':
-        event.preventDefault();
-        if(this.state.deleteItemId !== null) {
-          this.onDeletedItemHandler(itemId, event.key)
-        } else {
-          const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
-          focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
-          this.setState({focusItems: focusItems})
-          // No need to set focus, as the new element gets it automatically
-        }
-        break;
+          event.preventDefault();
+          if(this.state.deleteItemId !== null) {
+            this.onDeletedItemHandler(itemId, event.key)
+          } else {
+            const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
+            focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
+            this.setState({focusItems: focusItems})
+            // No need to set focus, as the new element gets it automatically
+          }
+          break;
+
         case 'Backspace':
         case 'Delete':
-        if(focusItems[index].value.length === 0) {
-          event.preventDefault();
-          this.onDeletedItemHandler(itemId, event.key)
-        }
-        break;
+          if(focusItems[index].value.length === 0) {
+            event.preventDefault();
+            this.onDeletedItemHandler(itemId, event.key)
+          }
+          break;
+
         case 'ArrowUp':
-        if(index > 0) {
-          event.preventDefault();
-          this.setState({inputFocusItemId: focusItems[index - 1].id});
-        }
-        break;
+          if(event.metaKey) {
+            this.shiftDate (focusItems, index, event, 'minus')
+          } else if(index > 0) {
+            event.preventDefault();
+            this.setState({inputFocusItemId: focusItems[index - 1].id});
+          }
+          break;
+
         case 'ArrowDown':
-        if(index < focusItems.length - 1) {
-          event.preventDefault();
-          this.setState({inputFocusItemId: focusItems[index + 1].id});
-        }
-        break;
+          if(event.metaKey) {
+            this.shiftDate (focusItems, index, event, 'plus')
+          } else if(index < focusItems.length - 1) {
+            event.preventDefault();
+            this.setState({inputFocusItemId: focusItems[index + 1].id});
+          }
+          break;
+
         case 'ArrowRight':
-        if(window.getSelection().anchorOffset === this.state.focusItems[index].value.length) {
-          //cycle through categories
-          let idxOfCurrentCategory = focusItems[index].category !== null ? this.categories.map((category) => category.name).indexOf(focusItems[index].category.name) : 0;
-          let idxOfNextCategory = (idxOfCurrentCategory + 1) % this.categories.length;
-          focusItems[index].category = {...this.categories[idxOfNextCategory]};
-          this.setState({focusItems: focusItems});
-        }
-        break;
+          if(event.metaKey) {
+            this.setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
+          } else if(this.caretAtEndFieldItem()) {
+            //cycle through categories
+            let idxOfCurrentCategory = focusItems[index].category !== null ? this.categories.map((category) => category.name).indexOf(focusItems[index].category.name) : 0;
+            let idxOfNextCategory = (idxOfCurrentCategory + 1) % this.categories.length;
+            focusItems[index].category = {...this.categories[idxOfNextCategory]};
+            this.setState({focusItems: focusItems});
+          }
+          break;
+
         case 'ArrowLeft':
-        if(window.getSelection().anchorOffset === 0) {
-          this.setState({deleteItemId: itemId});
-        }
-        break;
+          if(event.metaKey) {
+            this.setCaretPosition(event.target.childNodes[0], 0);
+          } else if(this.caretAtBeginningFieldItem()) {
+            this.setState({deleteItemId: itemId});
+          }
+          break;
         default:
       }
     }
@@ -86,22 +99,6 @@ class App extends Component {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     focusItems[index].value = event.target.innerHTML
-
-    // Set start or due date
-    focusItems[index].duedate = focusItems[index].startdate = null;
-    const timeOffsetRegex = new RegExp(/(?:^|\s)@(:?)(m*)(w*)(d*)(?:$|\s)/);
-    let matches = timeOffsetRegex.exec(focusItems[index].value);
-    console.log(matches)
-    if(matches !== null && matches[0].trim() !== '@') {
-      let currentTime = DateTime.local();
-      let nextTime = currentTime.plus({months: matches[2].length, weeks: matches[3].length, days: matches[4].length}).toISO();
-      if(matches[1].length) {
-        focusItems[index].duedate = nextTime;
-      } else {
-        focusItems[index].startdate = nextTime;
-      }
-    }
-
     this.setState({focusItems: focusItems})
   }
 
@@ -177,6 +174,41 @@ class App extends Component {
   // @TODO: check if merging inputFocusItem with resetInputFocusItemHandler makes sense
   resetInputFocusItemHandler = () => {
     this.setState({inputFocusItemId: null});
+  }
+
+  caretAtBeginningFieldItem = () => {
+    return window.getSelection().anchorOffset === 0;
+  }
+
+  // Warning: doesn't work as expected with multiple spaces at the end of the field,
+  // as they are translated into &nbsp;
+  caretAtEndFieldItem = () => {
+    return window.getSelection().anchorOffset === window.getSelection().anchorNode.length;
+  }
+
+  shiftDate = (focusItems, index, event, operator) => {
+    let dateType = null;
+    if(this.caretAtBeginningFieldItem()) {
+      dateType = 'startdate';
+    } else if (this.caretAtEndFieldItem()) {
+      dateType = 'duedate';
+    }
+    if(dateType !== null) {
+      event.preventDefault();
+      let refTime = focusItems[index][dateType] ? DateTime.fromISO(focusItems[index][dateType]) : DateTime.local();
+      let offset = event.ctrlKey ? {weeks: 1} : {days: 1}
+      focusItems[index][dateType] = refTime[operator](offset).toISO();
+      this.setState({focusItems: focusItems});
+    }
+  }
+
+  setCaretPosition = (element, position) => {
+    let range = document.createRange();
+    range.setStart(element, position);
+    range.collapse(true);
+    let sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
   }
 
   commitStorage() {

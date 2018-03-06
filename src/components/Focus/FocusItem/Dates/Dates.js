@@ -4,13 +4,26 @@ import styles from './Dates.module.css';
 
 const dates = (props) => {
   if(!!props.startdate || !!props.duedate) {
-    let date = props.startdate !== null ? props.startdate : props.duedate;
-    let formattedDate = DateTime.fromISO(date).toLocaleString({weekday: 'long', month: 'long', day: '2-digit'});
-    let icon = props.startdate ? 'icon-controller-play' : 'icon-controller-stop'
+    let dateFormat = {weekday: 'long', month: 'long', day: '2-digit'};
+    let dates = [];
+    if(!!props.startdate) {
+      dates.push({formattedDate: DateTime.fromISO(props.startdate).toLocaleString(dateFormat), icon: 'icon-controller-play'});
+    }
+    if(!!props.duedate) {
+      dates.push({formattedDate: DateTime.fromISO(props.duedate).toLocaleString(dateFormat), icon: 'icon-controller-stop'});
+    }
 
     return (
       <div className={styles.dates}>
-        <span className={icon}></span><span>{formattedDate}</span>
+      {
+        dates.map((date) => {
+          return (
+            <div className={styles.date} key={date.icon}>
+              <span className={date.icon}></span><span>{date.formattedDate}</span>
+            </div>
+          )
+        })
+      }
       </div>
     )
   } else {
