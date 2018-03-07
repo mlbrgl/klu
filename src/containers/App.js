@@ -56,7 +56,8 @@ class App extends Component {
 
         case 'ArrowUp':
           if(event.metaKey) {
-            this.shiftDate (focusItems, index, event, 'minus')
+            event.preventDefault();
+            this.shiftDate (focusItems, index, 'minus', event.ctrlKey ? {weeks: 1} : {days: 1})
           } else if(index > 0) {
             event.preventDefault();
             this.setState({inputFocusItemId: focusItems[index - 1].id});
@@ -65,7 +66,8 @@ class App extends Component {
 
         case 'ArrowDown':
           if(event.metaKey) {
-            this.shiftDate (focusItems, index, event, 'plus')
+            event.preventDefault();
+            this.shiftDate (focusItems, index, 'plus', event.ctrlKey ? {weeks: 1} : {days: 1})
           } else if(index < focusItems.length - 1) {
             event.preventDefault();
             this.setState({inputFocusItemId: focusItems[index + 1].id});
@@ -187,7 +189,7 @@ class App extends Component {
     return window.getSelection().anchorOffset === window.getSelection().anchorNode.length;
   }
 
-  shiftDate = (focusItems, index, event, operator) => {
+  shiftDate = (focusItems, index, operator, offset) => {
     let dateType = null;
     if(this.caretAtBeginningFieldItem()) {
       dateType = 'startdate';
@@ -195,10 +197,8 @@ class App extends Component {
       dateType = 'duedate';
     }
     if(dateType !== null) {
-      event.preventDefault();
       let refTime = focusItems[index][dateType] ? DateTime.fromISO(focusItems[index][dateType]) : DateTime.local();
-      let offset = event.ctrlKey ? {weeks: 1} : {days: 1}
-      focusItems[index][dateType] = refTime[operator](offset).toISO();
+      focusItems[index][dateType] = refTime[operator](offset).toISODate();
       this.setState({focusItems: focusItems});
     }
   }
