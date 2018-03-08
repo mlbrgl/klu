@@ -1,5 +1,5 @@
 .focusitem {
-  color: #fff;
+  color: yellow;
   clear: both;
   font-size: 2rem;
   margin-bottom: 1rem;
@@ -12,6 +12,7 @@
 }
 
 .processed {
+  color: white;
   opacity: 0.5;
 }
 
@@ -19,6 +20,17 @@
   font-size: 3rem;
 }
 
+.eligible {
+  color: white;
+  opacity: 1;
+}
+
 .delete {
   color: red;
+}
+
+.done {
+  color: white;
+  opacity: 0.3;
+  text-decoration: line-through;
 }

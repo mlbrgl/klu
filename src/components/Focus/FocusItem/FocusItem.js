@@ -6,6 +6,7 @@ import Canvas from './Canvas/Canvas'
 import Category from './Category/Category'
 import Dates from './Dates/Dates'
 import Actions from './Actions/Actions'
+import { isItemEligible } from '../../../helpers/helpers'
 
 class FocusItem extends Component {
 
@@ -28,6 +29,10 @@ class FocusItem extends Component {
     if (this.props.delete) {
       focusItemStyles.push(styles.delete);
       icon = 'circle-with-minus';
+    } else if (this.props.dates.done !== null) {
+      focusItemStyles.push(styles.done);
+    } else if (isItemEligible(this.props)) {
+        focusItemStyles.push(styles.eligible);
     } else if (this.props.category.name !== 'inbox') {
       focusItemStyles.push(styles.processed);
     }
@@ -56,8 +61,8 @@ class FocusItem extends Component {
               {this.props.children}
             </Editable>
             <Dates
-              startdate={this.props.startdate}
-              duedate={this.props.duedate} />
+              startdate={this.props.dates.start}
+              duedate={this.props.dates.due} />
           </div>
 
           {this.props.focus ?

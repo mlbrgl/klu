@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import Frame from '../components/Frame/Frame';
 import Thoughts from '../components/Thoughts/Thoughts';
 import Focus from '../components/Focus/Focus';
+import { isItemEligible, isToday, isTomorrow, getRandomElement } from '../helpers/helpers'
 
 import './App.css'
 
@@ -17,6 +18,7 @@ class App extends Component {
     this.state = {
       focusItems: [this.getNewFocusItem()],
       focusItemId: null,
+      focusItemIdTemp: null,
       inputFocusItemId: null,
       deleteItemId: null
     }
@@ -31,50 +33,58 @@ class App extends Component {
       this.setState({deleteItemId: null});
     }
 
-    if(!event.shiftKey) {
-      switch (event.key) {
-        case 'Enter':
-          event.preventDefault();
-          if(event.metaKey) {
-            this.onToggleFocusItemHandler(itemId);
-          } else if(this.state.deleteItemId !== null) {
-            this.onDeletedItemHandler(itemId, event.key)
+    switch (event.key) {
+      case 'Enter':
+        event.preventDefault();
+        if (event.metaKey) {
+          if (event.shiftKey) {
+            this.onDoneItemHandler(itemId)
           } else {
-            const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
-            focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
-            this.setState({focusItems: focusItems, inputFocusItemId: focusItems[indexNewItem].id});
+            this.onToggleFocusItemHandler(itemId);
           }
-          break;
+        } else if (this.state.deleteItemId !== null) {
+          this.onDeletedItemHandler(itemId, event.key)
+        } else {
+          const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
+          focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
 
-        case 'Backspace':
-        case 'Delete':
-          if(focusItems[index].value.length === 0) {
-            event.preventDefault();
-            this.onDeletedItemHandler(itemId, event.key)
+          if(this.state.focusItemId !== null) {
+            this.setState({focusItemIdTemp: this.state.focusItemId, focusItemId: null});
           }
-          break;
+          this.setState({focusItems: focusItems, inputFocusItemId: focusItems[indexNewItem].id});
+        }
+        break;
 
-        case 'ArrowUp':
-          if(event.metaKey) {
-            event.preventDefault();
-            this.shiftDate (focusItems, index, 'minus', event.ctrlKey ? {weeks: 1} : {days: 1})
-          } else if(index > 0) {
-            event.preventDefault();
-            this.setState({inputFocusItemId: focusItems[index - 1].id});
-          }
-          break;
+      case 'Backspace':
+      case 'Delete':
+        if(focusItems[index].value.length === 0) {
+          event.preventDefault();
+          this.onDeletedItemHandler(itemId, event.key)
+        }
+        break;
 
-        case 'ArrowDown':
-          if(event.metaKey) {
-            event.preventDefault();
-            this.shiftDate (focusItems, index, 'plus', event.ctrlKey ? {weeks: 1} : {days: 1})
-          } else if(index < focusItems.length - 1) {
-            event.preventDefault();
-            this.setState({inputFocusItemId: focusItems[index + 1].id});
-          }
-          break;
+      case 'ArrowUp':
+        if(event.metaKey) {
+          event.preventDefault();
+          this.shiftDate (focusItems, index, 'minus', event.ctrlKey ? {weeks: 1} : {days: 1})
+        } else if(index > 0) {
+          event.preventDefault();
+          this.setState({inputFocusItemId: focusItems[index - 1].id});
+        }
+        break;
 
-        case 'ArrowRight':
+      case 'ArrowDown':
+        if(event.metaKey) {
+          event.preventDefault();
+          this.shiftDate (focusItems, index, 'plus', event.ctrlKey ? {weeks: 1} : {days: 1})
+        } else if(index < focusItems.length - 1) {
+          event.preventDefault();
+          this.setState({inputFocusItemId: focusItems[index + 1].id});
+        }
+        break;
+
+      case 'ArrowRight':
+        if(!event.shiftKey) {
           if(event.metaKey) {
             this.setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
           } else if(this.caretAtEndFieldItem()) {
@@ -84,17 +94,24 @@ class App extends Component {
             focusItems[index].category = {...this.categories[idxOfNextCategory]};
             this.setState({focusItems: focusItems});
           }
-          break;
+        }
+        break;
 
-        case 'ArrowLeft':
+      case 'ArrowLeft':
+        if(!event.shiftKey) {
           if(event.metaKey) {
             this.setCaretPosition(event.target.childNodes[0], 0);
           } else if(this.caretAtBeginningFieldItem()) {
             this.setState({deleteItemId: itemId});
           }
-          break;
-        default:
-      }
+        }
+        break;
+      case 'Escape':
+        if(this.state.focusItemIdTemp !== null) {
+          this.setState({focusItemId: this.state.focusItemIdTemp});
+        }
+        break;
+      default:
     }
   }
 
@@ -136,8 +153,9 @@ class App extends Component {
   onDoneItemHandler = (itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    focusItems[index].done = true;
-    this.setState({focusItems: focusItems});
+    focusItems[index].dates.done = DateTime.local().toISODate();
+
+    this.setState({focusItems: focusItems, focusItemId: this.pickNextFocusItem(focusItems), focusItemIdTemp: null});
   };
 
   componentDidUpdate = () => {
@@ -192,15 +210,38 @@ class App extends Component {
   shiftDate = (focusItems, index, operator, offset) => {
     let dateType = null;
     if(this.caretAtBeginningFieldItem()) {
-      dateType = 'startdate';
+      dateType = 'start';
     } else if (this.caretAtEndFieldItem()) {
-      dateType = 'duedate';
+      dateType = 'due';
     }
     if(dateType !== null) {
-      let refTime = focusItems[index][dateType] ? DateTime.fromISO(focusItems[index][dateType]) : DateTime.local();
-      focusItems[index][dateType] = refTime[operator](offset).toISODate();
+      let refTime = focusItems[index].dates[dateType] ? DateTime.fromISO(focusItems[index].dates[dateType]) : DateTime.local();
+      focusItems[index].dates[dateType] = refTime[operator](offset).toISODate();
       this.setState({focusItems: focusItems});
     }
+  }
+
+  pickNextFocusItem = (focusItems) => {
+    let picked = null;
+    let doneToday = focusItems.filter((item) => isToday(item.dates.done));
+    // let isDoneTodayDueTodayTomorrow = doneToday.some((item) => isToday(item.dates.due) || isTomorrow(item.dates.due));
+
+    let eligibleItems = focusItems.filter((item) => isItemEligible(item));
+
+    // If nothing has been done today yet, we start with a nurture task
+    if (doneToday.length === 0) {
+      let nurtureEligibleItems = eligibleItems.filter((item) => item.category.name === 'nuture');
+      console.log(nurtureEligibleItems);
+      picked = getRandomElement(nurtureEligibleItems);
+    } else {
+      let dueTodayTomorrow = eligibleItems.filter((item) => isToday(item.dates.due) || isTomorrow(item.dates.due));
+      if (dueTodayTomorrow.length !== 0) {
+        picked = getRandomElement(dueTodayTomorrow);
+      } else {
+        picked = getRandomElement(eligibleItems);
+      }
+    }
+    return picked ? picked.id : null  ;
   }
 
   setCaretPosition = (element, position) => {
@@ -221,11 +262,11 @@ class App extends Component {
       id: Date.now(),
       value: '',
       category: {name: 'inbox', icon: 'inbox'},
-      done: null,
-      startdate: null,
-      duedate: null
+      dates: {start: null, done: null, due: null}
     };
   }
+
+
 
 
 }
