@@ -1,9 +1,10 @@
 import React from 'react';
+import { getRandomIntInclusive } from '../../helpers/helpers'
 import styles from './Frame.module.css'
 
 const frame = (props) => {
   const style = {
-    backgroundImage: "url('/images/25.jpg')"
+    backgroundImage: "url('/images/" + getRandomIntInclusive(1,45) + ".jpg')"
   }
 
   return (

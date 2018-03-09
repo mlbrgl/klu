@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import styles from './Canvas.module.css'
+import { getRandomIntInclusive } from '../../../../helpers/helpers'
+import styles from './Canvas.module.css';
 
 class Canvas extends Component  {
 
@@ -68,8 +69,8 @@ class Canvas extends Component  {
     this.ctx.globalAlpha = this.ctx.globalAlpha - this.progress / 100 ;
     for(let i = 0; i < this.particles.length; i++) {
       this.particles[i] = {
-        x: this.particles[i].x + this.getRandomIntInclusive(- this.progress - 2, this.progress + 2),
-        y: this.particles[i].y + this.getRandomIntInclusive(this.progress , - 2 - this.progress)
+        x: this.particles[i].x + getRandomIntInclusive(- this.progress - 2, this.progress + 2),
+        y: this.particles[i].y + getRandomIntInclusive(this.progress , - 2 - this.progress)
       }
       this.ctx.fillRect(this.particles[i].x, this.particles[i].y, 1, 1);
     }
@@ -79,14 +80,6 @@ class Canvas extends Component  {
     } else {
       requestAnimationFrame(this.draw.bind(this));
     }
-  }
-
-  // The maximum is inclusive and the minimum is inclusive
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-  getRandomIntInclusive(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }
 

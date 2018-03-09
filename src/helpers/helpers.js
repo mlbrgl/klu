@@ -33,4 +33,12 @@ const getRandomElement = (arr) => {
   return arr.length !== 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
 }
 
-export { isItemEligible , isToday, isTomorrow, getRandomElement};
+// The maximum is inclusive and the minimum is inclusive
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+const getRandomIntInclusive = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export { isItemEligible , isToday, isTomorrow, getRandomElement, getRandomIntInclusive};
