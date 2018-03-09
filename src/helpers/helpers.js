@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon';
 
-const isItemEligible = ({dates, category}) => {
+const isItemEligible = ({dates, category, id}, excludedItemId) => {
   // console.log("start <= today", DateTime.fromISO(dates.start) <= DateTime.local().startOf('day'))
-  if (dates.done === null && category.name !== 'inbox' &&
+  if (id !== excludedItemId &&
+      dates.done === null && category.name !== 'inbox' &&
       (dates.start === null || DateTime.fromISO(dates.start) <= DateTime.local().startOf('day'))) {
     return true;
   } else {

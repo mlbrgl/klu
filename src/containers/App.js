@@ -17,8 +17,8 @@ class App extends Component {
     this.debouncedCommitStorage = debounce(this.commitStorage, 250);
     this.state = {
       focusItems: [this.getNewFocusItem()],
+      isFocusOn: false,
       focusItemId: null,
-      focusItemIdTemp: null,
       inputFocusItemId: null,
       deleteItemId: null
     }
@@ -26,7 +26,7 @@ class App extends Component {
   }
 
   onKeyDownItemHandler = (itemId, event) => {
-    const focusItems = [...this.state.focusItems]; // without the spread operator we
+    const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
 
     if(event.key !== 'Enter' && this.state.deleteItemId !== null) {
@@ -48,8 +48,8 @@ class App extends Component {
           const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
           focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
 
-          if(this.state.focusItemId !== null) {
-            this.setState({focusItemIdTemp: this.state.focusItemId, focusItemId: null});
+          if(this.state.isFocusOn === true) {
+            this.setState({isFocusOn: false});
           }
           this.setState({focusItems: focusItems, inputFocusItemId: focusItems[indexNewItem].id});
         }
@@ -57,7 +57,7 @@ class App extends Component {
 
       case 'Backspace':
       case 'Delete':
-        if(focusItems[index].value.length === 0) {
+        if(focusItems[index].value.length === 0 || event.metaKey) {
           event.preventDefault();
           this.onDeletedItemHandler(itemId, event.key)
         }
@@ -107,9 +107,7 @@ class App extends Component {
         }
         break;
       case 'Escape':
-        if(this.state.focusItemIdTemp !== null) {
-          this.setState({focusItemId: this.state.focusItemIdTemp});
-        }
+        this.onToggleFocusItemHandler(); //we only toggle focus, we don't set it
         break;
       default:
     }
@@ -125,37 +123,63 @@ class App extends Component {
   onDeletedItemHandler = (itemId, key) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    let inputFocusItemId;
+    let inputFocusItemId = this.state.inputFocusItemId; // in the current state of things, should always be null since reset after use, but kept here for consistency
+    let focusItemId = this.state.focusItemId;
+    let isFocusOn = this.state.isFocusOn;
 
     if(focusItems.length === 1) {
-      // Necessary for deletion by click
       focusItems[0] = this.getNewFocusItem();
-      // No need to set the inputFocusItemId since we are recreating a new component
+      inputFocusItemId = focusItems[0].id;
+      focusItemId = null;
+      isFocusOn = false;
     } else {
-      let newIndex;
-      switch (key) {
-        case 'Backspace':
-          newIndex = index === 0 ? index + 1 : index - 1;
-          break;
-        default: //'Delete', 'Click', 'Enter'
-          newIndex = index === focusItems.length - 1 ? index - 1 : index + 1;
+      if(isFocusOn === false) { // List mode
+        let newIndex;
+        switch (key) {
+          case 'Backspace':
+            newIndex = index === 0 ? index + 1 : index - 1;
+            break;
+          default: //'Delete', 'Click', 'Enter'
+            newIndex = index === focusItems.length - 1 ? index - 1 : index + 1;
+        }
+        inputFocusItemId = focusItems[newIndex].id;
+      } else { // Focus mode
+        focusItemId = this.pickNextFocusItem();
+        inputFocusItemId = focusItemId === null ? focusItems[0].id : focusItemId;
+        isFocusOn = focusItemId === null ? false : isFocusOn;
       }
-      inputFocusItemId = focusItems[newIndex].id;
-      focusItems.splice(index, 1);
+      focusItems.splice(index, 1); // @TODO maybe move up
     }
-    this.setState({inputFocusItemId: inputFocusItemId, focusItems: focusItems, deleteItemId: null});
+
+    this.setState({
+      inputFocusItemId: inputFocusItemId,
+      focusItems: focusItems,
+      deleteItemId: null,
+      focusItemId: focusItemId,
+      isFocusOn: isFocusOn
+    });
   }
 
-  onToggleFocusItemHandler = (itemId) => {
-    this.setState({focusItemId: this.state.focusItemId === itemId ? null : itemId})
+  onToggleFocusItemHandler = (itemId = this.state.focusItemId) => {
+    this.setState({
+      focusItemId: itemId,
+      isFocusOn: itemId === null ? false : !this.state.isFocusOn,
+      inputFocusItemId: itemId
+    });
   }
 
   onDoneItemHandler = (itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
+    const newItemId = this.pickNextFocusItem();
     focusItems[index].dates.done = DateTime.local().toISODate();
 
-    this.setState({focusItems: focusItems, focusItemId: this.pickNextFocusItem(focusItems), focusItemIdTemp: null});
+    this.setState({
+      focusItems: focusItems,
+      focusItemId: newItemId,
+      isFocusOn: newItemId === null ? false : this.state.isFocusOn,
+      inputFocusItemId: newItemId
+    });
   };
 
   componentDidUpdate = () => {
@@ -173,7 +197,7 @@ class App extends Component {
     return (
       <div className="app">
         <Frame
-          focus={!!this.state.focusItemId}>
+          focus={this.state.isFocusOn}>
           <Thoughts />
           <Focus
             onInputItem={this.onInputItemHandler}
@@ -182,6 +206,7 @@ class App extends Component {
             onDoneItem={this.onDoneItemHandler}
             onToggleFocusItem={this.onToggleFocusItemHandler}
             focusItemId={this.state.focusItemId}
+            isFocusOn={this.state.isFocusOn}
             deleteItemId={this.state.deleteItemId}
             inputFocusItemId={this.state.inputFocusItemId}
             resetInputFocusItem={this.resetInputFocusItemHandler}
@@ -221,17 +246,15 @@ class App extends Component {
     }
   }
 
-  pickNextFocusItem = (focusItems) => {
+  pickNextFocusItem = () => {
     let picked = null;
-    let doneToday = focusItems.filter((item) => isToday(item.dates.done));
-    // let isDoneTodayDueTodayTomorrow = doneToday.some((item) => isToday(item.dates.due) || isTomorrow(item.dates.due));
+    let doneToday = this.state.focusItems.filter((item) => isToday(item.dates.done));
 
-    let eligibleItems = focusItems.filter((item) => isItemEligible(item));
+    let eligibleItems = this.state.focusItems.filter((item) => isItemEligible(item, this.state.focusItemId));
 
     // If nothing has been done today yet, we start with a nurture task
     if (doneToday.length === 0) {
       let nurtureEligibleItems = eligibleItems.filter((item) => item.category.name === 'nuture');
-      console.log(nurtureEligibleItems);
       picked = getRandomElement(nurtureEligibleItems);
     } else {
       let dueTodayTomorrow = eligibleItems.filter((item) => isToday(item.dates.due) || isTomorrow(item.dates.due));

@@ -17,8 +17,10 @@ class Editable extends Component {
       sel.removeAllRanges();
       sel.addRange(range);
     }
+    this.props.resetInputFocus(); // Otherwise we can't edit in the middle of the text
   }
 
+  // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
   updateInnerHtml() {
     this.ref.innerHTML = this.props.children;
   }
@@ -27,7 +29,6 @@ class Editable extends Component {
     // Covers cases when deleted an element, so that focus is regained somewhere
     if(nextProps.inputFocus === true) {
       this.setCaretEnd(this.ref);
-      this.props.resetInputFocus(); // Otherwise we can't edit in the middle of the text
     }
   }
 
@@ -53,7 +54,6 @@ class Editable extends Component {
   }
 
   componentDidMount() {
-    // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
     this.updateInnerHtml();
 
     if(this.props.inputFocus === true) {
@@ -62,9 +62,7 @@ class Editable extends Component {
   }
 
   componentDidUpdate() {
-    // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
     this.updateInnerHtml();
-    this.setCaretEnd(this.ref);
   }
 
 }
