@@ -58,9 +58,12 @@ class App extends Component {
 
       case 'Backspace':
       case 'Delete':
-        if(focusItems[index].value.length === 0 || event.metaKey) {
+        if(focusItems[index].value.length === 0) {
           event.preventDefault();
           this.onDeletedItemHandler(itemId, event.key)
+        } else if (event.metaKey) {
+          event.preventDefault();
+          this.setState({deleteItemId: itemId})
         }
         break;
 

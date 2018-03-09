@@ -4,3 +4,12 @@
   float:left;
   cursor: pointer;
 }
+
+.focused {
+  composes: category;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 1rem 1rem 0 0;
+  line-height: 1;
+}

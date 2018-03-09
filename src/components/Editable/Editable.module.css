@@ -2,3 +2,8 @@
   outline: none;
   word-wrap: break-word;
 }
+
+.focused {
+  composes: editable;
+  margin-bottom: 1rem;
+}

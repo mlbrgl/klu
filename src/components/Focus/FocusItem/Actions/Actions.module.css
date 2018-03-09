@@ -2,19 +2,16 @@
   position: absolute;
   bottom: 0;
   right: 0;
+  margin: 0 1rem 1rem 0;
   font-size: 1.5rem;
 }
 
 .actions span {
-  color: grey;
+  color: gray;
   transition: 0.5s;
-  padding: 0 1rem;
   cursor: pointer;
 }
 
-.actions span:first-child:hover {
-  color: blue;
-}
 .actions span:hover {
-  color: green;
+  color: white;
 }

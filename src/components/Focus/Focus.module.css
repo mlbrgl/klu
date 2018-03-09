@@ -1,9 +1,8 @@
 .focus {
   height: 100%;
   overflow: auto;
-  max-width: 1024px;
+  max-width: 960px;
   margin: auto;
-  position: relative;
 }
 
 ::-webkit-scrollbar {

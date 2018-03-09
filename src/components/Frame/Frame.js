@@ -6,7 +6,6 @@ const frame = (props) => {
     backgroundImage: "url('/images/25.jpg')"
   }
 
-
   return (
     <div className={props.focus ? styles.focused : styles.frame} style={style}>
       <div className={styles.inner}>

@@ -49,6 +49,7 @@ class FocusItem extends Component {
             name={this.props.category.name}
             icon={icon}
             onToggleFocus={this.props.onToggleFocus}
+            focus={this.props.focus}
           />
           <div className={styles.content}>
             <Editable
@@ -56,6 +57,7 @@ class FocusItem extends Component {
               onInput={this.props.onInput}
               resetInputFocus={this.props.resetInputFocus}
               inputFocus={this.props.inputFocus}
+              focus={this.props.focus}
               ref={el => this.editableRef = el}
             >
               {this.props.children}
@@ -67,8 +69,8 @@ class FocusItem extends Component {
 
           {this.props.focus ?
             <Actions
-            className={styles.actions}
-            onDone={this.props.onDone}/>
+              className={styles.actions}
+              onDone={this.props.onDone}/>
             : null
           }
         </div>

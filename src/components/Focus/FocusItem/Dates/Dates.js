@@ -8,10 +8,10 @@ const dates = (props) => {
     let format = {weekday: 'short', month: 'numeric', day: '2-digit'};
     let dates = [];
     if(!!props.startdate) {
-      dates.push({date: props.startdate, icon: 'icon-aircraft-landing'});
+      dates.push({date: props.startdate, icon: 'icon-aircraft-take-off'});
     }
     if(!!props.duedate) {
-      dates.push({date: props.duedate, icon: 'icon-aircraft-take-off'});
+      dates.push({date: props.duedate, icon: 'icon-aircraft-landing'});
     }
 
     return (

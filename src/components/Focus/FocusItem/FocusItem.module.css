@@ -17,7 +17,8 @@
 }
 
 .focused {
-  font-size: 3rem;
+  margin-top: 15vh;
+  font-size: 4rem;
 }
 
 .eligible {

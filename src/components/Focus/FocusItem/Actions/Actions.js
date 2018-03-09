@@ -4,8 +4,7 @@ import styles from './Actions.module.css'
 const actions = (props) => {
   return (
     <div className={styles.actions}>
-      <span onClick={props.onDone} className='icon-circular-graph'></span>
-      <span onClick={props.onDone} className='icon-check'></span>
+      <span onClick={props.onDone}>did it!</span>
     </div>
   )
 }

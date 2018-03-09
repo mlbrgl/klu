@@ -2,18 +2,19 @@
   width: 100%;
   height: 100vh;
   background-size: cover;
-  overflow: hidden;
-  padding: 1rem;
 }
 
 .focused {
   composes: frame;
-  padding: 10vw;
 }
 
 .inner {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  margin: 1rem;
   padding: 3rem;
   border: 0.75rem solid white;
   background-color: rgba(0,0,0,0.6);
