@@ -67,7 +67,7 @@ class App extends Component {
       case 'ArrowUp':
         if(event.metaKey) {
           event.preventDefault();
-          this.shiftDate (focusItems, index, 'minus', event.ctrlKey ? {weeks: 1} : {days: 1})
+          this.shiftDate (focusItems, index, 'minus', event.altKey ? {weeks: 1} : {days: 1})
         } else if(index > 0) {
           event.preventDefault();
           this.setState({inputFocusItemId: focusItems[index - 1].id});
@@ -77,7 +77,7 @@ class App extends Component {
       case 'ArrowDown':
         if(event.metaKey) {
           event.preventDefault();
-          this.shiftDate (focusItems, index, 'plus', event.ctrlKey ? {weeks: 1} : {days: 1})
+          this.shiftDate (focusItems, index, 'plus', event.altKey ? {weeks: 1} : {days: 1})
         } else if(index < focusItems.length - 1) {
           event.preventDefault();
           this.setState({inputFocusItemId: focusItems[index + 1].id});
