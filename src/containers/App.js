@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import { DateTime } from 'luxon';
+import localforage from 'localforage';
 
 import Frame from '../components/Frame/Frame';
 import Thoughts from '../components/Thoughts/Thoughts';
@@ -148,7 +149,7 @@ class App extends Component {
         inputFocusItemId = focusItemId === null ? focusItems[0].id : focusItemId;
         isFocusOn = focusItemId === null ? false : isFocusOn;
       }
-      focusItems.splice(index, 1); // @TODO maybe move up
+      focusItems.splice(index, 1);
     }
 
     this.setState({
@@ -187,10 +188,13 @@ class App extends Component {
   }
 
   componentWillMount = () => {
-    const storedState = JSON.parse(localStorage.getItem(this.localStorageKey));
-    if(storedState !== null) {
-      this.setState(storedState);
-    }
+    localforage.getItem(this.localStorageKey).then((storedState) => {
+      if(storedState !== null) {
+        this.setState(storedState);
+      }
+    }).catch((err) => {
+      console.error(err);
+    });
   }
 
   render() {
@@ -277,7 +281,9 @@ class App extends Component {
   }
 
   commitStorage() {
-    localStorage.setItem(this.localStorageKey, JSON.stringify(this.state));
+    localforage.setItem(this.localStorageKey, this.state).catch((err) => {
+      console.error(err);
+    })
   }
 
   getNewFocusItem () {

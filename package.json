@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "localforage": "^1.6.0",
     "lodash.debounce": "^4.0.8",
     "luxon": "^0.5.3",
     "react": "^16.2.0",
