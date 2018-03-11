@@ -148,7 +148,7 @@ class App extends Component {
         }
         inputFocusItemId = focusItems[newIndex].id;
       } else { // Focus mode
-        focusItemId = this.pickNextFocusItem();
+        focusItemId = this.pickNextFocusItem(itemId);
         inputFocusItemId = focusItemId === null ? focusItems[0].id : focusItemId;
         isFocusOn = focusItemId === null ? false : isFocusOn;
       }
@@ -172,10 +172,19 @@ class App extends Component {
     });
   }
 
+  onFocusNextItem = () => {
+    let nextFocusItemId = this.pickNextFocusItem();
+    this.setState({
+      focusItemId: nextFocusItemId,
+      isFocusOn: nextFocusItemId === null ? false : true,
+      inputFocusItemId: nextFocusItemId
+    });
+  }
+
   onDoneItemHandler = (itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    const newItemId = this.pickNextFocusItem();
+    const newItemId = this.pickNextFocusItem(itemId);
     focusItems[index].dates.done = DateTime.local().toISODate();
 
     this.setState({
@@ -201,6 +210,7 @@ class App extends Component {
             onDeletedItem={this.onDeletedItemHandler}
             onKeyDownItem={this.onKeyDownItemHandler}
             onDoneItem={this.onDoneItemHandler}
+            onFocusNextItem={this.onFocusNextItem}
             onToggleFocusItem={this.onToggleFocusItemHandler}
             focusItemId={this.state.focusItemId}
             isFocusOn={this.state.isFocusOn}
@@ -253,8 +263,8 @@ class App extends Component {
     }
   }
 
-  pickNextFocusItem = () => {
-    let eligibleItems = this.state.focusItems.filter((item) => isItemEligible(item, this.state.focusItemId));
+  pickNextFocusItem = (excludedItemId = null) => {
+    let eligibleItems = this.state.focusItems.filter((item) => item.id !== excludedItemId && isItemEligible(item));
     if(eligibleItems.length) {
       return (
         (this.isNurtureDoneToday() ? null : this.pickNurtureItem(eligibleItems)) ||

@@ -41,7 +41,7 @@ class Editable extends Component {
   }
 
   render() {
-    let stylesEditable = this.props.focus ? styles.focused : styles.editable;
+    let stylesEditable = this.props.isFocusOn ? styles.focused : styles.editable;
     return (
       <div
         className={stylesEditable}

@@ -36,7 +36,7 @@ class FocusItem extends Component {
     } else if (this.props.category.name !== 'inbox') {
       focusItemStyles.push(styles.processed);
     }
-    if (this.props.focus) {
+    if (this.props.isFocusOn) {
       focusItemStyles.push(styles.focused);
     }
 
@@ -49,7 +49,7 @@ class FocusItem extends Component {
             name={this.props.category.name}
             icon={icon}
             onToggleFocus={this.props.onToggleFocus}
-            focus={this.props.focus}
+            isFocusOn={this.props.isFocusOn}
           />
           <div className={styles.content}>
             <Editable
@@ -57,7 +57,7 @@ class FocusItem extends Component {
               onInput={this.props.onInput}
               resetInputFocus={this.props.resetInputFocus}
               inputFocus={this.props.inputFocus}
-              focus={this.props.focus}
+              isFocusOn={this.props.isFocusOn}
               ref={el => this.editableRef = el}
             >
               {this.props.children}
@@ -67,10 +67,10 @@ class FocusItem extends Component {
               duedate={this.props.dates.due} />
           </div>
 
-          {this.props.focus ?
+          {this.props.isFocusOn ?
             <Actions
-              className={styles.actions}
-              onDone={this.props.onDone}/>
+              onDone={this.props.onDone}
+              onFocusNextItem={this.props.onFocusNextItem} />
             : null
           }
         </div>

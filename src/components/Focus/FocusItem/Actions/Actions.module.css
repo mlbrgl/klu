@@ -2,7 +2,7 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  margin: 0 1rem 1rem 0;
+  margin: 0 1.5rem 1rem 0;
   font-size: 1.5rem;
 }
 
@@ -10,6 +10,10 @@
   color: gray;
   transition: 0.5s;
   cursor: pointer;
+}
+
+.actions span:nth-child(2) {
+  margin-left: 1rem;
 }
 
 .actions span:hover {
