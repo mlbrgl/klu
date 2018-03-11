@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon';
 
-const isItemEligible = ({dates, category, id}, excludedItemId) => {
-  // console.log("start <= today", DateTime.fromISO(dates.start) <= DateTime.local().startOf('day'))
-  if (id !== excludedItemId &&
-      dates.done === null && category.name !== 'inbox' &&
+const isItemEligible = ({dates, category, id}, excludedItemId = null) => {
+  if (
+      id !== excludedItemId &&
+      dates.done === null &&
+      category.name !== 'inbox' &&
       (dates.start === null || DateTime.fromISO(dates.start) <= DateTime.local().startOf('day'))) {
     return true;
   } else {
@@ -11,26 +12,30 @@ const isItemEligible = ({dates, category, id}, excludedItemId) => {
   }
 }
 
+const isPast = (dateString) => {
+  return dateString === null ? false : _daysFromNow(dateString) < 0;
+}
+
 const isToday = (dateString) => {
-  return _isInDays(dateString, 0);
+  return dateString === null ? false : _daysFromNow(dateString) === 0;
 }
 
 const isTomorrow = (dateString) => {
-  return _isInDays(dateString, 1);
+  return dateString === null ? false : _daysFromNow(dateString) === 1;
 }
 
-const _isInDays = (dateString, days) => {
-  if (dateString === null) {
-    return false;
-  } else {
-    let today = DateTime.local().startOf('day');
-    let date = DateTime.fromISO(dateString);
-    return date.diff(today).as('days') === days
-  }
+const isWithinNextTwoWeeks = dateString => {
+  return dateString === null ? false : _daysFromNow(dateString) <= 14;
+}
+
+const _daysFromNow = (dateString, days) => {
+  let today = DateTime.local().startOf('day');
+  let date = DateTime.fromISO(dateString);
+  return date.diff(today).as('days');
 }
 
 const getRandomElement = (arr) => {
-  return arr.length !== 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
+  return arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
 }
 
 // The maximum is inclusive and the minimum is inclusive
@@ -41,4 +46,4 @@ const getRandomIntInclusive = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export { isItemEligible , isToday, isTomorrow, getRandomElement, getRandomIntInclusive};
+export { isItemEligible , isPast, isToday, isTomorrow, isWithinNextTwoWeeks, getRandomElement, getRandomIntInclusive};

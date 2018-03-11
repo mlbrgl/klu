@@ -6,7 +6,7 @@ import localforage from 'localforage';
 import Frame from '../components/Frame/Frame';
 import Thoughts from '../components/Thoughts/Thoughts';
 import Focus from '../components/Focus/Focus';
-import { isItemEligible, isToday, isTomorrow, getRandomElement } from '../helpers/helpers'
+import { isItemEligible, isPast, isToday, isTomorrow, isWithinNextTwoWeeks, getRandomElement } from '../helpers/helpers'
 
 import './App.css'
 
@@ -70,7 +70,7 @@ class App extends Component {
       case 'ArrowUp':
         if(event.metaKey) {
           event.preventDefault();
-          this.shiftDate (focusItems, index, 'minus', event.altKey ? {weeks: 1} : {days: 1})
+          this.shiftDate (focusItems, index, 'plus', event.altKey ? {weeks: 1} : {days: 1})
         } else if(index > 0) {
           event.preventDefault();
           this.setState({inputFocusItemId: focusItems[index - 1].id});
@@ -80,7 +80,7 @@ class App extends Component {
       case 'ArrowDown':
         if(event.metaKey) {
           event.preventDefault();
-          this.shiftDate (focusItems, index, 'plus', event.altKey ? {weeks: 1} : {days: 1})
+          this.shiftDate (focusItems, index, 'minus', event.altKey ? {weeks: 1} : {days: 1})
         } else if(index < focusItems.length - 1) {
           event.preventDefault();
           this.setState({inputFocusItemId: focusItems[index + 1].id});
@@ -190,16 +190,6 @@ class App extends Component {
     this.debouncedCommitStorage();
   }
 
-  componentWillMount = () => {
-    localforage.getItem(this.localStorageKey).then((storedState) => {
-      if(storedState !== null) {
-        this.setState(storedState);
-      }
-    }).catch((err) => {
-      console.error(err);
-    });
-  }
-
   render() {
     return (
       <div className="app">
@@ -221,6 +211,16 @@ class App extends Component {
         </Frame>
       </div>
     );
+  }
+
+  componentDidMount = () => {
+    localforage.getItem(this.localStorageKey).then((storedState) => {
+      if(storedState !== null) {
+        this.setState(storedState); // keep in mind this triggers a re-render as it happens async
+      }
+    }).catch((err) => {
+      console.error(err);
+    });
   }
 
   /** Helpers **/
@@ -254,24 +254,42 @@ class App extends Component {
   }
 
   pickNextFocusItem = () => {
-    let picked = null;
-    let doneToday = this.state.focusItems.filter((item) => isToday(item.dates.done));
-
     let eligibleItems = this.state.focusItems.filter((item) => isItemEligible(item, this.state.focusItemId));
-
-    // If nothing has been done today yet, we start with a nurture task
-    if (doneToday.length === 0) {
-      let nurtureEligibleItems = eligibleItems.filter((item) => item.category.name === 'nuture');
-      picked = getRandomElement(nurtureEligibleItems);
+    if(eligibleItems.length) {
+      return (
+        (this.isNurtureDoneToday() ? null : this.pickNurtureItem(eligibleItems)) ||
+        this.pickOverdue(eligibleItems) ||
+        this.pickDueTodayTorrow(eligibleItems) ||
+        this.pickDueNextTwoWeeks(eligibleItems) ||
+        getRandomElement(eligibleItems).id
+      )
     } else {
-      let dueTodayTomorrow = eligibleItems.filter((item) => isToday(item.dates.due) || isTomorrow(item.dates.due));
-      if (dueTodayTomorrow.length !== 0) {
-        picked = getRandomElement(dueTodayTomorrow);
-      } else {
-        picked = getRandomElement(eligibleItems);
-      }
+      return null;
     }
-    return picked ? picked.id : null  ;
+  }
+
+  isNurtureDoneToday = () => {
+    return this.state.focusItems.filter((item) => isToday(item.dates.done) && item.category.name === 'nurture').length ? true : false;
+  }
+
+  pickNurtureItem = (eligibleItems) => {
+    let nurtureIds = eligibleItems.filter((item) => item.category.name === 'nurture').map((item) => item.id);
+    return getRandomElement(nurtureIds);
+  }
+
+  pickOverdue = (eligibleItems) => {
+    let overdueIds = eligibleItems.filter((item) => isPast(item.dates.due)).map((item) => item.id);
+    return getRandomElement(overdueIds);
+  }
+
+  pickDueTodayTorrow = (eligibleItems) => {
+    let dueTodayTomorrowIds = eligibleItems.filter((item) => isToday(item.dates.due) || isTomorrow(item.dates.due)).map((item) => item.id);
+    return getRandomElement(dueTodayTomorrowIds);
+  }
+
+  pickDueNextTwoWeeks = (eligibleItems) => {
+    let dueNextTwoWeeksIds = eligibleItems.filter((item) => isWithinNextTwoWeeks(item.dates.due)).map((item) => item.id);
+    return getRandomElement(dueNextTwoWeeksIds);
   }
 
   setCaretPosition = (element, position) => {
@@ -297,9 +315,6 @@ class App extends Component {
       dates: {start: null, done: null, due: null}
     };
   }
-
-
-
 
 }
 

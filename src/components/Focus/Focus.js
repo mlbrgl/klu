@@ -2,7 +2,7 @@ import React from 'react';
 import FocusItem from './FocusItem/FocusItem';
 import styles from './Focus.module.css';
 
-const focus =  (props) => {
+const focus = (props) => {
   return (
     <div className={styles.focus}>
       {props.items
