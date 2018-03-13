@@ -15,7 +15,6 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.localStorageKey = 'klu';
-    this.debouncedCommitStorage = debounce(this.commitStorage, 250);
     this.state = {
       focusItems: [this.getNewFocusItem()],
       isFocusOn: false,
@@ -196,7 +195,7 @@ class App extends Component {
   };
 
   componentDidUpdate = () => {
-    this.debouncedCommitStorage();
+    this.commitStorage();
   }
 
   render() {
@@ -311,11 +310,11 @@ class App extends Component {
     sel.addRange(range);
   }
 
-  commitStorage() {
+  commitStorage = debounce(() => {
     localforage.setItem(this.localStorageKey, this.state).catch((err) => {
       console.error(err);
     })
-  }
+  }, 250);
 
   getNewFocusItem () {
     return {
