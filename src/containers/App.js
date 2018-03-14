@@ -96,7 +96,7 @@ class App extends Component {
             //cycle through categories
             let idxOfCurrentCategory = focusItems[index].category !== null ? this.categories.map((category) => category.name).indexOf(focusItems[index].category.name) : 0;
             let idxOfNextCategory = (idxOfCurrentCategory + 1) % this.categories.length;
-            focusItems[index].category = {...this.categories[idxOfNextCategory]};
+            focusItems[index].category = this.categories[idxOfNextCategory];
             this.setState({focusItems: focusItems});
           }
         }
@@ -186,7 +186,7 @@ class App extends Component {
     });
   }
 
-  onDoneItemHandler = (event, itemId) => {
+  onDoneItemHandler = (itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     const newItemId = this.pickNextFocusItem(itemId);
@@ -263,7 +263,7 @@ class App extends Component {
     }
     if(dateType !== null) {
       let refTime = focusItems[index].dates[dateType] ? DateTime.fromISO(focusItems[index].dates[dateType]) : DateTime.local();
-      focusItems[index].dates[dateType] = refTime[operator](offset).toISODate();
+      focusItems[index].dates = {...focusItems[index].dates, [dateType]: refTime[operator](offset).toISODate()}
       this.setState({focusItems: focusItems});
     }
   }
