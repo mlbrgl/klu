@@ -17,12 +17,20 @@ class Editable extends Component {
       sel.removeAllRanges();
       sel.addRange(range);
     }
-    this.props.resetInputFocus(); // Otherwise we can't edit in the middle of the text
+    this.props.resetInputFocusItem(); // Otherwise we can't edit in the middle of the text
   }
 
   // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
   updateInnerHtml() {
     this.ref.innerHTML = this.props.children;
+  }
+
+  onInputHandler = (event) => {
+    this.props.onInputEditableItem(event.target.innerHTML, this.props.itemId)
+  }
+
+  onKeyDownHandler = (event) => {
+    this.props.onKeyDownEditableItem(event, this.props.itemId)
   }
 
   componentWillReceiveProps = (nextProps) => {
@@ -45,8 +53,8 @@ class Editable extends Component {
     return (
       <div
         className={stylesEditable}
-        onKeyDown={this.props.onKeyDown}
-        onInput={this.props.onInput}
+        onKeyDown={this.onKeyDownHandler}
+        onInput={this.onInputHandler}
         ref={el => this.ref = el}
         spellCheck="false"
         contentEditable="true">

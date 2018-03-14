@@ -1,26 +1,26 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import React, { PureComponent } from 'react';
+// import ReactDOM from 'react-dom'; @TODO #deleteanimation
 import styles from './FocusItem.module.css';
 import Editable from '../../Editable/Editable'
-import Canvas from './Canvas/Canvas'
+// import Canvas from './Canvas/Canvas' @TODO #deleteanimation
 import Category from './Category/Category'
 import Dates from './Dates/Dates'
 import Actions from './Actions/Actions'
 import { isItemEligible } from '../../../helpers/helpers'
 
-class FocusItem extends Component {
+class FocusItem extends PureComponent {
 
   state = {};
 
-  // @TODO
-  delete = (event) => {
-    let editable = ReactDOM.findDOMNode(this.editableRef)
-    if(editable.innerHTML !== '') {
-      this.setState({animateDelete: true, editableBoundingRect: editable.getBoundingClientRect()});
-    } else {
-      this.props.onDeleted();
-    }
-  }
+  // @TODO #deleteanimation
+  // delete = (event) => {
+  //   let editable = ReactDOM.findDOMNode(this.editableRef)
+  //   if(editable.innerHTML !== '') {
+  //     this.setState({animateDelete: true, editableBoundingRect: editable.getBoundingClientRect()});
+  //   } else {
+  //     this.props.onDeleted();
+  //   }
+  // }
 
   render(){
     let focusItemStyles = [styles.focusitem];
@@ -42,22 +42,22 @@ class FocusItem extends Component {
 
     focusItemStyles = focusItemStyles.join(' ');
 
-    if(!this.state.animateDelete) {
+    // if(!this.state.animateDelete) { @TODO #deleteanimation
       this.componentToRender = (
         <div className={focusItemStyles}>
           <Category
             name={this.props.category.name}
             icon={icon}
-            onToggleFocus={this.props.onToggleFocus}
             isFocusOn={this.props.isFocusOn}
           />
           <div className={styles.content}>
             <Editable
-              onKeyDown={this.props.onKeyDown}
-              onInput={this.props.onInput}
-              resetInputFocus={this.props.resetInputFocus}
+              onKeyDownEditableItem={this.props.onKeyDownEditableItem}
+              onInputEditableItem={this.props.onInputEditableItem}
+              resetInputFocusItem={this.props.resetInputFocusItem}
               inputFocus={this.props.inputFocus}
               isFocusOn={this.props.isFocusOn}
+              itemId={this.props.id}
               ref={el => this.editableRef = el}
             >
               {this.props.children}
@@ -69,28 +69,29 @@ class FocusItem extends Component {
 
           {this.props.isFocusOn ?
             <Actions
-              onDone={this.props.onDone}
+              onDoneItem={this.props.onDoneItem}
               onFocusNextItem={this.props.onFocusNextItem} />
             : null
           }
         </div>
       )
-    } else {
-      this.componentToRender = (
-        <div className={focusItemStyles}>
-          <Category
-            name={this.props.category.name}
-            icon={icon}
-          />
-          <div>&nbsp;</div>
-          <Canvas
-            onFinishAnimation={this.props.onDeleted}
-            text={this.props.children}
-            textCoord={this.state.editableBoundingRect}
-          />
-        </div>
-      )
-    }
+    // @TODO #deleteanimation
+    // } else {
+    //   this.componentToRender = (
+    //     <div className={focusItemStyles}>
+    //       <Category
+    //         name={this.props.category.name}
+    //         icon={icon}
+    //       />
+    //       <div>&nbsp;</div>
+    //       <Canvas
+    //         onFinishAnimation={this.props.onDeleted}
+    //         text={this.props.children}
+    //         textCoord={this.state.editableBoundingRect}
+    //       />
+    //     </div>
+    //   )
+    // }
     return this.componentToRender;
   }
 

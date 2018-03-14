@@ -5,7 +5,7 @@ const category = (props) => {
   let categoryStyles = props.isFocusOn ? styles.focused : styles.category;
 
   return (
-    <span className={categoryStyles + ' icon-' + props.icon} onClick={props.onToggleFocus}></span>
+    <span className={categoryStyles + ' icon-' + props.icon}></span>
   )
 }
 

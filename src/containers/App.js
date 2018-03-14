@@ -8,7 +8,13 @@ import Thoughts from '../components/Thoughts/Thoughts';
 import Focus from '../components/Focus/Focus';
 import { isItemEligible, isPast, isToday, isTomorrow, isWithinNextTwoWeeks, getRandomElement } from '../helpers/helpers'
 
-import './App.css'
+import './App.css';
+
+if (process.env.NODE_ENV !== 'production') {
+  const {whyDidYouUpdate} = require('why-did-you-update')
+  whyDidYouUpdate(React)
+}
+
 
 class App extends Component {
 
@@ -25,13 +31,9 @@ class App extends Component {
     this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'nurture', icon: 'leaf'}, {name: 'energy', icon: 'light-up'}];
   }
 
-  onKeyDownItemHandler = (itemId, event) => {
+  onKeyDownEditableItemHandler = (event, itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-
-    if(event.key !== 'Enter' && this.state.deleteItemId !== null) {
-      this.setState({deleteItemId: null});
-    }
 
     switch (event.key) {
       case 'Enter':
@@ -110,18 +112,22 @@ class App extends Component {
         }
         break;
       case 'Escape':
-        this.onToggleFocusItemHandler(); //we only toggle focus, we don't set it
+        if(this.state.deleteItemId !== null) {
+          this.setState({deleteItemId: null});
+        } else {
+          this.onToggleFocusItemHandler(); //we only toggle focus, we don't set it
+        }
         break;
       default:
     }
   }
 
-  onInputItemHandler = (itemId, event) => {
+  onInputEditableItemHandler = debounce((innerHTML, itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    focusItems[index].value = event.target.innerHTML
+    focusItems[index].value = innerHTML;
     this.setState({focusItems: focusItems})
-  }
+  }, 250)
 
   onDeletedItemHandler = (itemId, key) => {
     const focusItems = [...this.state.focusItems];
@@ -180,7 +186,7 @@ class App extends Component {
     });
   }
 
-  onDoneItemHandler = (itemId) => {
+  onDoneItemHandler = (event, itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     const newItemId = this.pickNextFocusItem(itemId);
@@ -204,10 +210,10 @@ class App extends Component {
         <Frame
           focus={this.state.isFocusOn}>
           <Thoughts />
+          {/*onDeletedItem={this.onDeletedItemHandler} @TODO #deleteanimation*/}
           <Focus
-            onInputItem={this.onInputItemHandler}
-            onDeletedItem={this.onDeletedItemHandler}
-            onKeyDownItem={this.onKeyDownItemHandler}
+            onInputEditableItem={this.onInputEditableItemHandler}
+            onKeyDownEditableItem={this.onKeyDownEditableItemHandler}
             onDoneItem={this.onDoneItemHandler}
             onFocusNextItem={this.onFocusNextItem}
             onToggleFocusItem={this.onToggleFocusItemHandler}

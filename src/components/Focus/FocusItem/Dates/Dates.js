@@ -22,7 +22,7 @@ const dates = (props) => {
           return (
             <div className={styles.date} key={date.icon}>
               <span className={date.icon}></span>
-              <span>{parsedDate.setLocale(locale).toLocaleString(format)} ({formatRelativeTimeFromNow(parsedDate)})</span>
+              <span>{parsedDate.setLocale(locale).toLocaleString(format)} ({_formatRelativeTimeFromNow(parsedDate)})</span>
             </div>
           )
         })
@@ -34,7 +34,7 @@ const dates = (props) => {
   }
 }
 
-const formatRelativeTimeFromNow = (date) => {
+const _formatRelativeTimeFromNow = (date) => {
   let today = DateTime.local().startOf('day');
   let past = false;
   let duration = date.diff(today);

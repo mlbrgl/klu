@@ -1,19 +1,27 @@
-import React from 'react'
+import React, { PureComponent } from 'react'
 import styles from './Actions.module.css'
 
-const actions = (props) => {
-  return (
-    <div className={styles.actions}>
-      {props.onFocusNextItem ?
-        <span onClick={props.onFocusNextItem}>next up?</span>
+
+class Actions extends PureComponent {
+  onDoneItemHandler = (event) => {
+    this.props.onDoneItem(event, this.props.itemId)
+  }
+
+  render () {
+    return (
+      <div className={styles.actions}>
+      {this.props.onFocusNextItem ?
+        <span onClick={this.props.onFocusNextItem}>next up?</span>
         : null
       }
-      {props.onDone ?
-        <span onClick={props.onDone}>did it!</span>
+      {this.props.onDoneItem ?
+        <span onClick={this.onDoneItemHandler}>did it!</span>
         : null
       }
-    </div>
-  )
+      </div>
+    )
+  }
+
 }
 
-export default actions;
+export default Actions;
