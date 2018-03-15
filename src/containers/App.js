@@ -38,7 +38,7 @@ class App extends Component {
     switch (event.key) {
       case 'Enter':
         event.preventDefault();
-        if (event.metaKey) {
+        if (event.metaKey || event.ctrlKey) {
           if (event.shiftKey) {
             this.onDoneItemHandler(itemId)
           } else {
@@ -62,14 +62,14 @@ class App extends Component {
         if(focusItems[index].value.length === 0) {
           event.preventDefault();
           this.onDeletedItemHandler(itemId, event.key)
-        } else if (event.metaKey) {
+        } else if (event.metaKey || event.ctrlKey) {
           event.preventDefault();
           this.setState({deleteItemId: itemId})
         }
         break;
 
       case 'ArrowUp':
-        if(event.metaKey) {
+        if(event.metaKey || event.ctrlKey) {
           event.preventDefault();
           this.shiftDate (focusItems, index, 'plus', event.altKey ? {weeks: 1} : {days: 1})
         } else if(index > 0) {
@@ -79,7 +79,7 @@ class App extends Component {
         break;
 
       case 'ArrowDown':
-        if(event.metaKey) {
+        if(event.metaKey || event.ctrlKey) {
           event.preventDefault();
           this.shiftDate (focusItems, index, 'minus', event.altKey ? {weeks: 1} : {days: 1})
         } else if(index < focusItems.length - 1) {
@@ -90,7 +90,7 @@ class App extends Component {
 
       case 'ArrowRight':
         if(!event.shiftKey) {
-          if(event.metaKey) {
+          if(event.metaKey || event.ctrlKey) {
             this.setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
           } else if(this.caretAtEndFieldItem()) {
             //cycle through categories
@@ -104,7 +104,7 @@ class App extends Component {
 
       case 'ArrowLeft':
         if(!event.shiftKey) {
-          if(event.metaKey) {
+          if(event.metaKey || event.ctrlKey) {
             this.setCaretPosition(event.target.childNodes[0], 0);
           } else if(this.caretAtBeginningFieldItem()) {
             this.setState({deleteItemId: itemId});
