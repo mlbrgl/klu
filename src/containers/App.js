@@ -152,10 +152,11 @@ class App extends Component {
             newIndex = index === focusItems.length - 1 ? index - 1 : index + 1;
         }
         inputFocusItemId = focusItems[newIndex].id;
+        focusItemId = focusItemId === itemId ? this.pickNextFocusItem(itemId) : focusItemId;
       } else { // Focus mode
         focusItemId = this.pickNextFocusItem(itemId);
         inputFocusItemId = focusItemId === null ? focusItems[0].id : focusItemId;
-        isFocusOn = focusItemId === null ? false : isFocusOn;
+        isFocusOn = focusItemId === null ? false : true;
       }
       focusItems.splice(index, 1);
     }
