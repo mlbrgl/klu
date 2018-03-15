@@ -70,7 +70,9 @@ class FocusItem extends PureComponent {
           {this.props.isFocusOn ?
             <Actions
               onDoneItem={this.props.onDoneItem}
-              onFocusNextItem={this.props.onFocusNextItem} />
+              onFocusNextItem={this.props.onFocusNextItem} 
+              itemId={this.props.id}
+              />
             : null
           }
         </div>

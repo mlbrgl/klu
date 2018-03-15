@@ -4,7 +4,7 @@ import styles from './Actions.module.css'
 
 class Actions extends PureComponent {
   onDoneItemHandler = (event) => {
-    this.props.onDoneItem(event, this.props.itemId)
+    this.props.onDoneItem(this.props.itemId)
   }
 
   render () {
