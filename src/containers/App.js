@@ -190,7 +190,7 @@ class App extends Component {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     const newItemId = this.pickNextFocusItem(itemId);
-    focusItems[index].dates.done = DateTime.local().toISODate();
+    focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate()};
 
     this.setState({
       focusItems: focusItems,
