@@ -4,10 +4,6 @@
   background-size: cover;
 }
 
-.focused {
-  composes: frame;
-}
-
 .inner {
   position: absolute;
   top: 0;

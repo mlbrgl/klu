@@ -54,7 +54,7 @@ class FocusItem extends PureComponent {
             <Editable
               onKeyDownEditableItem={this.props.onKeyDownEditableItem}
               onInputEditableItem={this.props.onInputEditableItem}
-              resetInputFocusItem={this.props.resetInputFocusItem}
+              onResetInputFocusItem={this.props.onResetInputFocusItem}
               inputFocus={this.props.inputFocus}
               isFocusOn={this.props.isFocusOn}
               itemId={this.props.id}
@@ -70,7 +70,7 @@ class FocusItem extends PureComponent {
           {this.props.isFocusOn ?
             <Actions
               onDoneItem={this.props.onDoneItem}
-              onFocusNextItem={this.props.onFocusNextItem} 
+              onFocusNextItem={this.props.onFocusNextItem}
               itemId={this.props.id}
               />
             : null

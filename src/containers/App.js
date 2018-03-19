@@ -218,11 +218,11 @@ class App extends Component {
             onDoneItem={this.onDoneItemHandler}
             onFocusNextItem={this.onFocusNextItem}
             onToggleFocusItem={this.onToggleFocusItemHandler}
+            onResetInputFocusItem={this.onResetInputFocusItemHandler}
             focusItemId={this.state.focusItemId}
             isFocusOn={this.state.isFocusOn}
             deleteItemId={this.state.deleteItemId}
             inputFocusItemId={this.state.inputFocusItemId}
-            resetInputFocusItem={this.resetInputFocusItemHandler}
             items={this.state.focusItems}/>
         </Frame>
       </div>
@@ -241,7 +241,7 @@ class App extends Component {
 
   /** Helpers **/
   // @TODO: check if merging inputFocusItem with resetInputFocusItemHandler makes sense
-  resetInputFocusItemHandler = () => {
+  onResetInputFocusItemHandler = () => {
     this.setState({inputFocusItemId: null});
   }
 

@@ -17,7 +17,7 @@ class Editable extends Component {
       sel.removeAllRanges();
       sel.addRange(range);
     }
-    this.props.resetInputFocusItem(); // Otherwise we can't edit in the middle of the text
+    this.props.onResetInputFocusItem(); // Otherwise we can't edit in the middle of the text
   }
 
   // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP

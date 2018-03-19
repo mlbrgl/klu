@@ -10,7 +10,7 @@ class Frame extends Component {
 
   render() {
     return (
-      <div className={this.props.focus ? styles.focused : styles.frame} style={this.style}>
+      <div className={styles.frame} style={this.style}>
       <div className={styles.inner}>
       {this.props.children}
       </div>
