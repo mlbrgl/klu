@@ -1,11 +1,7 @@
 import React, { PureComponent } from 'react';
 // import ReactDOM from 'react-dom'; @TODO #deleteanimation
 import styles from './FocusItem.module.css';
-import Editable from '../../Editable/Editable'
 // import Canvas from './Canvas/Canvas' @TODO #deleteanimation
-import Category from './Category/Category'
-import Dates from './Dates/Dates'
-import Actions from './Actions/Actions'
 import { isItemEligible } from '../../../helpers/helpers'
 
 class FocusItem extends PureComponent {
@@ -24,11 +20,9 @@ class FocusItem extends PureComponent {
 
   render(){
     let focusItemStyles = [styles.focusitem];
-    let icon = this.props.category.icon;
 
-    if (this.props.delete) {
+    if (this.props.isDeleteOn) {
       focusItemStyles.push(styles.delete);
-      icon = 'circle-with-minus';
     } else if (this.props.dates.done !== null) {
       focusItemStyles.push(styles.done);
     } else if (isItemEligible(this.props)) {
@@ -45,36 +39,7 @@ class FocusItem extends PureComponent {
     // if(!this.state.animateDelete) { @TODO #deleteanimation
       this.componentToRender = (
         <div className={focusItemStyles}>
-          <Category
-            name={this.props.category.name}
-            icon={icon}
-            isFocusOn={this.props.isFocusOn}
-          />
-          <div className={styles.content}>
-            <Editable
-              onKeyDownEditableItem={this.props.onKeyDownEditableItem}
-              onInputEditableItem={this.props.onInputEditableItem}
-              onResetInputFocusItem={this.props.onResetInputFocusItem}
-              inputFocus={this.props.inputFocus}
-              isFocusOn={this.props.isFocusOn}
-              itemId={this.props.id}
-              ref={el => this.editableRef = el}
-            >
-              {this.props.children}
-            </Editable>
-            <Dates
-              startdate={this.props.dates.start}
-              duedate={this.props.dates.due} />
-          </div>
-
-          {this.props.isFocusOn ?
-            <Actions
-              onDoneItem={this.props.onDoneItem}
-              onFocusNextItem={this.props.onFocusNextItem}
-              itemId={this.props.id}
-              />
-            : null
-          }
+          {this.props.children}
         </div>
       )
     // @TODO #deleteanimation

@@ -1,9 +1,15 @@
-.editable {
+.generic {
   outline: none;
   word-wrap: break-word;
 }
 
+.editable {
+  composes: generic;
+  margin-left: 3rem;
+  padding-right: 1rem;
+}
+
 .focused {
-  composes: editable;
+  composes: generic;
   margin-bottom: 1rem;
 }

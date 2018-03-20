@@ -4,8 +4,13 @@ import { DateTime } from 'luxon';
 import localforage from 'localforage';
 
 import Frame from '../components/Frame/Frame';
-import Thoughts from '../components/Thoughts/Thoughts';
 import Focus from '../components/Focus/Focus';
+import FocusItem from '../components/Focus/FocusItem/FocusItem';
+import Editable from '../components/Editable/Editable';
+import Actions from '../components/Focus/FocusItem/Actions/Actions';
+import Category from '../components/Focus/FocusItem/Category/Category';
+import Dates from '../components/Focus/FocusItem/Dates/Dates';
+
 import { isItemEligible, isPast, isToday, isTomorrow, isWithinNextTwoWeeks, getRandomElement } from '../helpers/helpers'
 
 import './App.css';
@@ -178,7 +183,7 @@ class App extends Component {
     });
   }
 
-  onFocusNextItem = () => {
+  onFocusNextItemHandler = () => {
     let nextFocusItemId = this.pickNextFocusItem();
     this.setState({
       focusItemId: nextFocusItemId,
@@ -208,22 +213,55 @@ class App extends Component {
   render() {
     return (
       <div className="app">
-        <Frame
-          focus={this.state.isFocusOn}>
-          <Thoughts />
-          {/*onDeletedItem={this.onDeletedItemHandler} @TODO #deleteanimation*/}
-          <Focus
-            onInputEditableItem={this.onInputEditableItemHandler}
-            onKeyDownEditableItem={this.onKeyDownEditableItemHandler}
-            onDoneItem={this.onDoneItemHandler}
-            onFocusNextItem={this.onFocusNextItem}
-            onToggleFocusItem={this.onToggleFocusItemHandler}
-            onResetInputFocusItem={this.onResetInputFocusItemHandler}
-            focusItemId={this.state.focusItemId}
-            isFocusOn={this.state.isFocusOn}
-            deleteItemId={this.state.deleteItemId}
-            inputFocusItemId={this.state.inputFocusItemId}
-            items={this.state.focusItems}/>
+        <Frame>
+          <Focus>
+            {this.state.focusItems
+              .filter((item) => { return (item.id === this.state.focusItemId && this.state.isFocusOn) || !this.state.isFocusOn })
+              .map((item, index) => {
+                let isFocusOn = item.id === this.state.focusItemId && this.state.isFocusOn ? true : false;
+                let isDeleteOn = this.state.deleteItemId === item.id ? true : false;
+
+                return(
+                  // onDeleted={props.onDeletedItem} @TODO #deleteanimation
+                  <FocusItem
+                    isFocusOn={isFocusOn}
+                    key={item.id}
+                    category={item.category}
+                    dates={item.dates}
+                    isDeleteOn={isDeleteOn} >
+
+                      <Category
+                        name={item.category.name}
+                        icon={item.category.icon}
+                        isFocusOn={isFocusOn}
+                        isDeleteOn={isDeleteOn} />
+
+                      <Editable
+                        onKeyDownEditableItem={this.onKeyDownEditableItemHandler}
+                        onInputEditableItem={this.onInputEditableItemHandler}
+                        onResetInputFocusItem={this.onResetInputFocusItemHandler}
+                        inputFocus={this.state.inputFocusItemId === item.id ? true : false}
+                        isFocusOn={isFocusOn}
+                        itemId={item.id}
+                      >
+                        {item.value}
+                      </Editable>
+
+                      <Dates
+                        startdate={item.dates.start}
+                        duedate={item.dates.due} />
+
+                      <Actions
+                        onDoneItem={this.onDoneItemHandler}
+                        onFocusNextItem={this.onFocusNextItemHandler}
+                        itemId={item.id}
+                        isFocusOn={isFocusOn} />
+
+                  </FocusItem>
+                )
+              })
+            }
+          </Focus>
         </Frame>
       </div>
     );
