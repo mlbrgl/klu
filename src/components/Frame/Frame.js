@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getRandomIntInclusive } from '../../helpers/helpers'
+import { getRandomIntInclusive } from '../../helpers/common'
 import styles from './Frame.module.css'
 
 class Frame extends Component {

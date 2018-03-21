@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 // import ReactDOM from 'react-dom'; @TODO #deleteanimation
 import styles from './FocusItem.module.css';
 // import Canvas from './Canvas/Canvas' @TODO #deleteanimation
-import { isItemEligible } from '../../../helpers/helpers'
+import { isItemEligible } from '../../../helpers/dates'
 
 class FocusItem extends PureComponent {
 

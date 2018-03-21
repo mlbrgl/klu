@@ -33,16 +33,10 @@ const _daysFromNow = (dateString, days) => {
   return date.diff(today).as('days');
 }
 
-const getRandomElement = (arr) => {
-  return arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
-}
-
-// The maximum is inclusive and the minimum is inclusive
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
-const getRandomIntInclusive = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-export { isItemEligible , isPast, isToday, isTomorrow, isWithinNextTwoWeeks, getRandomElement, getRandomIntInclusive};
+export {
+  isItemEligible,
+  isPast,
+  isToday,
+  isTomorrow,
+  isWithinNextTwoWeeks,
+};
