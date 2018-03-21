@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import { DateTime } from 'luxon';
 
-import Frame from '../components/Frame/Frame';
-import Focus from '../components/Focus/Focus';
-import FocusItem from '../components/Focus/FocusItem/FocusItem';
-import Editable from '../components/Editable/Editable';
-import Actions from '../components/Focus/FocusItem/Actions/Actions';
-import Category from '../components/Focus/FocusItem/Category/Category';
-import Dates from '../components/Focus/FocusItem/Dates/Dates';
+import Frame from '../../containers/Frame/Frame';
+import Focus from '../../containers/Focus/Focus';
+import FocusItem from '../../containers/FocusItem/FocusItem';
+import Editable from '../../components/Editable/Editable';
+import Actions from '../../components/Actions/Actions';
+import Category from '../../components/Category/Category';
+import Dates from '../../components/Dates/Dates';
 
-import { loadFromStorage, commitToStorage } from '../helpers/storage'
-import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition } from '../helpers/common'
-import { pickNextFocusItem } from '../selectors/selectors'
+import { loadFromStorage, commitToStorage } from '../../helpers/storage'
+import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition } from '../../helpers/common'
+import { pickNextFocusItem } from '../../selectors/selectors'
 
 import './App.css';
 
