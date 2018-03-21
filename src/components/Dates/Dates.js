@@ -37,25 +37,23 @@ const dates = (props) => {
 const _formatRelativeTimeFromNow = (date) => {
   let today = DateTime.local().startOf('day');
   let past = false;
-  let duration = date.diff(today);
+  let duration = date.diff(today, ['months', 'weeks', 'days']);
   let str = null;
 
   if(date < today) {
     past = true;
     duration = duration.negate();
   }
+  let { months, weeks, days } = duration.toObject();
 
-  let months = Math.floor(duration.as('months'));
-  if(months > 0) {
+  if(months !== undefined) {
     let unit = months > 1 ? 'months' : 'month';
     str = past ? 'about ' + months + ' ' + unit + ' ago' : 'in about ' + months + ' ' + unit ;
   } else {
-    let weeks = Math.floor(duration.as('weeks'));
-    if(weeks > 0) {
+    if(weeks !== undefined) {
       let unit = weeks > 1 ? 'weeks' : 'week';
       str = past ? 'about ' + weeks + ' ' + unit + ' ago' : 'in about ' + weeks + ' ' + unit ;
     } else {
-      let days = duration.as('days');
       if(days > 1) {
         str = past ? days + ' days ago' : 'in ' + days + ' days';
       } else if (days === 1) {
