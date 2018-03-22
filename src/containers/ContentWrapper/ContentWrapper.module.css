@@ -1,0 +1,39 @@
+.contentWrapper {
+  height: 100%;
+  overflow: auto;
+  max-width: 960px;
+  margin: auto;
+}
+
+::-webkit-scrollbar {
+  width: 0.8rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(0,0,0,0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #fff;
+}
+
+.listItem {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 100;
+}
+
+.viewLink {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin: 0 0 1rem 1.5rem;
+  font-size: 1.5rem;
+  color: gray;
+  transition: 0.5s;
+  text-decoration: none;
+}
+
+.viewLink:hover {
+  color: white;
+}

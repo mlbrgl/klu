@@ -40,4 +40,17 @@ const pickDueNextTwoWeeks = (eligibleItems) => {
   return getRandomElement(dueNextTwoWeeksIds);
 }
 
-export { pickNextFocusItem }
+const getActiveProjects = (focusItems) => {
+  let projectRegex = /\+[A-Za-z0-9_-]+$/;
+  let activeProjects = focusItems
+    .filter((item) => item.dates.done === null)
+    .map((item, index) => {
+      let project = item.value.match(projectRegex)
+      return project !== null ? project[0] : null
+    })
+    .filter((item) => item !== null)
+
+  return [...new Set(activeProjects)]
+}
+
+export { pickNextFocusItem, getActiveProjects }

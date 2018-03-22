@@ -1,18 +1,21 @@
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import { DateTime } from 'luxon';
+import { MemoryRouter } from 'react-router-dom'
+import { Route } from 'react-router-dom'
 
 import Frame from '../../containers/Frame/Frame';
-import Focus from '../../containers/Focus/Focus';
+import ContentWrapper from '../../containers/ContentWrapper/ContentWrapper';
 import FocusItem from '../../containers/FocusItem/FocusItem';
 import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
 import Category from '../../components/Category/Category';
 import Dates from '../../components/Dates/Dates';
+import Project from '../../components/Project/Project';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition } from '../../helpers/common'
-import { pickNextFocusItem } from '../../selectors/selectors'
+import { pickNextFocusItem, getActiveProjects } from '../../selectors/selectors'
 
 import './App.css';
 
@@ -43,58 +46,16 @@ class App extends Component {
 
   render() {
     return (
-      <div className="app">
-        <Frame>
-          <Focus>
-            {this.state.focusItems
-              .filter((item) => { return (item.id === this.state.focusItemId && this.state.isFocusOn) || !this.state.isFocusOn })
-              .map((item, index) => {
-                let isFocusOn = item.id === this.state.focusItemId && this.state.isFocusOn ? true : false;
-                let isDeleteOn = this.state.deleteItemId === item.id ? true : false;
-
-                return(
-                  // onDeleted={props.onDeletedItem} @TODO #deleteanimation
-                  <FocusItem
-                    isFocusOn={isFocusOn}
-                    key={item.id}
-                    category={item.category}
-                    dates={item.dates}
-                    isDeleteOn={isDeleteOn} >
-
-                      <Category
-                        name={item.category.name}
-                        icon={item.category.icon}
-                        isFocusOn={isFocusOn}
-                        isDeleteOn={isDeleteOn} />
-
-                      <Editable
-                        onKeyDownEditableItem={this.onKeyDownEditableItemHandler}
-                        onInputEditableItem={this.onInputEditableItemHandler}
-                        onResetInputFocusItem={this.onResetInputFocusItemHandler}
-                        inputFocus={this.state.inputFocusItemId === item.id ? true : false}
-                        isFocusOn={isFocusOn}
-                        itemId={item.id}
-                      >
-                        {item.value}
-                      </Editable>
-
-                      <Dates
-                        startdate={item.dates.start}
-                        duedate={item.dates.due} />
-
-                      <Actions
-                        onDoneItem={this.onDoneItemHandler}
-                        onFocusNextItem={this.onFocusNextItemHandler}
-                        itemId={item.id}
-                        isFocusOn={isFocusOn} />
-
-                  </FocusItem>
-                )
-              })
-            }
-          </Focus>
-        </Frame>
-      </div>
+      <MemoryRouter>
+        <div className="app">
+          <Frame>
+            <ContentWrapper>
+              <Route path="/" exact render={this.renderFocusItems} />
+              <Route path="/projects" render={this.renderProjects} />
+            </ContentWrapper>
+          </Frame>
+        </div>
+      </MemoryRouter>
     );
   }
 
@@ -108,6 +69,69 @@ class App extends Component {
     });;
   }
 
+
+  /*
+   * COMPONENT TREES
+   */
+
+  renderFocusItems = () => {
+    return (
+      this.state.focusItems
+      .filter((item) => { return (item.id === this.state.focusItemId && this.state.isFocusOn) || !this.state.isFocusOn })
+      .map((item, index) => {
+        let isFocusOn = item.id === this.state.focusItemId && this.state.isFocusOn ? true : false;
+        let isDeleteOn = this.state.deleteItemId === item.id ? true : false;
+
+        return(
+          // onDeleted={props.onDeletedItem} @TODO #deleteanimation
+          <FocusItem
+            isFocusOn={isFocusOn}
+            key={item.id}
+            category={item.category}
+            dates={item.dates}
+            isDeleteOn={isDeleteOn} >
+
+              <Category
+                name={item.category.name}
+                icon={item.category.icon}
+                isFocusOn={isFocusOn}
+                isDeleteOn={isDeleteOn} />
+
+              <Editable
+                onKeyDownEditableItem={this.onKeyDownEditableItemHandler}
+                onInputEditableItem={this.onInputEditableItemHandler}
+                onResetInputFocusItem={this.onResetInputFocusItemHandler}
+                inputFocus={this.state.inputFocusItemId === item.id ? true : false}
+                isFocusOn={isFocusOn}
+                itemId={item.id}
+              >
+                {item.value}
+              </Editable>
+
+              <Dates
+                startdate={item.dates.start}
+                duedate={item.dates.due} />
+
+              <Actions
+                onDoneItem={this.onDoneItemHandler}
+                onFocusNextItem={this.onFocusNextItemHandler}
+                itemId={item.id}
+                isFocusOn={isFocusOn} />
+
+          </FocusItem>
+        )
+      })
+    )
+  }
+
+  renderProjects = () => {
+    let activeProjects = getActiveProjects(this.state.focusItems);
+    return (
+      activeProjects.map((project, index) => {
+        return <Project key={project}>{project}</Project>
+      })
+    )
+  }
 
   /*
    * HANDLERS
@@ -287,6 +311,10 @@ class App extends Component {
    onResetInputFocusItemHandler = () => {
      this.setState({inputFocusItemId: null});
    }
+
+   /**
+    * Helpers
+    */
 
    shiftDate = (focusItems, index, operator, offset) => {
      let dateType = null;
