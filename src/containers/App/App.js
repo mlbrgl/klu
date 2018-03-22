@@ -49,9 +49,14 @@ class App extends Component {
       <MemoryRouter>
         <div className="app">
           <Frame>
-            <ContentWrapper>
+            <ContentWrapper isFocusOn={this.state.isFocusOn}>
               <Route path="/" exact render={this.renderFocusItems} />
               <Route path="/projects" render={this.renderProjects} />
+              { !this.state.isFocusOn ?
+                  <Actions
+                    onFocusNextItem={this.onFocusNextItemHandler} />
+                  : null
+              }
             </ContentWrapper>
           </Frame>
         </div>
@@ -112,13 +117,17 @@ class App extends Component {
                 startdate={item.dates.start}
                 duedate={item.dates.due} />
 
-              <Actions
-                onDoneItem={this.onDoneItemHandler}
-                onFocusNextItem={this.onFocusNextItemHandler}
-                itemId={item.id}
-                isFocusOn={isFocusOn} />
+              { isFocusOn ?
+                <Actions
+                  onDoneItem={this.onDoneItemHandler}
+                  onFocusNextItem={this.onFocusNextItemHandler}
+                  itemId={item.id}
+                  isFocusOn={isFocusOn} />
+                : null
+              }
 
           </FocusItem>
+
         )
       })
     )
