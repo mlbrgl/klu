@@ -5,13 +5,14 @@ import { MemoryRouter } from 'react-router-dom'
 import { Route } from 'react-router-dom'
 
 import Frame from '../../containers/Frame/Frame';
-import ContentWrapper from '../../containers/ContentWrapper/ContentWrapper';
-import FocusItem from '../../containers/FocusItem/FocusItem';
+import ContentWrapper from '../ContentWrapper/ContentWrapper';
+import FocusItem from '../FocusItem/FocusItem';
+import Projects from '../Projects/Projects';
+import Project from '../../components/Project/Project';
 import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
 import Category from '../../components/Category/Category';
 import Dates from '../../components/Dates/Dates';
-import Project from '../../components/Project/Project';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition } from '../../helpers/common'
@@ -35,9 +36,23 @@ class App extends Component {
       isFocusOn: false,
       focusItemId: null,
       inputFocusItemId: null,
-      deleteItemId: null
+      deleteItemId: null,
+      projects: []
     }
     this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'nurture', icon: 'leaf'}, {name: 'energy', icon: 'light-up'}];
+  }
+
+  getNewFocusItem () {
+    return {
+      id: Date.now(),
+      value: '',
+      category: {name: 'inbox', icon: 'inbox'},
+      dates: {start: null, done: null, due: null}
+    };
+  }
+
+  getNewProject (name) {
+    return {name: name, frequency: null}
   }
 
   componentDidUpdate = () => {
@@ -134,11 +149,19 @@ class App extends Component {
   }
 
   renderProjects = () => {
-    let activeProjects = getActiveProjects(this.state.focusItems);
     return (
-      activeProjects.map((project, index) => {
-        return <Project key={project}>{project}</Project>
-      })
+      <Projects onMount={this.onUpdateProjects}>
+        {this.state.projects.map((project, index) => {
+          return (
+            <Project
+              key={project.name}
+              frequency={project.frequency}
+              onUpProjectFrequency={this.onUpProjectFrequency}
+              onDownProjectFrequency={this.onDownProjectFrequency}
+              name={project.name} />
+          )
+        })}
+      </Projects>
     )
   }
 
@@ -146,7 +169,7 @@ class App extends Component {
    * HANDLERS
    */
 
-   onKeyDownEditableItemHandler = (event, itemId) => {
+  onKeyDownEditableItemHandler = (event, itemId) => {
      const focusItems = [...this.state.focusItems];
      const index = focusItems.findIndex((el) => el.id === itemId);
 
@@ -237,14 +260,14 @@ class App extends Component {
      }
    }
 
-   onInputEditableItemHandler = debounce((innerHTML, itemId) => {
+  onInputEditableItemHandler = debounce((innerHTML, itemId) => {
      const focusItems = [...this.state.focusItems];
      const index = focusItems.findIndex((el) => el.id === itemId);
      focusItems[index].value = innerHTML;
      this.setState({focusItems: focusItems})
    }, 250)
 
-   onDeletedItemHandler = (itemId, key) => {
+  onDeletedItemHandler = (itemId, key) => {
      const focusItems = [...this.state.focusItems];
      const index = focusItems.findIndex((el) => el.id === itemId);
      let inputFocusItemId = this.state.inputFocusItemId; // in the current state of things, should always be null since reset after use, but kept here for consistency
@@ -285,7 +308,7 @@ class App extends Component {
      });
    }
 
-   onToggleFocusItemHandler = (itemId = this.state.focusItemId) => {
+  onToggleFocusItemHandler = (itemId = this.state.focusItemId) => {
      this.setState({
        focusItemId: itemId,
        isFocusOn: itemId === null ? false : !this.state.isFocusOn,
@@ -293,7 +316,7 @@ class App extends Component {
      });
    }
 
-   onFocusNextItemHandler = () => {
+  onFocusNextItemHandler = () => {
      let nextFocusItemId = pickNextFocusItem(this.state.focusItems);
      this.setState({
        focusItemId: nextFocusItemId,
@@ -302,7 +325,7 @@ class App extends Component {
      });
    }
 
-   onDoneItemHandler = (itemId) => {
+  onDoneItemHandler = (itemId) => {
      const focusItems = [...this.state.focusItems];
      const index = focusItems.findIndex((el) => el.id === itemId);
      const newItemId = pickNextFocusItem(this.state.focusItems, itemId);
@@ -317,35 +340,60 @@ class App extends Component {
    };
 
   // @TODO: check if merging inputFocusItem with resetInputFocusItemHandler makes sense
-   onResetInputFocusItemHandler = () => {
+  onResetInputFocusItemHandler = () => {
      this.setState({inputFocusItemId: null});
    }
 
-   /**
-    * Helpers
-    */
+  onUpdateProjects = () => {
+    let activeProjects = getActiveProjects(this.state.focusItems)
+    let updatedProjects = activeProjects.map((projectName, index) => {
+     let currentProject = this.state.projects.find((p) => p.name === projectName)
+     if(currentProject !== undefined) {
+       return currentProject
+     } else {
+       return this.getNewProject(projectName)
+     }
+    })
+    this.setState({projects: updatedProjects})
+  }
 
-   shiftDate = (focusItems, index, operator, offset) => {
-     let dateType = null;
-     if(isCaretAtBeginningFieldItem()) {
-       dateType = 'start';
-     } else if (isCaretAtEndFieldItem()) {
-       dateType = 'due';
-     }
-     if(dateType !== null) {
-       let refTime = focusItems[index].dates[dateType] ? DateTime.fromISO(focusItems[index].dates[dateType]) : DateTime.local();
-       focusItems[index].dates = {...focusItems[index].dates, [dateType]: refTime[operator](offset).toISODate()}
-       this.setState({focusItems: focusItems});
-     }
+  onUpProjectFrequency = (projectName) => {
+    const projects = [...this.state.projects]
+    const index = projects.findIndex((el) => el.name === projectName);
+    const currentFrequency = projects[index].frequency;
+
+    projects[index].frequency = currentFrequency !== null ? currentFrequency + 1 : 1
+    this.setState({projects: projects})
+  }
+
+  onDownProjectFrequency = (projectName) => {
+    const projects = [...this.state.projects]
+    const index = projects.findIndex((el) => el.name === projectName);
+    const currentFrequency = projects[index].frequency;
+
+    projects[index].frequency = projects[index].frequency !== null ? projects[index].frequency-- : null;
+    if(currentFrequency !== null) {
+      projects[index].frequency = currentFrequency === 0 ? null : currentFrequency - 1
+      this.setState({projects: projects})
+    }
+  }
+
+  /**
+  * Helpers
+  */
+
+  shiftDate = (focusItems, index, operator, offset) => {
+   let dateType = null;
+   if(isCaretAtBeginningFieldItem()) {
+     dateType = 'start';
+   } else if (isCaretAtEndFieldItem()) {
+     dateType = 'due';
    }
-
-  getNewFocusItem () {
-    return {
-      id: Date.now(),
-      value: '',
-      category: {name: 'inbox', icon: 'inbox'},
-      dates: {start: null, done: null, due: null}
-    };
+   if(dateType !== null) {
+     let refTime = focusItems[index].dates[dateType] ? DateTime.fromISO(focusItems[index].dates[dateType]) : DateTime.local();
+     focusItems[index].dates = {...focusItems[index].dates, [dateType]: refTime[operator](offset).toISODate()}
+     this.setState({focusItems: focusItems});
+   }
   }
 
 }

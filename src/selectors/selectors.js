@@ -41,12 +41,12 @@ const pickDueNextTwoWeeks = (eligibleItems) => {
 }
 
 const getActiveProjects = (focusItems) => {
-  let projectRegex = /\+[A-Za-z0-9_-]+$/;
+  let projectRegex = /\+(\w+(?:-\w+)*)$/;
   let activeProjects = focusItems
     .filter((item) => item.dates.done === null)
     .map((item, index) => {
       let project = item.value.match(projectRegex)
-      return project !== null ? project[0] : null
+      return project !== null ? project[1] : null
     })
     .filter((item) => item !== null)
 

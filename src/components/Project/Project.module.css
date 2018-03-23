@@ -2,3 +2,25 @@
   composes: listItem from '../../containers/ContentWrapper/ContentWrapper.module.css';
   color: white;
 }
+
+.paused {
+  composes: project;
+  color: gray;
+}
+
+.project span {
+  float: right;
+  font-size: 1.5rem;
+  line-height: 3rem;
+  cursor: pointer;
+  color: gray;
+  transition: 0.5s;
+}
+
+.project span:hover {
+  color: white;
+}
+
+.frequency {
+  font-size: 1rem;
+}

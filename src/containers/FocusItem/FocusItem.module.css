@@ -1,7 +1,6 @@
 .focusitem {
   composes: listItem from '../ContentWrapper/ContentWrapper.module.css';
   color: yellow;
-  clear: both;
 }
 
 .processed {

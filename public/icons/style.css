@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?ldbp0h');
-  src:  url('fonts/icomoon.eot?ldbp0h#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?ldbp0h') format('truetype'),
-    url('fonts/icomoon.woff?ldbp0h') format('woff'),
-    url('fonts/icomoon.svg?ldbp0h#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?mfecv8');
+  src:  url('fonts/icomoon.eot?mfecv8#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?mfecv8') format('truetype'),
+    url('fonts/icomoon.woff?mfecv8') format('woff'),
+    url('fonts/icomoon.svg?mfecv8#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -27,14 +27,23 @@
 .icon-chevron-thin-right:before {
   content: "\e900";
 }
+.icon-trash:before {
+  content: "\e909";
+}
 .icon-aircraft-landing:before {
   content: "\e905";
 }
 .icon-aircraft-take-off:before {
   content: "\e906";
 }
+.icon-block:before {
+  content: "\e907";
+}
 .icon-circle-with-minus:before {
   content: "\e901";
+}
+.icon-circle-with-plus:before {
+  content: "\e908";
 }
 .icon-inbox:before {
   content: "\e904";
