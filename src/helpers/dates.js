@@ -1,16 +1,5 @@
 import { DateTime } from 'luxon';
 
-const isItemEligible = ({dates, category}) => {
-  if (
-      dates.done === null &&
-      category.name !== 'inbox' &&
-      (dates.start === null || DateTime.fromISO(dates.start) <= DateTime.local().startOf('day'))) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 const isPast = (dateString) => {
   return dateString === null ? false : _daysFromNow(dateString) < 0;
 }
@@ -34,7 +23,6 @@ const _daysFromNow = (dateString, days) => {
 }
 
 export {
-  isItemEligible,
   isPast,
   isToday,
   isTomorrow,

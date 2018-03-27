@@ -15,15 +15,15 @@ import Category from '../../components/Category/Category';
 import Dates from '../../components/Dates/Dates';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
-import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition } from '../../helpers/common'
-import { pickNextFocusItem, getActiveProjects } from '../../selectors/selectors'
+import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElementId } from '../../helpers/common'
+import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getNameProjectsWithRemainingWork, getNameNonEmptyProjects } from '../../selectors/selectors'
 
 import './App.css';
 
-if (process.env.NODE_ENV !== 'production') {
-  const {whyDidYouUpdate} = require('why-did-you-update')
-  whyDidYouUpdate(React)
-}
+// if (process.env.NODE_ENV !== 'production') {
+//   const {whyDidYouUpdate} = require('why-did-you-update')
+//   whyDidYouUpdate(React)
+// }
 
 
 class App extends Component {
@@ -122,7 +122,6 @@ class App extends Component {
                 onInputEditableItem={this.onInputEditableItemHandler}
                 onResetInputFocusItem={this.onResetInputFocusItemHandler}
                 inputFocus={this.state.inputFocusItemId === item.id ? true : false}
-                isFocusOn={isFocusOn}
                 itemId={item.id}
               >
                 {item.value}
@@ -268,45 +267,51 @@ class App extends Component {
    }, 250)
 
   onDeletedItemHandler = (itemId, key) => {
-     const focusItems = [...this.state.focusItems];
-     const index = focusItems.findIndex((el) => el.id === itemId);
-     let inputFocusItemId = this.state.inputFocusItemId; // in the current state of things, should always be null since reset after use, but kept here for consistency
-     let focusItemId = this.state.focusItemId;
-     let isFocusOn = this.state.isFocusOn;
+    let focusItems = [...this.state.focusItems];
+    const index = focusItems.findIndex((el) => el.id === itemId);
+    let inputFocusItemId = this.state.inputFocusItemId; // in the current state of things, should always be null since reset after use, but kept here for consistency
+    let focusItemId = this.state.focusItemId;
+    let isFocusOn = this.state.isFocusOn;
 
-     if(focusItems.length === 1) {
-       focusItems[0] = this.getNewFocusItem();
-       inputFocusItemId = focusItems[0].id;
-       focusItemId = null;
-       isFocusOn = false;
-     } else {
-       if(isFocusOn === false) { // List mode
-         let newIndex;
-         switch (key) {
-           case 'Backspace':
-             newIndex = index === 0 ? index + 1 : index - 1;
-             break;
-           default: //'Delete', 'Click', 'Enter'
-             newIndex = index === focusItems.length - 1 ? index - 1 : index + 1;
-         }
-         inputFocusItemId = focusItems[newIndex].id;
-         focusItemId = focusItemId === itemId ? pickNextFocusItem(this.state.focusItems, itemId) : focusItemId;
-       } else { // Focus mode
-         focusItemId = pickNextFocusItem(this.state.focusItems, itemId);
-         inputFocusItemId = focusItemId === null ? focusItems[0].id : focusItemId;
-         isFocusOn = focusItemId === null ? false : true;
-       }
-       focusItems.splice(index, 1);
-     }
+    if(focusItems.length === 1) {
+      focusItems[0] = this.getNewFocusItem();
+      inputFocusItemId = focusItems[0].id;
+      focusItemId = null;
+      isFocusOn = false;
+    } else {
+      focusItems.splice(index, 1);
+      if(isFocusOn === false) { // List mode
+        let newIndex;
+        switch (key) {
+         case 'Backspace':
+           newIndex = index === 0 ? index : index - 1;
+           break;
+         default: //'Delete', 'Click', 'Enter'
+           newIndex = index === focusItems.length ? index - 1 : index;
+        }
+        inputFocusItemId = focusItems[newIndex].id;
+        if(focusItemId === itemId) {
+          const tmp = this.pickNextFocusItem(focusItems);
+          focusItemId = tmp.newItemId;
+          focusItems = tmp.appendedFocusItems
+        }
+      } else { // Focus mode
+        const tmp = this.pickNextFocusItem(focusItems)
+        focusItemId = tmp.newItemId;
+        focusItems = tmp.appendedFocusItems
+        inputFocusItemId = focusItemId === null ? focusItems[0].id : focusItemId;
+        isFocusOn = focusItemId === null ? false : true;
+      }
+    }
 
-     this.setState({
-       inputFocusItemId: inputFocusItemId,
-       focusItems: focusItems,
-       deleteItemId: null,
-       focusItemId: focusItemId,
-       isFocusOn: isFocusOn
-     });
-   }
+    this.setState({
+     inputFocusItemId: inputFocusItemId,
+     focusItems: focusItems,
+     deleteItemId: null,
+     focusItemId: focusItemId,
+     isFocusOn: isFocusOn
+    });
+  }
 
   onToggleFocusItemHandler = (itemId = this.state.focusItemId) => {
      this.setState({
@@ -317,22 +322,25 @@ class App extends Component {
    }
 
   onFocusNextItemHandler = () => {
-     let nextFocusItemId = pickNextFocusItem(this.state.focusItems);
-     this.setState({
-       focusItemId: nextFocusItemId,
-       isFocusOn: nextFocusItemId === null ? false : true,
-       inputFocusItemId: nextFocusItemId
-     });
-   }
+    const focusItems = [...this.state.focusItems]
+    const { newItemId, appendedFocusItems } = this.pickNextFocusItem(focusItems);
+
+    this.setState({
+      focusItems: appendedFocusItems,
+      focusItemId: newItemId,
+      isFocusOn: newItemId === null ? false : true,
+      inputFocusItemId: newItemId
+    });
+  }
 
   onDoneItemHandler = (itemId) => {
      const focusItems = [...this.state.focusItems];
      const index = focusItems.findIndex((el) => el.id === itemId);
-     const newItemId = pickNextFocusItem(this.state.focusItems, itemId);
      focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate()};
+     const { newItemId, appendedFocusItems } = this.pickNextFocusItem(focusItems);
 
      this.setState({
-       focusItems: focusItems,
+       focusItems: appendedFocusItems,
        focusItemId: newItemId,
        isFocusOn: newItemId === null ? false : this.state.isFocusOn,
        inputFocusItemId: newItemId
@@ -345,16 +353,17 @@ class App extends Component {
    }
 
   onUpdateProjects = () => {
-    let activeProjects = getActiveProjects(this.state.focusItems)
-    let updatedProjects = activeProjects.map((projectName, index) => {
-     let currentProject = this.state.projects.find((p) => p.name === projectName)
-     if(currentProject !== undefined) {
-       return currentProject
-     } else {
-       return this.getNewProject(projectName)
-     }
+    const namesOfNonEmptyProjects = getNameNonEmptyProjects(this.state.focusItems)
+    let savedProjetsWithItems = this.state.projects.filter((project) => {
+      return !!namesOfNonEmptyProjects.find((p) => p === project.name)
     })
-    this.setState({projects: updatedProjects})
+
+    let newProjectsFromItems = getNameProjectsWithRemainingWork(this.state.focusItems)
+      .filter((projectName) => {
+        return !this.state.projects.find((p) => p.name === projectName)
+      }).map((projectName) => this.getNewProject(projectName))
+
+    this.setState({projects: [...savedProjetsWithItems, ...newProjectsFromItems]})
   }
 
   onUpProjectFrequency = (projectName) => {
@@ -376,6 +385,33 @@ class App extends Component {
       projects[index].frequency = currentFrequency === 0 ? null : currentFrequency - 1
       this.setState({projects: projects})
     }
+  }
+
+  pickNextFocusItem = (focusItems) => {
+
+    let {items: actionableItems, projectName } = getNextActionableItems(focusItems, this.state.projects);
+    if(actionableItems.length) {
+      let newItemId =
+        (isNurtureDoneToday(focusItems) ? null : pickNurtureItem(actionableItems)) ||
+        pickOverdue(actionableItems) ||
+        pickDueTodayTomorrow(actionableItems) ||
+        pickDueNextTwoWeeks(actionableItems) ||
+        getRandomElementId(actionableItems)
+      return { newItemId: newItemId, appendedFocusItems: focusItems}
+    } else if(projectName !== null){
+      return this.onCreateNewItemProject(projectName, focusItems)
+    } else {
+      return { newItemId: null, appendedFocusItems: focusItems}
+    }
+  }
+
+  onCreateNewItemProject = (projectName, focusItems) => {
+    const newItem = this.getNewFocusItem()
+
+    newItem.value = '+' + projectName
+    focusItems.push(newItem)
+
+    return { newItemId: newItem.id, appendedFocusItems: focusItems }
   }
 
   /**
