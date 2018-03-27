@@ -1,17 +1,14 @@
-.dates {
-  display: flex;
-  align-items: flex-start;
-  margin-left: 3rem;
-  padding-right: 1rem;
-  font-size: 1rem;
-}
-
 .date {
   display: flex;
   align-items: flex-start;
   margin-right: 2rem;
+  cursor: pointer;
 }
 
 .date span:first-child {
   padding: 0.22rem 0.8rem 0 0;
+}
+
+.date:hover {
+  color:red;
 }

@@ -8,11 +8,11 @@ import Frame from '../../containers/Frame/Frame';
 import ContentWrapper from '../ContentWrapper/ContentWrapper';
 import FocusItem from '../FocusItem/FocusItem';
 import Projects from '../Projects/Projects';
+import Dates from '../Dates/Dates';
 import Project from '../../components/Project/Project';
 import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
 import Category from '../../components/Category/Category';
-import Dates from '../../components/Dates/Dates';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
@@ -128,8 +128,10 @@ class App extends Component {
               </Editable>
 
               <Dates
+                onRemoveDate={this.onRemoveDateHandler}
                 startdate={item.dates.start}
-                duedate={item.dates.due} />
+                duedate={item.dates.due}
+                itemId={item.id} />
 
               { isFocusOn ?
                 <Actions
@@ -417,6 +419,14 @@ class App extends Component {
     focusItems.push(newItem)
 
     return { newItemId: newItem.id, appendedFocusItems: focusItems }
+  }
+
+  onRemoveDateHandler = (itemId, dateType) => {
+    const focusItems = [...this.state.focusItems];
+    const index = focusItems.findIndex((el) => el.id === itemId);
+    focusItems[index].dates = {...focusItems[index].dates, [dateType]: null};
+
+    this.setState({focusItems: focusItems})
   }
 
   /**
