@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import { isPast, isToday, isTomorrow, isWithinNextTwoWeeks } from '../helpers/dates'
-import { getRandomElementId } from '../helpers/common'
+import { getRandomElement } from '../helpers/common'
 
 
 const isNurtureDoneToday = (focusItems) => {
@@ -9,22 +9,22 @@ const isNurtureDoneToday = (focusItems) => {
 
 const pickNurtureItem = (eligibleItems) => {
   let nurtureItems = eligibleItems.filter((item) => item.category.name === 'nurture');
-  return getRandomElementId(nurtureItems);
+  return getRandomElement(nurtureItems);
 }
 
 const pickOverdue = (eligibleItems) => {
   let overdueIds = eligibleItems.filter((item) => isPast(item.dates.due)).map((item) => item.id);
-  return getRandomElementId(overdueIds);
+  return getRandomElement(overdueIds);
 }
 
 const pickDueTodayTomorrow = (eligibleItems) => {
   let dueTodayTomorrowIds = eligibleItems.filter((item) => isToday(item.dates.due) || isTomorrow(item.dates.due)).map((item) => item.id);
-  return getRandomElementId(dueTodayTomorrowIds);
+  return getRandomElement(dueTodayTomorrowIds);
 }
 
 const pickDueNextTwoWeeks = (eligibleItems) => {
   let dueNextTwoWeeksIds = eligibleItems.filter((item) => isWithinNextTwoWeeks(item.dates.due)).map((item) => item.id);
-  return getRandomElementId(dueNextTwoWeeksIds);
+  return getRandomElement(dueNextTwoWeeksIds);
 }
 
 const getNameProjectsWithRemainingWork = (focusItems) => {

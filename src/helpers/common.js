@@ -1,5 +1,5 @@
-const getRandomElementId = (arr) => {
-  return arr.length ? arr[Math.floor(Math.random() * arr.length)].id : null;
+const getRandomElement = (arr) => {
+  return arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
 }
 
 // The maximum is inclusive and the minimum is inclusive
@@ -30,7 +30,7 @@ const setCaretPosition = (element, position) => {
 }
 
 export {
-  getRandomElementId,
+  getRandomElement,
   getRandomIntInclusive,
   isCaretAtBeginningFieldItem,
   isCaretAtEndFieldItem,

@@ -15,7 +15,7 @@ import Category from '../../components/Category/Category';
 import Dates from '../../components/Dates/Dates';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
-import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElementId } from '../../helpers/common'
+import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
 import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getNameProjectsWithRemainingWork, getNameNonEmptyProjects } from '../../selectors/selectors'
 
 import './App.css';
@@ -354,16 +354,20 @@ class App extends Component {
 
   onUpdateProjects = () => {
     const namesOfNonEmptyProjects = getNameNonEmptyProjects(this.state.focusItems)
-    let savedProjetsWithItems = this.state.projects.filter((project) => {
+    const savedProjetsWithItems = this.state.projects.filter((project) => {
       return !!namesOfNonEmptyProjects.find((p) => p === project.name)
     })
 
-    let newProjectsFromItems = getNameProjectsWithRemainingWork(this.state.focusItems)
+    const newProjectsFromItems = getNameProjectsWithRemainingWork(this.state.focusItems)
       .filter((projectName) => {
         return !this.state.projects.find((p) => p.name === projectName)
       }).map((projectName) => this.getNewProject(projectName))
 
-    this.setState({projects: [...savedProjetsWithItems, ...newProjectsFromItems]})
+    const allActiveProjects = [...savedProjetsWithItems, ...newProjectsFromItems].sort((p1, p2) => {
+      return p2.frequency - p1.frequency
+    })
+
+    this.setState({projects: allActiveProjects})
   }
 
   onUpProjectFrequency = (projectName) => {
@@ -390,13 +394,14 @@ class App extends Component {
   pickNextFocusItem = (focusItems) => {
 
     let {items: actionableItems, projectName } = getNextActionableItems(focusItems, this.state.projects);
+    console.log(actionableItems)
     if(actionableItems.length) {
       let newItemId =
         (isNurtureDoneToday(focusItems) ? null : pickNurtureItem(actionableItems)) ||
         pickOverdue(actionableItems) ||
         pickDueTodayTomorrow(actionableItems) ||
         pickDueNextTwoWeeks(actionableItems) ||
-        getRandomElementId(actionableItems)
+        getRandomElement(actionableItems).id
       return { newItemId: newItemId, appendedFocusItems: focusItems}
     } else if(projectName !== null){
       return this.onCreateNewItemProject(projectName, focusItems)
