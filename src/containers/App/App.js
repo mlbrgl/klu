@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import { DateTime } from 'luxon';
-import { MemoryRouter } from 'react-router-dom'
-import { Route } from 'react-router-dom'
+import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
 import Frame from '../../containers/Frame/Frame';
 import ContentWrapper from '../ContentWrapper/ContentWrapper';
@@ -16,7 +15,7 @@ import Category from '../../components/Category/Category';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
-import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getNameProjectsWithRemainingWork, getNameNonEmptyProjects } from '../../selectors/selectors'
+import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getNameProjectsWithRemainingWork, getNameNonEmptyProjects, isItemWithinProject } from '../../selectors/selectors'
 
 import './App.css';
 
@@ -65,13 +64,15 @@ class App extends Component {
         <div className="app">
           <Frame>
             <ContentWrapper isFocusOn={this.state.isFocusOn}>
-              <Route path="/" exact render={this.renderFocusItems} />
-              <Route path="/projects" render={this.renderProjects} />
-              { !this.state.isFocusOn ?
-                  <Actions
-                    onFocusNextItem={this.onFocusNextItemHandler} />
-                  : null
-              }
+              <Switch>
+                <Route path="/" exact render={this.renderFocusItems} />
+                <Route path="/projects" render={this.renderProjects} />
+              </Switch>
+              <Actions
+                onDoneItem={this.onDoneItemHandler}
+                onFocusNextItem={this.onFocusNextItemHandler}
+                itemId={this.state.focusItemId}
+                isFocusOn={this.state.isFocusOn} />
             </ContentWrapper>
           </Frame>
         </div>
@@ -94,10 +95,18 @@ class App extends Component {
    * COMPONENT TREES
    */
 
-  renderFocusItems = () => {
+  renderFocusItems = (routeProps) => {
+    const projectFilter = new URLSearchParams(routeProps.location.search).get('project')
     return (
       this.state.focusItems
-      .filter((item) => { return (item.id === this.state.focusItemId && this.state.isFocusOn) || !this.state.isFocusOn })
+      .filter((item) => {
+        return (
+          (this.state.isFocusOn && item.id === this.state.focusItemId) ||
+          (!this.state.isFocusOn && projectFilter !== null && isItemWithinProject(item, {name: projectFilter})) ||
+          (!this.state.isFocusOn && projectFilter === null) ||
+          false
+        )
+      })
       .map((item, index) => {
         let isFocusOn = item.id === this.state.focusItemId && this.state.isFocusOn ? true : false;
         let isDeleteOn = this.state.deleteItemId === item.id ? true : false;
@@ -109,7 +118,9 @@ class App extends Component {
             key={item.id}
             category={item.category}
             dates={item.dates}
-            isDeleteOn={isDeleteOn} >
+            isDeleteOn={isDeleteOn}
+            itemId={item.id}
+            onToggleFocusItem={this.onToggleFocusItemHandler} >
 
               <Category
                 name={item.category.name}
@@ -133,15 +144,6 @@ class App extends Component {
                 duedate={item.dates.due}
                 itemId={item.id} />
 
-              { isFocusOn ?
-                <Actions
-                  onDoneItem={this.onDoneItemHandler}
-                  onFocusNextItem={this.onFocusNextItemHandler}
-                  itemId={item.id}
-                  isFocusOn={isFocusOn} />
-                : null
-              }
-
           </FocusItem>
 
         )
@@ -151,14 +153,14 @@ class App extends Component {
 
   renderProjects = () => {
     return (
-      <Projects onMount={this.onUpdateProjects}>
+      <Projects onMount={this.onUpdateProjectsHandler}>
         {this.state.projects.map((project, index) => {
           return (
             <Project
               key={project.name}
               frequency={project.frequency}
-              onUpProjectFrequency={this.onUpProjectFrequency}
-              onDownProjectFrequency={this.onDownProjectFrequency}
+              onUpProjectFrequency={this.onUpProjectFrequencyHandler}
+              onDownProjectFrequency={this.onDownProjectFrequencyHandler}
               name={project.name} />
           )
         })}
@@ -354,7 +356,7 @@ class App extends Component {
      this.setState({inputFocusItemId: null});
    }
 
-  onUpdateProjects = () => {
+  onUpdateProjectsHandler = () => {
     const namesOfNonEmptyProjects = getNameNonEmptyProjects(this.state.focusItems)
     const savedProjetsWithItems = this.state.projects.filter((project) => {
       return !!namesOfNonEmptyProjects.find((p) => p === project.name)
@@ -372,7 +374,7 @@ class App extends Component {
     this.setState({projects: allActiveProjects})
   }
 
-  onUpProjectFrequency = (projectName) => {
+  onUpProjectFrequencyHandler = (projectName) => {
     const projects = [...this.state.projects]
     const index = projects.findIndex((el) => el.name === projectName);
     const currentFrequency = projects[index].frequency;
@@ -381,7 +383,7 @@ class App extends Component {
     this.setState({projects: projects})
   }
 
-  onDownProjectFrequency = (projectName) => {
+  onDownProjectFrequencyHandler = (projectName) => {
     const projects = [...this.state.projects]
     const index = projects.findIndex((el) => el.name === projectName);
     const currentFrequency = projects[index].frequency;
@@ -396,7 +398,6 @@ class App extends Component {
   pickNextFocusItem = (focusItems) => {
 
     let {items: actionableItems, projectName } = getNextActionableItems(focusItems, this.state.projects);
-    console.log(actionableItems)
     if(actionableItems.length) {
       let newItemId =
         (isNurtureDoneToday(focusItems) ? null : pickNurtureItem(actionableItems)) ||

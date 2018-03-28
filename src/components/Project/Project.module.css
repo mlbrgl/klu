@@ -1,7 +1,6 @@
 .project {
   composes: listItem from '../../containers/ContentWrapper/ContentWrapper.module.css';
   color: white;
-  padding-right: 1rem;
 }
 
 .paused {

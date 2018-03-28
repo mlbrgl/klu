@@ -97,9 +97,9 @@ const isItemActionable = ({dates}) => {
   }
 }
 
-const isItemWithinProject = (item, project) => {
-  let projectRegex = new RegExp('\\+' + project.name + '$');
-  return projectRegex.test(item.value)
+const isItemWithinProject = ({ value }, { name }) => {
+  let projectRegex = new RegExp('\\+' + name + '$');
+  return projectRegex.test(value)
 }
 
 export {
@@ -111,5 +111,6 @@ export {
   isItemEligible,
   getNextActionableItems,
   getNameProjectsWithRemainingWork,
-  getNameNonEmptyProjects
+  getNameNonEmptyProjects,
+  isItemWithinProject
 }

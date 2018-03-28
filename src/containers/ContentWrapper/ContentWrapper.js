@@ -1,6 +1,5 @@
 import React from 'react';
-import { withRouter } from 'react-router'
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 import styles from './ContentWrapper.module.css';
 

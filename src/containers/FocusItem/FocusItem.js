@@ -6,8 +6,6 @@ import { isItemEligible } from '../../selectors/selectors'
 
 class FocusItem extends PureComponent {
 
-  state = {};
-
   // @TODO #deleteanimation
   // delete = (event) => {
   //   let editable = ReactDOM.findDOMNode(this.editableRef)
@@ -38,7 +36,7 @@ class FocusItem extends PureComponent {
 
     // if(!this.state.animateDelete) { @TODO #deleteanimation
       this.componentToRender = (
-        <div className={focusItemStyles}>
+        <div className={focusItemStyles} onClick={this.onToggleFocusItemHandler}>
           {this.props.children}
         </div>
       )
@@ -60,6 +58,10 @@ class FocusItem extends PureComponent {
     //   )
     // }
     return this.componentToRender;
+  }
+
+  onToggleFocusItemHandler = () => {
+    this.props.onToggleFocusItem(this.props.itemId);
   }
 
 }

@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom';
+
 import styles from './Project.module.css'
 
 class Project extends Component {
 
   render() {
-
     let projectStyles = [styles.project];
     if (this.props.frequency === 0) {
       projectStyles.push(styles.paused);
@@ -12,7 +13,7 @@ class Project extends Component {
     projectStyles = projectStyles.join(' ');
 
     return (
-      <div className={projectStyles}>
+      <div className={projectStyles} onClick={this.onFilterProjectHandler}>
         {this.props.name}
         <span className="icon-circle-with-plus" onClick={this.onUpProjectFrequencyHandler}></span>
         <span className="icon-circle-with-minus" onClick={this.onDownProjectFrequencyHandler}></span>
@@ -39,14 +40,20 @@ class Project extends Component {
     }
   }
 
-  onUpProjectFrequencyHandler = () => {
+  onFilterProjectHandler = () => {
+    this.props.history.push('/?project='+this.props.name)
+  }
+
+  onUpProjectFrequencyHandler = (event) => {
+    event.stopPropagation()
     this.props.onUpProjectFrequency(this.props.name)
   }
 
-  onDownProjectFrequencyHandler = () => {
+  onDownProjectFrequencyHandler = (event) => {
+    event.stopPropagation()
     this.props.onDownProjectFrequency(this.props.name)
   }
 }
 
 
-export default Project
+export default withRouter(Project)
