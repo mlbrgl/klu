@@ -87,7 +87,20 @@ class App extends Component {
       }
     }).catch((err) => {
       console.error(err);
-    });;
+    });
+    
+    document.addEventListener('keydown', (event) => {
+      switch (event.key) {
+        case 'Escape':
+          if (this.state.deleteItemId !== null) {
+            this.setState({deleteItemId: null});
+          } else {
+            this.onToggleFocusItemHandler();
+          }
+          break;
+        default:
+      }
+    })
   }
 
 
@@ -118,9 +131,7 @@ class App extends Component {
             key={item.id}
             category={item.category}
             dates={item.dates}
-            isDeleteOn={isDeleteOn}
-            itemId={item.id}
-            onToggleFocusItem={this.onToggleFocusItemHandler} >
+            isDeleteOn={isDeleteOn} >
 
               <Category
                 name={item.category.name}
@@ -173,93 +184,89 @@ class App extends Component {
    */
 
   onKeyDownEditableItemHandler = (event, itemId) => {
-     const focusItems = [...this.state.focusItems];
-     const index = focusItems.findIndex((el) => el.id === itemId);
+    const focusItems = [...this.state.focusItems];
+    const index = focusItems.findIndex((el) => el.id === itemId);
 
-     switch (event.key) {
-       case 'Enter':
-         event.preventDefault();
-         if (event.metaKey || event.ctrlKey) {
-           if (event.shiftKey) {
-             this.onDoneItemHandler(itemId)
-           } else {
-             this.onToggleFocusItemHandler(itemId);
-           }
-         } else if (this.state.deleteItemId !== null) {
-           this.onDeletedItemHandler(itemId, event.key)
-         } else {
-           const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
-           focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
+    switch (event.key) {
+    case 'Enter':
+      event.preventDefault();
+      if (event.metaKey || event.ctrlKey) {
+        if (event.shiftKey) {
+          this.onDoneItemHandler(itemId)
+        } else {
+          this.onToggleFocusItemHandler(itemId);
+        }
+      } else if (this.state.deleteItemId !== null) {
+        this.onDeletedItemHandler(itemId, event.key)
+      } else {
+        const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
+        focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
 
-           if(this.state.isFocusOn === true) {
-             this.setState({isFocusOn: false});
-           }
-           this.setState({focusItems: focusItems, inputFocusItemId: focusItems[indexNewItem].id});
-         }
-         break;
+        if (this.state.isFocusOn === true) {
+          this.setState({isFocusOn: false});
+        }
+        this.setState({
+          focusItems: focusItems,
+          inputFocusItemId: focusItems[indexNewItem].id
+        });
+      }
+      break;
 
-       case 'Backspace':
-       case 'Delete':
-         if(focusItems[index].value.length === 0) {
-           event.preventDefault();
-           this.onDeletedItemHandler(itemId, event.key)
-         } else if (event.metaKey || event.ctrlKey) {
-           event.preventDefault();
-           this.setState({deleteItemId: itemId})
-         }
-         break;
+    case 'Backspace':
+    case 'Delete':
+      if (focusItems[index].value.length === 0) {
+        event.preventDefault();
+        this.onDeletedItemHandler(itemId, event.key)
+      } else if (event.metaKey || event.ctrlKey) {
+        event.preventDefault();
+        this.setState({deleteItemId: itemId})
+      }
+      break;
 
-       case 'ArrowUp':
-         if(event.metaKey || event.ctrlKey) {
-           event.preventDefault();
-           this.shiftDate(focusItems, index, 'plus', event.altKey ? {weeks: 1} : {days: 1})
-         } else if(index > 0) {
-           event.preventDefault();
-           this.setState({inputFocusItemId: focusItems[index - 1].id});
-         }
-         break;
+    case 'ArrowUp':
+      if (event.metaKey || event.ctrlKey) {
+        event.preventDefault();
+        this.shiftDate(focusItems, index, 'plus', event.altKey ? {weeks: 1} : {days: 1})
+      } else if (index > 0) {
+        event.preventDefault();
+        this.setState({inputFocusItemId: focusItems[index - 1].id});
+      }
+      break;
 
-       case 'ArrowDown':
-         if(event.metaKey || event.ctrlKey) {
-           event.preventDefault();
-           this.shiftDate (focusItems, index, 'minus', event.altKey ? {weeks: 1} : {days: 1})
-         } else if(index < focusItems.length - 1) {
-           event.preventDefault();
-           this.setState({inputFocusItemId: focusItems[index + 1].id});
-         }
-         break;
+    case 'ArrowDown':
+      if (event.metaKey || event.ctrlKey) {
+        event.preventDefault();
+        this.shiftDate(focusItems, index, 'minus', event.altKey ? {weeks: 1} : {days: 1})
+      } else if (index < focusItems.length - 1) {
+        event.preventDefault();
+        this.setState({inputFocusItemId: focusItems[index + 1].id});
+      }
+      break;
 
-       case 'ArrowRight':
-         if(!event.shiftKey) {
-           if(event.metaKey || event.ctrlKey) {
-             setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
-           } else if(isCaretAtEndFieldItem()) {
-             //cycle through categories
-             let idxOfCurrentCategory = focusItems[index].category !== null ? this.categories.map((category) => category.name).indexOf(focusItems[index].category.name) : 0;
-             let idxOfNextCategory = (idxOfCurrentCategory + 1) % this.categories.length;
-             focusItems[index].category = this.categories[idxOfNextCategory];
-             this.setState({focusItems: focusItems});
-           }
-         }
-         break;
+    case 'ArrowRight':
+      if (!event.shiftKey) {
+        if (event.metaKey || event.ctrlKey) {
+          setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
+        } else if (isCaretAtEndFieldItem()) {
+          //cycle through categories
+          let idxOfCurrentCategory = focusItems[index].category !== null ? this.categories.map((category) => category.name).indexOf(focusItems[index].category.name) : 0;
+          let idxOfNextCategory = (idxOfCurrentCategory + 1) % this.categories.length;
+          focusItems[index].category = this.categories[idxOfNextCategory];
+          this.setState({focusItems: focusItems});
+        }
+      }
+      break;
 
-       case 'ArrowLeft':
-         if(!event.shiftKey) {
-           if(event.metaKey || event.ctrlKey) {
-             setCaretPosition(event.target.childNodes[0], 0);
-           } else if(isCaretAtBeginningFieldItem()) {
-             this.setState({deleteItemId: itemId});
-           }
-         }
-         break;
-       case 'Escape':
-         if(this.state.deleteItemId !== null) {
-           this.setState({deleteItemId: null});
-         } else {
-           this.onToggleFocusItemHandler(); //we only toggle focus, we don't set it
-         }
-         break;
-       default:
+    case 'ArrowLeft':
+      if (!event.shiftKey) {
+        if (event.metaKey || event.ctrlKey) {
+          setCaretPosition(event.target.childNodes[0], 0);
+        } else if (isCaretAtBeginningFieldItem()) {
+          this.setState({deleteItemId: itemId});
+        }
+      }
+      break;
+    default:
      }
    }
 
