@@ -11,7 +11,7 @@ class Actions extends PureComponent {
 
   onFocusNextItemHandler = () => {
     this.props.onFocusNextItem()
-    this.props.history.push("/")
+    this.props.history.push('/')
   }
 
   render () {

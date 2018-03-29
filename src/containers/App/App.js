@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import { DateTime } from 'luxon';
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { Route, Switch, withRouter } from 'react-router-dom'
 
 import Frame from '../../containers/Frame/Frame';
 import ContentWrapper from '../ContentWrapper/ContentWrapper';
@@ -60,23 +60,21 @@ class App extends Component {
 
   render() {
     return (
-      <MemoryRouter>
-        <div className="app">
-          <Frame>
-            <ContentWrapper isFocusOn={this.state.isFocusOn}>
-              <Switch>
-                <Route path="/" exact render={this.renderFocusItems} />
-                <Route path="/projects" render={this.renderProjects} />
-              </Switch>
-              <Actions
-                onDoneItem={this.onDoneItemHandler}
-                onFocusNextItem={this.onFocusNextItemHandler}
-                itemId={this.state.focusItemId}
-                isFocusOn={this.state.isFocusOn} />
-            </ContentWrapper>
-          </Frame>
-        </div>
-      </MemoryRouter>
+      <div className="app">
+        <Frame>
+          <ContentWrapper isFocusOn={this.state.isFocusOn}>
+            <Switch>
+              <Route path="/" exact render={this.renderFocusItems} />
+              <Route path="/projects" render={this.renderProjects} />
+            </Switch>
+            <Actions
+              onDoneItem={this.onDoneItemHandler}
+              onFocusNextItem={this.onFocusNextItemHandler}
+              itemId={this.state.focusItemId}
+              isFocusOn={this.state.isFocusOn} />
+          </ContentWrapper>
+        </Frame>
+      </div>
     );
   }
 
@@ -88,7 +86,7 @@ class App extends Component {
     }).catch((err) => {
       console.error(err);
     });
-    
+
     document.addEventListener('keydown', (event) => {
       switch (event.key) {
         case 'Escape':
@@ -96,6 +94,7 @@ class App extends Component {
             this.setState({deleteItemId: null});
           } else {
             this.onToggleFocusItemHandler();
+            this.props.history.push('/')
           }
           break;
         default:
@@ -457,4 +456,4 @@ class App extends Component {
 
 }
 
-export default App;
+export default withRouter(App);
