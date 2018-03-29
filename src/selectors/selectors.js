@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { isPast, isToday, isTomorrow, isWithinNextTwoWeeks } from '../helpers/dates'
 import { getRandomElement } from '../helpers/common'
 
+const PROJECT_REGEX = /\+(\w+(?:-\w+)*)$/
 
 const isNurtureDoneToday = (focusItems) => {
   return focusItems.filter((item) => isToday(item.dates.done) && item.category.name === 'nurture').length ? true : false;
@@ -27,29 +28,17 @@ const pickDueNextTwoWeeks = (eligibleItems) => {
   return getRandomElement(dueNextTwoWeeksIds);
 }
 
-const getNameProjectsWithRemainingWork = (focusItems) => {
-  let projectRegex = /\+(\w+(?:-\w+)*)$/;
+const getProjectNamesFromItems = (focusItems) => {
   let projects = focusItems
-    .filter((item) => item.dates.done === null)
-    .map((item, index) => {
-      let project = item.value.match(projectRegex)
-      return project !== null ? project[1] : null
-    })
+    .map((item, index) => getProjectNameFromItem(item))
     .filter((item) => item !== null)
 
   return [...new Set(projects)]
 }
 
-const getNameNonEmptyProjects = (focusItems) => {
-  let projectRegex = /\+(\w+(?:-\w+)*)$/;
-  let projects = focusItems
-    .map((item, index) => {
-      let project = item.value.match(projectRegex)
-      return project !== null ? project[1] : null
-    })
-    .filter((item) => item !== null)
-
-  return [...new Set(projects)]
+const getProjectNameFromItem = ({value}) => {
+  let project = value.match(PROJECT_REGEX)
+  return project !== null ? project[1] : null
 }
 
 const getNextActionableItems = (focusItems, projects) => {
@@ -110,7 +99,6 @@ export {
   pickDueNextTwoWeeks,
   isItemEligible,
   getNextActionableItems,
-  getNameProjectsWithRemainingWork,
-  getNameNonEmptyProjects,
+  getProjectNamesFromItems,
   isItemWithinProject
 }

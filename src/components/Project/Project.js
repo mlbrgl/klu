@@ -7,7 +7,7 @@ class Project extends Component {
 
   render() {
     let projectStyles = [styles.project];
-    if (this.props.frequency === 0) {
+    if (this.props.frequency === null) {
       projectStyles.push(styles.paused);
     }
     projectStyles = projectStyles.join(' ');
@@ -25,9 +25,9 @@ class Project extends Component {
 
   renderFrequency = () => {
     let frequency = null;
-    if(this.props.frequency === 0) {
+    if(this.props.frequency === null) {
       frequency = 'paused'
-    } else if(this.props.frequency !== null) {
+    } else if(this.props.frequency > 0) {
       frequency = this.props.frequency + 'X a day';
     }
 

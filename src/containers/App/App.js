@@ -15,7 +15,7 @@ import Category from '../../components/Category/Category';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
-import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getNameProjectsWithRemainingWork, getNameNonEmptyProjects, isItemWithinProject } from '../../selectors/selectors'
+import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getProjectNamesFromItems, isItemWithinProject } from '../../selectors/selectors'
 
 import './App.css';
 
@@ -51,7 +51,7 @@ class App extends Component {
   }
 
   getNewProject (name) {
-    return {name: name, frequency: null}
+    return {name: name, frequency: 0}
   }
 
   componentDidUpdate = () => {
@@ -344,18 +344,18 @@ class App extends Component {
   }
 
   onDoneItemHandler = (itemId) => {
-     const focusItems = [...this.state.focusItems];
-     const index = focusItems.findIndex((el) => el.id === itemId);
-     focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate()};
-     const { newItemId, appendedFocusItems } = this.pickNextFocusItem(focusItems);
+    const focusItems = [...this.state.focusItems];
+    const index = focusItems.findIndex((el) => el.id === itemId);
+    focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate()};
+    const { newItemId, appendedFocusItems } = this.pickNextFocusItem(focusItems);
 
-     this.setState({
-       focusItems: appendedFocusItems,
-       focusItemId: newItemId,
-       isFocusOn: newItemId === null ? false : this.state.isFocusOn,
-       inputFocusItemId: newItemId
-     });
-   };
+    this.setState({
+      focusItems: appendedFocusItems,
+      focusItemId: newItemId,
+      isFocusOn: newItemId === null ? false : this.state.isFocusOn,
+      inputFocusItemId: newItemId
+    });
+  };
 
   // @TODO: check if merging inputFocusItem with resetInputFocusItemHandler makes sense
   onResetInputFocusItemHandler = () => {
@@ -363,21 +363,15 @@ class App extends Component {
    }
 
   onUpdateProjectsHandler = () => {
-    const namesOfNonEmptyProjects = getNameNonEmptyProjects(this.state.focusItems)
-    const savedProjetsWithItems = this.state.projects.filter((project) => {
-      return !!namesOfNonEmptyProjects.find((p) => p === project.name)
-    })
-
-    const newProjectsFromItems = getNameProjectsWithRemainingWork(this.state.focusItems)
-      .filter((projectName) => {
-        return !this.state.projects.find((p) => p.name === projectName)
-      }).map((projectName) => this.getNewProject(projectName))
-
-    const allActiveProjects = [...savedProjetsWithItems, ...newProjectsFromItems].sort((p1, p2) => {
+    const projectNamesFromItems = getProjectNamesFromItems(this.state.focusItems)
+    const projects = projectNamesFromItems
+      .map((projectName) => {
+        return this.state.projects.find((p) => p.name === projectName) || this.getNewProject(projectName)
+      }).sort((p1, p2) => {
       return p2.frequency - p1.frequency
     })
 
-    this.setState({projects: allActiveProjects})
+    this.setState({projects: projects})
   }
 
   onUpProjectFrequencyHandler = (projectName) => {
@@ -385,7 +379,7 @@ class App extends Component {
     const index = projects.findIndex((el) => el.name === projectName);
     const currentFrequency = projects[index].frequency;
 
-    projects[index].frequency = currentFrequency !== null ? currentFrequency + 1 : 1
+    projects[index].frequency = currentFrequency !== null ? currentFrequency + 1 : 0
     this.setState({projects: projects})
   }
 
