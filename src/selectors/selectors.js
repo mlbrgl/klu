@@ -8,7 +8,7 @@ const isNurtureDoneToday = (focusItems) => {
 }
 
 const pickNurtureItem = (eligibleItems) => {
-  let nurtureItems = eligibleItems.filter((item) => item.category.name === 'nurture');
+  let nurtureItems = eligibleItems.filter((item) => item.category.name === 'nurture').map((item) => item.id);
   return getRandomElement(nurtureItems);
 }
 
