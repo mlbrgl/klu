@@ -23,11 +23,6 @@
   padding: 1rem;
   clear:both;
   text-decoration: none;
-  cursor: pointer;
-}
-
-.listItem:hover {
-  background-color: rgba(255,255,255, 0.1);
 }
 
 .viewLink {

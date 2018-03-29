@@ -36,7 +36,7 @@ class FocusItem extends PureComponent {
 
     // if(!this.state.animateDelete) { @TODO #deleteanimation
       this.componentToRender = (
-        <div className={focusItemStyles} onClick={this.onToggleFocusItemHandler}>
+        <div className={focusItemStyles}>
           {this.props.children}
         </div>
       )
@@ -58,10 +58,6 @@ class FocusItem extends PureComponent {
     //   )
     // }
     return this.componentToRender;
-  }
-
-  onToggleFocusItemHandler = () => {
-    this.props.onToggleFocusItem(this.props.itemId);
   }
 
 }
