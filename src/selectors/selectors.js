@@ -28,12 +28,22 @@ const pickDueNextTwoWeeks = (eligibleItems) => {
   return getRandomElement(dueNextTwoWeeksIds);
 }
 
-const getProjectNamesFromItems = (focusItems) => {
-  let projects = focusItems
-    .map((item, index) => getProjectNameFromItem(item))
-    .filter((item) => item !== null)
+const getProjectsInfo = (focusItems) => {
+  const projectsInfo = [];
+  focusItems
+    .forEach((item) => {
+      let projectName = getProjectNameFromItem(item)
+      if(projectName) {
+        let projectInfo = projectsInfo.find((pInfo) => pInfo.name === projectName)
+        if(projectInfo) {
+          if(!projectInfo.hasWork) projectInfo.hasWork = isItemNotDone(item)
+        } else {
+          projectsInfo.push({name: projectName, hasWork: isItemNotDone(item)})
+        }
+      }
+    })
 
-  return [...new Set(projects)]
+  return projectsInfo
 }
 
 const getProjectNameFromItem = ({value}) => {
@@ -86,6 +96,10 @@ const isItemActionable = ({dates}) => {
   }
 }
 
+const isItemNotDone = ({dates}) => {
+  return dates.done === null
+}
+
 const isItemWithinProject = ({ value }, { name }) => {
   let projectRegex = new RegExp('\\+' + name + '$');
   return projectRegex.test(value)
@@ -99,6 +113,6 @@ export {
   pickDueNextTwoWeeks,
   isItemEligible,
   getNextActionableItems,
-  getProjectNamesFromItems,
+  getProjectsInfo,
   isItemWithinProject
 }

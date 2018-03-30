@@ -8,12 +8,22 @@
   background-color: rgba(255,255,255, 0.1);
 }
 
+.pending {
+  composes: project;
+  color: yellow;
+}
+
 .paused {
   composes: project;
   color: gray;
 }
 
-.project span {
+.completed {
+  composes: paused;
+  text-decoration: line-through;
+}
+
+.frequency {
   float: right;
   font-size: 1.5rem;
   line-height: 3rem;
@@ -21,6 +31,27 @@
   transition: 0.5s;
 }
 
-.frequency {
+.frequency span:hover {
+  color: white;
+}
+
+.info {
   font-size: 1rem;
+  display: flex;
+}
+
+.label span {
+  font-style: italic;
+}
+
+.actions span {
+  margin-left: 1rem;
+  padding: 0.2rem;
+  color: yellow;
+  opacity: 0.6;
+  transition: 0.2s;
+}
+
+.actions span:hover {
+  opacity: 1;
 }

@@ -15,7 +15,8 @@ import Category from '../../components/Category/Category';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
-import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getProjectNamesFromItems, isItemWithinProject } from '../../selectors/selectors'
+import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getProjectsInfo, isItemWithinProject } from '../../selectors/selectors'
+import { PROJECT_ACTIVE, PROJECT_PENDING, PROJECT_PAUSED, PROJECT_COMPLETED} from '../../helpers/constants'
 
 import './App.css';
 
@@ -23,7 +24,6 @@ import './App.css';
 //   const {whyDidYouUpdate} = require('why-did-you-update')
 //   whyDidYouUpdate(React)
 // }
-
 
 class App extends Component {
 
@@ -51,7 +51,7 @@ class App extends Component {
   }
 
   getNewProject (name) {
-    return {name: name, frequency: 0}
+    return {name: name, frequency: 0, status: PROJECT_ACTIVE}
   }
 
   componentDidUpdate = () => {
@@ -169,9 +169,12 @@ class App extends Component {
             <Project
               key={project.name}
               frequency={project.frequency}
+              status={project.status}
+              name={project.name}
               onUpProjectFrequency={this.onUpProjectFrequencyHandler}
               onDownProjectFrequency={this.onDownProjectFrequencyHandler}
-              name={project.name} />
+              onAddWorkProject={this.onAddWorkProjectHandler}
+              onSetProjectStatus={this.onSetProjectStatusHandler} />
           )
         })}
       </Projects>
@@ -363,10 +366,18 @@ class App extends Component {
    }
 
   onUpdateProjectsHandler = () => {
-    const projectNamesFromItems = getProjectNamesFromItems(this.state.focusItems)
-    const projects = projectNamesFromItems
-      .map((projectName) => {
-        return this.state.projects.find((p) => p.name === projectName) || this.getNewProject(projectName)
+    const projectsInfo = getProjectsInfo(this.state.focusItems)
+    const projects = projectsInfo
+      .map((projectInfo) => {
+        const project = this.state.projects.find((p) => p.name === projectInfo.name) || this.getNewProject(projectInfo.name)
+        if(projectInfo.hasWork) {
+          project.status = PROJECT_ACTIVE
+        } else {
+          if(project.status !== PROJECT_PAUSED && project.status !== PROJECT_COMPLETED) {
+            project.status = PROJECT_PENDING
+          }
+        }
+        return project
       }).sort((p1, p2) => {
       return p2.frequency - p1.frequency
     })
@@ -407,19 +418,42 @@ class App extends Component {
         getRandomElement(actionableItems).id
       return { newItemId: newItemId, appendedFocusItems: focusItems}
     } else if(projectName !== null){
-      return this.onCreateNewItemProject(projectName, focusItems)
+      return this.onCreateNewItemProjectHandler(projectName, focusItems)
     } else {
-      return { newItemId: null, appendedFocusItems: focusItems}
+      return { newItemId: null, appendedFocusItems: focusItems }
     }
   }
 
-  onCreateNewItemProject = (projectName, focusItems) => {
+  onCreateNewItemProjectHandler = (projectName, focusItems = this.state.focusItems) => {
+    focusItems = [...focusItems];
     const newItem = this.getNewFocusItem()
 
     newItem.value = '+' + projectName
     focusItems.push(newItem)
 
     return { newItemId: newItem.id, appendedFocusItems: focusItems }
+  }
+
+  onAddWorkProjectHandler = (projectName) => {
+    const { newItemId, appendedFocusItems } = this.onCreateNewItemProjectHandler(projectName)
+
+    this.setState({
+      focusItems: appendedFocusItems,
+      focusItemId: newItemId,
+      isFocusOn: true,
+      inputFocusItemId: newItemId
+    });
+  }
+
+  onSetProjectStatusHandler = (projectName, status) => {
+    const projects = [...this.state.projects]
+    const index = projects.findIndex((project) => project.name === projectName)
+    projects[index].status = status;
+    if(status === PROJECT_COMPLETED || status === PROJECT_PAUSED) {
+      projects[index].frequency = 0;
+    }
+
+    this.setState({projects: projects})
   }
 
   onRemoveDateHandler = (itemId, dateType) => {
