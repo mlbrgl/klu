@@ -9,15 +9,10 @@ class Actions extends PureComponent {
     this.props.onDoneItem(this.props.itemId)
   }
 
-  onFocusNextItemHandler = () => {
-    this.props.onFocusNextItem()
-    this.props.history.push('/')
-  }
-
   render () {
       return (
         <div className={styles.actions}>
-          <span onClick={this.onFocusNextItemHandler}>next up?</span>
+          <span onClick={this.props.onFocusNextItem}>next up?</span>
           { this.props.isFocusOn ?
             <span onClick={this.onDoneItemHandler}>did it!</span>
             : null

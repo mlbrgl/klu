@@ -14,9 +14,10 @@ import Actions from '../../components/Actions/Actions';
 import Category from '../../components/Category/Category';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
+import { getInitialState, getNewFocusItem } from '../../store/store'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
-import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getNextActionableItems, getProjectsInfo, isItemWithinProject } from '../../selectors/selectors'
-import { PROJECT_ACTIVE, PROJECT_PENDING, PROJECT_PAUSED, PROJECT_COMPLETED} from '../../helpers/constants'
+import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getUpdatedProjects, getNextContract, isItemWithinProject, areProjectsPending } from '../../selectors/selectors'
+import { PROJECT_PAUSED, PROJECT_COMPLETED} from '../../helpers/constants'
 
 import './App.css';
 
@@ -30,28 +31,8 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.localStorageKey = 'klu';
-    this.state = {
-      focusItems: [this.getNewFocusItem()],
-      isFocusOn: false,
-      focusItemId: null,
-      inputFocusItemId: null,
-      deleteItemId: null,
-      projects: []
-    }
+    this.state = getInitialState()
     this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'nurture', icon: 'leaf'}, {name: 'energy', icon: 'light-up'}];
-  }
-
-  getNewFocusItem () {
-    return {
-      id: Date.now(),
-      value: '',
-      category: {name: 'inbox', icon: 'inbox'},
-      dates: {start: null, done: null, due: null}
-    };
-  }
-
-  getNewProject (name) {
-    return {name: name, frequency: 0, status: PROJECT_ACTIVE}
   }
 
   componentDidUpdate = () => {
@@ -202,7 +183,7 @@ class App extends Component {
         this.onDeletedItemHandler(itemId, event.key)
       } else {
         const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
-        focusItems.splice(indexNewItem, 0, this.getNewFocusItem())
+        focusItems.splice(indexNewItem, 0, getNewFocusItem())
 
         if (this.state.isFocusOn === true) {
           this.setState({isFocusOn: false});
@@ -287,7 +268,7 @@ class App extends Component {
     let isFocusOn = this.state.isFocusOn;
 
     if(focusItems.length === 1) {
-      focusItems[0] = this.getNewFocusItem();
+      focusItems[0] = getNewFocusItem();
       inputFocusItemId = focusItems[0].id;
       focusItemId = null;
       isFocusOn = false;
@@ -304,14 +285,10 @@ class App extends Component {
         }
         inputFocusItemId = focusItems[newIndex].id;
         if(focusItemId === itemId) {
-          const tmp = this.pickNextFocusItem(focusItems);
-          focusItemId = tmp.newItemId;
-          focusItems = tmp.appendedFocusItems
+          focusItemId = this.pickNextFocusItem(focusItems)
         }
       } else { // Focus mode
-        const tmp = this.pickNextFocusItem(focusItems)
-        focusItemId = tmp.newItemId;
-        focusItems = tmp.appendedFocusItems
+        focusItemId = this.pickNextFocusItem(focusItems)
         inputFocusItemId = focusItemId === null ? focusItems[0].id : focusItemId;
         isFocusOn = focusItemId === null ? false : true;
       }
@@ -335,11 +312,9 @@ class App extends Component {
    }
 
   onFocusNextItemHandler = () => {
-    const focusItems = [...this.state.focusItems]
-    const { newItemId, appendedFocusItems } = this.pickNextFocusItem(focusItems);
+    const newItemId = this.pickNextFocusItem()
 
     this.setState({
-      focusItems: appendedFocusItems,
       focusItemId: newItemId,
       isFocusOn: newItemId === null ? false : true,
       inputFocusItemId: newItemId
@@ -350,13 +325,13 @@ class App extends Component {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate()};
-    const { newItemId, appendedFocusItems } = this.pickNextFocusItem(focusItems);
+    const focusItemId = this.pickNextFocusItem()
 
     this.setState({
-      focusItems: appendedFocusItems,
-      focusItemId: newItemId,
-      isFocusOn: newItemId === null ? false : this.state.isFocusOn,
-      inputFocusItemId: newItemId
+      focusItems: focusItems,
+      focusItemId: focusItemId,
+      isFocusOn: focusItemId === null ? false : this.state.isFocusOn,
+      inputFocusItemId: focusItemId
     });
   };
 
@@ -366,23 +341,7 @@ class App extends Component {
    }
 
   onUpdateProjectsHandler = () => {
-    const projectsInfo = getProjectsInfo(this.state.focusItems)
-    const projects = projectsInfo
-      .map((projectInfo) => {
-        const project = this.state.projects.find((p) => p.name === projectInfo.name) || this.getNewProject(projectInfo.name)
-        if(projectInfo.hasWork) {
-          project.status = PROJECT_ACTIVE
-        } else {
-          if(project.status !== PROJECT_PAUSED && project.status !== PROJECT_COMPLETED) {
-            project.status = PROJECT_PENDING
-          }
-        }
-        return project
-      }).sort((p1, p2) => {
-      return p2.frequency - p1.frequency
-    })
-
-    this.setState({projects: projects})
+    this.setState({projects: getUpdatedProjects(this.state.projects, this.state.focusItems)})
   }
 
   onUpProjectFrequencyHandler = (projectName) => {
@@ -406,42 +365,39 @@ class App extends Component {
     }
   }
 
-  pickNextFocusItem = (focusItems) => {
-
-    let {items: actionableItems, projectName } = getNextActionableItems(focusItems, this.state.projects);
-    if(actionableItems.length) {
-      let newItemId =
-        (isNurtureDoneToday(focusItems) ? null : pickNurtureItem(actionableItems)) ||
-        pickOverdue(actionableItems) ||
-        pickDueTodayTomorrow(actionableItems) ||
-        pickDueNextTwoWeeks(actionableItems) ||
-        getRandomElement(actionableItems).id
-      return { newItemId: newItemId, appendedFocusItems: focusItems}
-    } else if(projectName !== null){
-      return this.onCreateNewItemProjectHandler(projectName, focusItems)
+  pickNextFocusItem = (focusItems = this.state.focusItems) => {
+    if(areProjectsPending(this.state.projects, focusItems)) {
+      this.props.history.push('/projects')
+      return null
     } else {
-      return { newItemId: null, appendedFocusItems: focusItems }
+      this.props.history.push('/')
+      const items = getNextContract(focusItems, this.state.projects)
+      if(items.length) {
+        return (
+          (isNurtureDoneToday(focusItems) ? null : pickNurtureItem(items)) ||
+          pickOverdue(items) ||
+          pickDueTodayTomorrow(items) ||
+          pickDueNextTwoWeeks(items) ||
+          getRandomElement(items).id
+        )
+      } else {
+        return null
+      }
     }
   }
 
-  onCreateNewItemProjectHandler = (projectName, focusItems = this.state.focusItems) => {
-    focusItems = [...focusItems];
-    const newItem = this.getNewFocusItem()
+  onAddWorkProjectHandler = (projectName) => {
+
+    const focusItems = [...this.state.focusItems];
+    const newItem = getNewFocusItem()
 
     newItem.value = '+' + projectName
     focusItems.push(newItem)
 
-    return { newItemId: newItem.id, appendedFocusItems: focusItems }
-  }
-
-  onAddWorkProjectHandler = (projectName) => {
-    const { newItemId, appendedFocusItems } = this.onCreateNewItemProjectHandler(projectName)
-
     this.setState({
-      focusItems: appendedFocusItems,
-      focusItemId: newItemId,
-      isFocusOn: true,
-      inputFocusItemId: newItemId
+      focusItems: focusItems,
+      focusItemId: newItem.id,
+      inputFocusItemId: newItem.id
     });
   }
 

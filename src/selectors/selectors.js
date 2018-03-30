@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon';
+import { getNewProject } from '../store/store'
 import { isPast, isToday, isTomorrow, isWithinNextTwoWeeks } from '../helpers/dates'
 import { getRandomElement } from '../helpers/common'
+import { PROJECT_ACTIVE, PROJECT_PENDING, PROJECT_PAUSED, PROJECT_COMPLETED} from '../helpers/constants'
 
 const PROJECT_REGEX = /\+(\w+(?:-\w+)*)$/
 
@@ -28,6 +30,25 @@ const pickDueNextTwoWeeks = (eligibleItems) => {
   return getRandomElement(dueNextTwoWeeksIds);
 }
 
+const getUpdatedProjects = (currentProjects, focusItems) => {
+  const projectsInfo = getProjectsInfo(focusItems)
+  const updatedProjects = projectsInfo
+    .map((projectInfo) => {
+      const project = currentProjects.find((p) => p.name === projectInfo.name) || getNewProject(projectInfo.name)
+      if(projectInfo.hasWork) {
+        project.status = PROJECT_ACTIVE
+      } else {
+        if(project.status !== PROJECT_PAUSED && project.status !== PROJECT_COMPLETED) {
+          project.status = PROJECT_PENDING
+        }
+      }
+      return project
+    }).sort((p1, p2) => {
+    return p2.frequency - p1.frequency
+  })
+  return updatedProjects;
+}
+
 const getProjectsInfo = (focusItems) => {
   const projectsInfo = [];
   focusItems
@@ -51,7 +72,7 @@ const getProjectNameFromItem = ({value}) => {
   return project !== null ? project[1] : null
 }
 
-const getNextActionableItems = (focusItems, projects) => {
+const getNextContract = (focusItems, projects) => {
   const nextFocusProject = projects.map((project, index) => {
     return {
       name: project.name,
@@ -66,16 +87,15 @@ const getNextActionableItems = (focusItems, projects) => {
   }, {remaining: 0})
 
   if(nextFocusProject.remaining > 0) {
-    return {
-      projectName: nextFocusProject.name,
-      items: focusItems.filter((item) => isItemActionable(item) && isItemWithinProject(item, nextFocusProject))
-    }
+    return focusItems.filter((item) => isItemActionable(item) && isItemWithinProject(item, nextFocusProject))
   } else {
-    return {
-      projectName: null,
-      items: focusItems.filter((item) => isItemActionable(item))
-    }
+    return focusItems.filter((item) => isItemActionable(item))
   }
+}
+
+const areProjectsPending = (projects, focusItems) => {
+  const updatedProjects = getUpdatedProjects(projects, focusItems)
+  return updatedProjects.some((project) => project.status === PROJECT_PENDING)
 }
 
 const isItemEligible = ({dates, category}) => {
@@ -112,7 +132,9 @@ export {
   pickDueTodayTomorrow,
   pickDueNextTwoWeeks,
   isItemEligible,
-  getNextActionableItems,
+  getUpdatedProjects,
   getProjectsInfo,
-  isItemWithinProject
+  getNextContract,
+  isItemWithinProject,
+  areProjectsPending
 }
