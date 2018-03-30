@@ -89,14 +89,14 @@ class App extends Component {
    */
 
   renderFocusItems = (routeProps) => {
-    const projectFilter = new URLSearchParams(routeProps.location.search).get('project')
+    const projectName = new URLSearchParams(routeProps.location.search).get('project')
     return (
       this.state.focusItems
       .filter((item) => {
         return (
           (this.state.isFocusOn && item.id === this.state.focusItemId) ||
-          (!this.state.isFocusOn && projectFilter !== null && isItemWithinProject(item, {name: projectFilter})) ||
-          (!this.state.isFocusOn && projectFilter === null) ||
+          (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName})) ||
+          (!this.state.isFocusOn && !projectName) ||
           false
         )
       })
@@ -183,7 +183,12 @@ class App extends Component {
         this.onDeletedItemHandler(itemId, event.key)
       } else {
         const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
-        focusItems.splice(indexNewItem, 0, getNewFocusItem())
+        const projectName = new URLSearchParams(this.props.location.search).get('project')
+        let newItem = getNewFocusItem();
+        if(projectName) {
+          newItem.value = '+' + projectName
+        }
+        focusItems.splice(indexNewItem, 0, newItem)
 
         if (this.state.isFocusOn === true) {
           this.setState({isFocusOn: false});
