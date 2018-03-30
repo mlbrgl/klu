@@ -3,21 +3,9 @@ import styles from './Editable.module.css';
 
 class Editable extends Component {
 
-  setCaretEnd = (el) => {
-    // @TODO use props rather ?
-    if(this.ref.innerHTML.length === 0) {
-      this.ref.focus();
-    } else {
-      let range = document.createRange();
-      // We start the range at the first (and only in our case) text node
-      range.setStart(el.childNodes[0], el.childNodes[0].length);
-      // No end, since we are not really creating a range but just a position
-      range.collapse(true);
-      let sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-    this.props.onResetInputFocusItem(); // Otherwise we can't edit in the middle of the text
+  setFocus = () => {
+    this.ref.focus();
+    this.props.onResetInputFocusItem();
   }
 
   // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
@@ -36,7 +24,7 @@ class Editable extends Component {
   componentWillReceiveProps = (nextProps) => {
     // Covers cases when deleted an element, so that focus is regained somewhere
     if(nextProps.inputFocus === true) {
-      this.setCaretEnd(this.ref);
+      this.setFocus();
     }
   }
 
@@ -65,7 +53,7 @@ class Editable extends Component {
     this.updateInnerHtml();
 
     if(this.props.inputFocus === true) {
-      this.setCaretEnd(this.ref);
+      this.setFocus();
     }
   }
 

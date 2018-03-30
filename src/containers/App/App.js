@@ -283,9 +283,10 @@ class App extends Component {
         let newIndex;
         switch (key) {
          case 'Backspace':
+         case 'Enter':
            newIndex = index === 0 ? index : index - 1;
            break;
-         default: //'Delete', 'Click', 'Enter'
+         default: //'Delete', 'Click'
            newIndex = index === focusItems.length ? index - 1 : index;
         }
         inputFocusItemId = focusItems[newIndex].id;
