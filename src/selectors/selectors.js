@@ -35,7 +35,7 @@ const getUpdatedProjects = (currentProjects, focusItems) => {
   const updatedProjects = projectsInfo
     .map((projectInfo) => {
       const project = currentProjects.find((p) => p.name === projectInfo.name) || getNewProject(projectInfo.name)
-      if(projectInfo.hasWork) {
+      if(projectInfo.hasActionableItems) {
         project.status = PROJECT_ACTIVE
       } else {
         if(project.status !== PROJECT_PAUSED && project.status !== PROJECT_COMPLETED) {
@@ -57,9 +57,9 @@ const getProjectsInfo = (focusItems) => {
       if(projectName) {
         let projectInfo = projectsInfo.find((pInfo) => pInfo.name === projectName)
         if(projectInfo) {
-          if(!projectInfo.hasWork) projectInfo.hasWork = isItemNotDone(item)
+          if(!projectInfo.hasActionableItems) projectInfo.hasActionableItems = isItemActionable(item)
         } else {
-          projectsInfo.push({name: projectName, hasWork: isItemNotDone(item)})
+          projectsInfo.push({name: projectName, hasActionableItems: isItemActionable(item)})
         }
       }
     })
@@ -114,10 +114,6 @@ const isItemActionable = ({dates}) => {
   } else {
     return false;
   }
-}
-
-const isItemNotDone = ({dates}) => {
-  return dates.done === null
 }
 
 const isItemWithinProject = ({ value }, { name }) => {
