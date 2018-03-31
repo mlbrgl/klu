@@ -22,6 +22,10 @@ class Editable extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
+    if(this.ref === document.activeElement &&
+      (this.ref.getBoundingClientRect().top < 0 || this.ref.getBoundingClientRect().bottom > document.documentElement.clientHeight)) {
+      this.ref.scrollIntoView(true);
+    }
     // Covers cases when deleted an element, so that focus is regained somewhere
     if(nextProps.inputFocus === true) {
       this.setFocus();
