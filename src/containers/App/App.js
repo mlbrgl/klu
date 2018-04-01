@@ -30,17 +30,35 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.localStorageKey = 'klu';
-    this.state = getInitialState()
     this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'nurture', icon: 'leaf'}, {name: 'energy', icon: 'light-up'}];
+    this.state = null // redundant but makes the check in render clearer
   }
 
-  componentDidUpdate = () => {
-    commitToStorage(this.state);
+  componentWillMount = () => {
+    loadFromStorage()
+      .then((state) => {
+        //EXPORT (make sure to commment out setState statements below and commitStorage)
+        // localStorage.setItem('state', JSON.stringify(state))
+        //IMPORT (make sure to commment out setState statements below and commitStorage)
+        // state = JSON.parse(localStorage.getItem('state'))
+        // for(let item in state){
+        //   localforage.setItem(item, state[item])
+        //   .catch((err) => { console.error(err) })
+        // }
+        if(state !== null) {
+          this.setState(state)
+        } else {
+          this.setState(getInitialState())
+        }
+      })
+      .catch((err) => { console.log(err) })
   }
 
   render() {
     return (
+      this.state === null ?
+      null
+      :
       <div className="app">
         <Frame>
           <ContentWrapper isFocusOn={this.state.isFocusOn}>
@@ -60,29 +78,24 @@ class App extends Component {
   }
 
   componentDidMount = () => {
-    loadFromStorage().then((storedState) => {
-      if(storedState !== null) {
-        this.setState(storedState); // keep in mind this triggers a re-render as it happens async
-      }
-    }).catch((err) => {
-      console.error(err);
-    });
-
     document.addEventListener('keydown', (event) => {
       switch (event.key) {
         case 'Escape':
-          if (this.state.deleteItemId !== null) {
-            this.setState({deleteItemId: null});
-          } else {
-            this.onToggleFocusItemHandler();
-            this.props.history.push('/')
-          }
-          break;
+        if (this.state.deleteItemId !== null) {
+          this.setState({deleteItemId: null});
+        } else {
+          this.onToggleFocusItemHandler();
+          this.props.history.push('/')
+        }
+        break;
         default:
       }
     })
   }
 
+  componentDidUpdate = () => {
+    commitToStorage(this.state);
+  }
 
   /*
    * COMPONENT TREES
