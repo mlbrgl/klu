@@ -344,14 +344,20 @@ class App extends Component {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate()};
-    const focusItemId = this.pickNextFocusItem()
-
-    this.setState({
-      focusItems: focusItems,
-      focusItemId: focusItemId,
-      isFocusOn: focusItemId === null ? false : this.state.isFocusOn,
-      inputFocusItemId: focusItemId
-    });
+    if(this.state.isFocusOn) {
+      const focusItemId = this.pickNextFocusItem()
+      this.setState({
+        focusItems: focusItems,
+        focusItemId: focusItemId,
+        isFocusOn: !!focusItemId,
+        inputFocusItemId: focusItemId
+      });
+    } else {
+      this.setState({focusItems: focusItems})
+      if(areProjectsPending(this.state.projects, focusItems)) {
+        this.props.history.push('/projects')
+      }
+    }
   };
 
   // @TODO: check if merging inputFocusItem with resetInputFocusItemHandler makes sense
