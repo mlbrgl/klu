@@ -12,6 +12,7 @@ import Project from '../../components/Project/Project';
 import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
 import Category from '../../components/Category/Category';
+// import localforage from 'localforage';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { getInitialState, getNewFocusItem } from '../../store/store'
@@ -37,9 +38,9 @@ class App extends Component {
   componentWillMount = () => {
     loadFromStorage()
       .then((state) => {
-        //EXPORT (make sure to commment out setState statements below and commitStorage)
+        //EXPORT (on prod)
         // localStorage.setItem('state', JSON.stringify(state))
-        //IMPORT (make sure to commment out setState statements below and commitStorage)
+        //IMPORT (on local)
         // state = JSON.parse(localStorage.getItem('state'))
         // for(let item in state){
         //   localforage.setItem(item, state[item])

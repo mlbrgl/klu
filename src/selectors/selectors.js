@@ -43,9 +43,14 @@ const getUpdatedProjects = (currentProjects, focusItems) => {
         }
       }
       return project
-    }).sort((p1, p2) => {
-    return p2.frequency - p1.frequency
-  })
+    })
+    .sort((p1, p2) => {
+      if (p2.frequency - p1.frequency !== 0) {
+        return p2.frequency - p1.frequency
+      } else {
+        return p2.name < p1.name ? 1 : -1
+      }
+    })
   return updatedProjects;
 }
 
