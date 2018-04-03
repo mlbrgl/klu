@@ -373,20 +373,17 @@ class App extends Component {
   onUpProjectFrequencyHandler = (projectName) => {
     const projects = [...this.state.projects]
     const index = projects.findIndex((el) => el.name === projectName);
-    const currentFrequency = projects[index].frequency;
 
-    projects[index].frequency = currentFrequency !== null ? currentFrequency + 1 : 0
+    projects[index].frequency ++
     this.setState({projects: projects})
   }
 
   onDownProjectFrequencyHandler = (projectName) => {
     const projects = [...this.state.projects]
     const index = projects.findIndex((el) => el.name === projectName);
-    const currentFrequency = projects[index].frequency;
 
-    projects[index].frequency = projects[index].frequency !== null ? projects[index].frequency-- : null;
-    if(currentFrequency !== null) {
-      projects[index].frequency = currentFrequency === 0 ? null : currentFrequency - 1
+    if(projects[index].frequency !== 0) {
+      projects[index].frequency --
       this.setState({projects: projects})
     }
   }
