@@ -3,11 +3,6 @@ import styles from './Editable.module.css';
 
 class Editable extends Component {
 
-  setFocus = () => {
-    this.ref.focus();
-    this.props.onResetInputFocusItem();
-  }
-
   // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
   updateInnerHtml() {
     this.ref.innerHTML = this.props.children;
@@ -19,17 +14,6 @@ class Editable extends Component {
 
   onKeyDownHandler = (event) => {
     this.props.onKeyDownEditableItem(event, this.props.itemId)
-  }
-
-  componentWillReceiveProps = (nextProps) => {
-    if(this.ref === document.activeElement &&
-      (this.ref.getBoundingClientRect().top < 0 || this.ref.getBoundingClientRect().bottom > document.documentElement.clientHeight)) {
-      this.ref.scrollIntoView(true);
-    }
-    // Covers cases when deleted an element, so that focus is regained somewhere
-    if(nextProps.inputFocus === true) {
-      this.setFocus();
-    }
   }
 
   shouldComponentUpdate = (nextProps, nextState) => {
@@ -55,10 +39,6 @@ class Editable extends Component {
 
   componentDidMount() {
     this.updateInnerHtml();
-
-    if(this.props.inputFocus === true) {
-      this.setFocus();
-    }
   }
 
   componentDidUpdate() {

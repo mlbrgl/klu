@@ -136,8 +136,6 @@ class App extends Component {
               <Editable
                 onKeyDownEditableItem={this.onKeyDownEditableItemHandler}
                 onInputEditableItem={this.onInputEditableItemHandler}
-                onResetInputFocusItem={this.onResetInputFocusItemHandler}
-                inputFocus={this.state.inputFocusItemId === item.id ? true : false}
                 itemId={item.id}
               >
                 {item.value}
@@ -209,7 +207,6 @@ class App extends Component {
         }
         this.setState({
           focusItems: focusItems,
-          inputFocusItemId: focusItems[indexNewItem].id
         });
       }
       break;
@@ -229,9 +226,6 @@ class App extends Component {
       if (event.metaKey || event.ctrlKey) {
         event.preventDefault();
         this.shiftDate(focusItems, index, 'plus', event.altKey ? {weeks: 1} : {days: 1})
-      } else if (index > 0) {
-        event.preventDefault();
-        this.setState({inputFocusItemId: focusItems[index - 1].id});
       }
       break;
 
@@ -239,9 +233,6 @@ class App extends Component {
       if (event.metaKey || event.ctrlKey) {
         event.preventDefault();
         this.shiftDate(focusItems, index, 'minus', event.altKey ? {weeks: 1} : {days: 1})
-      } else if (index < focusItems.length - 1) {
-        event.preventDefault();
-        this.setState({inputFocusItemId: focusItems[index + 1].id});
       }
       break;
 
@@ -282,44 +273,23 @@ class App extends Component {
   onDeletedItemHandler = (itemId, key) => {
     let focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    let inputFocusItemId = this.state.inputFocusItemId; // in the current state of things, should always be null since reset after use, but kept here for consistency
     let focusItemId = this.state.focusItemId;
-    let isFocusOn = this.state.isFocusOn;
 
     if(focusItems.length === 1) {
       focusItems[0] = getNewFocusItem();
-      inputFocusItemId = focusItems[0].id;
       focusItemId = null;
-      isFocusOn = false;
     } else {
       focusItems.splice(index, 1);
-      if(isFocusOn === false) { // List mode
-        let newIndex;
-        switch (key) {
-         case 'Backspace':
-         case 'Enter':
-           newIndex = index === 0 ? index : index - 1;
-           break;
-         default: //'Delete', 'Click'
-           newIndex = index === focusItems.length ? index - 1 : index;
-        }
-        inputFocusItemId = focusItems[newIndex].id;
-        if(focusItemId === itemId) {
-          focusItemId = this.pickNextFocusItem(focusItems)
-        }
-      } else { // Focus mode
+      if(focusItemId === itemId) {
         focusItemId = this.pickNextFocusItem(focusItems)
-        inputFocusItemId = focusItemId === null ? focusItems[0].id : focusItemId;
-        isFocusOn = focusItemId === null ? false : true;
       }
     }
 
     this.setState({
-     inputFocusItemId: inputFocusItemId,
      focusItems: focusItems,
      deleteItemId: null,
      focusItemId: focusItemId,
-     isFocusOn: isFocusOn
+     isFocusOn: focusItemId === null ? false : true
     });
   }
 
@@ -327,7 +297,6 @@ class App extends Component {
      this.setState({
        focusItemId: itemId,
        isFocusOn: itemId === null ? false : !this.state.isFocusOn,
-       inputFocusItemId: itemId
      });
    }
 
@@ -337,7 +306,6 @@ class App extends Component {
     this.setState({
       focusItemId: newItemId,
       isFocusOn: newItemId === null ? false : true,
-      inputFocusItemId: newItemId
     });
   }
 
@@ -351,7 +319,6 @@ class App extends Component {
         focusItems: focusItems,
         focusItemId: focusItemId,
         isFocusOn: !!focusItemId,
-        inputFocusItemId: focusItemId
       });
     } else {
       this.setState({focusItems: focusItems})
@@ -360,11 +327,6 @@ class App extends Component {
       }
     }
   };
-
-  // @TODO: check if merging inputFocusItem with resetInputFocusItemHandler makes sense
-  onResetInputFocusItemHandler = () => {
-     this.setState({inputFocusItemId: null});
-   }
 
   onUpdateProjectsHandler = () => {
     this.setState({projects: getUpdatedProjects(this.state.projects, this.state.focusItems)})
@@ -420,7 +382,6 @@ class App extends Component {
     this.setState({
       focusItems: focusItems,
       focusItemId: newItem.id,
-      inputFocusItemId: newItem.id
     });
   }
 
