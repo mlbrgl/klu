@@ -271,26 +271,24 @@ class App extends Component {
    }, 250)
 
   onDeletedItemHandler = (itemId, key) => {
-    let focusItems = [...this.state.focusItems];
-    const index = focusItems.findIndex((el) => el.id === itemId);
-    let focusItemId = this.state.focusItemId;
+    let focusItems = [...this.state.focusItems]
+    const index = focusItems.findIndex((el) => el.id === itemId)
+    let focusItemId = this.state.focusItemId
 
-    if(focusItems.length === 1) {
-      focusItems[0] = getNewFocusItem();
-      focusItemId = null;
-    } else {
-      focusItems.splice(index, 1);
-      if(focusItemId === itemId) {
-        focusItemId = this.pickNextFocusItem(focusItems)
-      }
+    focusItems.splice(index, 1);
+    if(focusItems.length === 0) {
+      focusItems[0] = getNewFocusItem()
+      focusItemId = null
+    } else if(focusItemId === itemId) {
+      focusItemId = this.pickNextFocusItem(focusItems)
     }
 
     this.setState({
      focusItems: focusItems,
      deleteItemId: null,
      focusItemId: focusItemId,
-     isFocusOn: focusItemId === null ? false : true
-    });
+     isFocusOn: focusItemId === null ? false : this.state.isFocusOn
+    })
   }
 
   onToggleFocusItemHandler = (itemId = this.state.focusItemId) => {
@@ -313,20 +311,14 @@ class App extends Component {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
     focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate()};
-    if(this.state.isFocusOn) {
-      const focusItemId = this.pickNextFocusItem()
-      this.setState({
-        focusItems: focusItems,
-        focusItemId: focusItemId,
-        isFocusOn: !!focusItemId,
-      });
-    } else {
-      this.setState({focusItems: focusItems})
-      if(areProjectsPending(this.state.projects, focusItems)) {
-        this.props.history.push('/projects')
-      }
-    }
-  };
+    const focusItemId = this.state.focusItemId === itemId ? this.pickNextFocusItem(focusItems) : this.state.focusItemId
+
+    this.setState({
+      focusItems: focusItems,
+      focusItemId: focusItemId,
+      isFocusOn: focusItemId === null ? false : this.state.isFocusOn
+    })
+  }
 
   onUpdateProjectsHandler = () => {
     this.setState({projects: getUpdatedProjects(this.state.projects, this.state.focusItems)})
