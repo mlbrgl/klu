@@ -152,7 +152,6 @@ class App extends Component {
                 itemId={item.id} />
 
           </FocusItem>
-
         )
       })
     )
@@ -314,6 +313,7 @@ class App extends Component {
      const focusItems = [...this.state.focusItems];
      const index = focusItems.findIndex((el) => el.id === itemId);
      focusItems[index].value = innerHTML;
+     focusItems[index].dates.modified = Date.now();
      this.setState({focusItems: focusItems})
    }, 250)
 

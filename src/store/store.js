@@ -12,11 +12,12 @@ const getInitialState = () => {
 }
 
 const getNewFocusItem = (value = '') => {
+  const currentDate = Date.now()
   return {
-    id: Date.now(),
+    id: currentDate,
     value: value,
     category: {name: 'inbox', icon: 'inbox'},
-    dates: {start: null, done: null, due: null}
+    dates: {start: null, done: null, due: null, modified: currentDate}
   }
 }
 
