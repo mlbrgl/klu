@@ -1,17 +1,33 @@
 .wrapper {
+  display:flex;
+  flex-shrink: 0;
   max-width: 960px;
   width: 100%;
   margin: 0 auto 2rem;
+  padding: 2rem 4rem;
+  font-size: 2rem;
+  color: white;
+  background-color: rgba(255,255,255, 0.1);
 }
 
 .input {
   display: block;
-  width: 100%;
-  padding: 2rem 4rem;
-  border: none;
-  font-size: 2rem;
+  flex-grow: 1;
   font-family: 'Lato';
+  font-size: 2rem;
+  color:inherit;
+  background-color: transparent;
+  border: none;
   outline: none;
-  background-color: rgba(255,255,255, 0.1);
-  color: white;
+}
+
+.project {
+  padding-left: 1rem;
+  border-left: 1px solid grey;
+  transition: 0.25s;
+}
+
+.project:hover {
+  color: red;
+  cursor: pointer;
 }

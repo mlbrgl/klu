@@ -11,13 +11,22 @@ class QuickEntry extends Component {
           type="text"
           ref={(el) => this.el = el}
           onKeyDown={this.onKeyDownHandler} />
+        { this.props.projectName ?
+          <span
+            className={styles.project}
+            onClick={this.props.onRemoveProjectFilter}>
+            {'+' + this.props.projectName}
+          </span>
+          : null
+        }
       </div>
     )
   }
 
   onKeyDownHandler = (event) => {
     if(event.key === 'Enter') {
-      this.props.onEnterHandler(event.target, this.el)
+      const itemValue = this.props.projectName ? this.el.value + ' +'  + this.props.projectName : this.el.value
+      this.props.onEnterHandler(itemValue)
       this.el.value = ''
     }
   }

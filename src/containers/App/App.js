@@ -84,10 +84,14 @@ class App extends Component {
   * COMPONENT TREES
   */
 
-  renderQuickEntry = () => {
+  renderQuickEntry = (routeProps) => {
+    const projectName = new URLSearchParams(routeProps.location.search).get('project')
     return (
       !this.state.isFocusOn ?
-        <QuickEntry onEnterHandler={this.onEnterQuickEntryHandler} />
+        <QuickEntry
+          onEnterHandler={this.onEnterQuickEntryHandler}
+          projectName={projectName}
+          onRemoveProjectFilter={this.onRemoveProjectFilterHandler}/>
         : null
     )
   }
@@ -188,9 +192,13 @@ class App extends Component {
   * HANDLERS
   */
 
-  onEnterQuickEntryHandler = (eventTarget, el) => {
-    const focusItems = [getNewFocusItem(eventTarget.value), ...this.state.focusItems]
+  onEnterQuickEntryHandler = (itemValue) => {
+    const focusItems = [getNewFocusItem(itemValue), ...this.state.focusItems]
     this.setState({focusItems: focusItems})
+  }
+
+  onRemoveProjectFilterHandler = () => {
+    this.props.history.push('/')
   }
 
   onKeyDownEditableItemHandler = (event, itemId) => {
