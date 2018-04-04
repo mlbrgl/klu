@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import Date from '../../components/Date/Date'
 import styles from './Dates.module.css';
 
-class Dates extends Component {
+class Dates extends PureComponent {
   render() {
     if(!!this.props.startdate || !!this.props.duedate) {
       let dates = [];
