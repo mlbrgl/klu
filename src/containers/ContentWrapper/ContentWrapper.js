@@ -6,11 +6,11 @@ import styles from './ContentWrapper.module.css';
 const contentWrapper = (props) => {
   return (
     <div className={styles.contentWrapper}>
+      { props.children }
       { !props.isFocusOn ?
         renderViewLinks(props.location.pathname)
         : null
       }
-      {props.children}
     </div>
   )
 }

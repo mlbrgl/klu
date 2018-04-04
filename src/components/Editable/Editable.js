@@ -9,11 +9,11 @@ class Editable extends Component {
   }
 
   onInputHandler = (event) => {
-    this.props.onInputEditableItem(event.target.innerHTML, this.props.itemId)
+    this.props.onInputHandler(event.target.innerHTML, this.props.itemId)
   }
 
   onKeyDownHandler = (event) => {
-    this.props.onKeyDownEditableItem(event, this.props.itemId)
+    this.props.onKeyDownHandler(event, this.props.itemId)
   }
 
   shouldComponentUpdate = (nextProps, nextState) => {

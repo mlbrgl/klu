@@ -6,7 +6,6 @@
 .editable {
   composes: generic;
   margin-left: 3rem;
-  padding-right: 1rem;
 }
 
 .focused {

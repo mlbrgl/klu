@@ -8,6 +8,7 @@ import ContentWrapper from '../ContentWrapper/ContentWrapper';
 import FocusItem from '../FocusItem/FocusItem';
 import Projects from '../Projects/Projects';
 import Dates from '../Dates/Dates';
+import QuickEntry from '../../components/QuickEntry/QuickEntry'
 import Project from '../../components/Project/Project';
 import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
@@ -62,6 +63,7 @@ class App extends Component {
       :
       <div className="app">
         <Frame>
+          <Route path="/" exact render={this.renderQuickEntry} />
           <ContentWrapper isFocusOn={this.state.isFocusOn}>
             <Switch>
               <Route path="/" exact render={this.renderFocusItems} />
@@ -78,29 +80,17 @@ class App extends Component {
     );
   }
 
-  componentDidMount = () => {
-    document.addEventListener('keydown', (event) => {
-      switch (event.key) {
-        case 'Escape':
-        if (this.state.deleteItemId !== null) {
-          this.setState({deleteItemId: null});
-        } else {
-          this.onToggleFocusItemHandler();
-          this.props.history.push('/')
-        }
-        break;
-        default:
-      }
-    })
-  }
-
-  componentDidUpdate = () => {
-    commitToStorage(this.state);
-  }
-
   /*
-   * COMPONENT TREES
-   */
+  * COMPONENT TREES
+  */
+
+  renderQuickEntry = () => {
+    return (
+      !this.state.isFocusOn ?
+        <QuickEntry onEnterHandler={this.onEnterQuickEntryHandler} />
+        : null
+    )
+  }
 
   renderFocusItems = (routeProps) => {
     const projectName = new URLSearchParams(routeProps.location.search).get('project')
@@ -134,8 +124,8 @@ class App extends Component {
                 isDeleteOn={isDeleteOn} />
 
               <Editable
-                onKeyDownEditableItem={this.onKeyDownEditableItemHandler}
-                onInputEditableItem={this.onInputEditableItemHandler}
+                onKeyDownHandler={this.onKeyDownEditableItemHandler}
+                onInputHandler={this.onInputEditableItemHandler}
                 itemId={item.id}
               >
                 {item.value}
@@ -174,9 +164,34 @@ class App extends Component {
     )
   }
 
+  componentDidMount = () => {
+    document.addEventListener('keydown', (event) => {
+      switch (event.key) {
+        case 'Escape':
+        if (this.state.deleteItemId !== null) {
+          this.setState({deleteItemId: null});
+        } else {
+          this.onToggleFocusItemHandler();
+          this.props.history.push('/')
+        }
+        break;
+        default:
+      }
+    })
+  }
+
+  componentDidUpdate = () => {
+    commitToStorage(this.state);
+  }
+
   /*
-   * HANDLERS
-   */
+  * HANDLERS
+  */
+
+  onEnterQuickEntryHandler = (eventTarget, el) => {
+    const focusItems = [getNewFocusItem(eventTarget.value), ...this.state.focusItems]
+    this.setState({focusItems: focusItems})
+  }
 
   onKeyDownEditableItemHandler = (event, itemId) => {
     const focusItems = [...this.state.focusItems];

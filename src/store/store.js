@@ -11,10 +11,10 @@ const getInitialState = () => {
   }
 }
 
-const getNewFocusItem = () => {
+const getNewFocusItem = (value = '') => {
   return {
     id: Date.now(),
-    value: '',
+    value: value,
     category: {name: 'inbox', icon: 'inbox'},
     dates: {start: null, done: null, due: null}
   }
