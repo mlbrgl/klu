@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import debounce from 'lodash.debounce';
 import { DateTime } from 'luxon';
 import { Route, Switch, withRouter } from 'react-router-dom'
+import SearchApi from 'js-worker-search'
 
 import Frame from '../../containers/Frame/Frame';
 import ContentWrapper from '../ContentWrapper/ContentWrapper';
@@ -31,8 +32,10 @@ import './App.css';
 class App extends Component {
 
   constructor(props) {
-    super(props);
+    super(props)
     this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'nurture', icon: 'leaf'}, {name: 'energy', icon: 'light-up'}];
+    this.searchResults = []
+    this.searchQuery = null
     this.state = null // redundant but makes the check in render clearer
   }
 
@@ -48,6 +51,10 @@ class App extends Component {
         //   .catch((err) => { console.error(err) })
         // }
         if(state !== null) {
+          this.searchApi = new SearchApi()
+          state.focusItems.forEach((item) => {
+            this.searchApi.indexDocument(item.id, item.value)
+          })
           this.setState(state)
         } else {
           this.setState(getInitialState())
@@ -91,7 +98,8 @@ class App extends Component {
         <QuickEntry
           onEnterHandler={this.onEnterQuickEntryHandler}
           projectName={projectName}
-          onRemoveProjectFilter={this.onRemoveProjectFilterHandler}/>
+          onRemoveProjectFilter={this.onRemoveProjectFilterHandler}
+          onSearchHandler={this.onSearchHandler} />
         : null
     )
   }
@@ -103,8 +111,10 @@ class App extends Component {
       .filter((item) => {
         return (
           (this.state.isFocusOn && item.id === this.state.focusItemId) ||
-          (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName})) ||
-          (!this.state.isFocusOn && !projectName) ||
+          (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName}) && !this.searchQuery) ||
+          (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName}) && this.searchQuery && this.searchResults.find((res) => item.id === res)) ||
+          (!this.state.isFocusOn && !projectName && !this.searchQuery) ||
+          (!this.state.isFocusOn && !projectName && this.searchQuery && this.searchResults.find((res) => item.id === res)) ||
           false
         )
       })
@@ -199,6 +209,20 @@ class App extends Component {
 
   onRemoveProjectFilterHandler = () => {
     this.props.history.push('/')
+  }
+
+  onSearchHandler = (searchQuery) => {
+    if(searchQuery) {
+      this.searchApi.search(searchQuery).then((results) => {
+        this.searchResults = results
+        this.searchQuery = searchQuery
+        this.forceUpdate()
+      })
+    } else {
+      this.searchQuery = null
+      this.searchResults = [] // not strictly necessary as filtering hits empty searchQuery first
+      this.forceUpdate()
+    }
   }
 
   onKeyDownEditableItemHandler = (event, itemId) => {

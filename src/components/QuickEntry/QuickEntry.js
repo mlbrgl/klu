@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import debounce from 'lodash.debounce'
 import styles from './QuickEntry.module.css'
 
 class QuickEntry extends Component {
@@ -10,7 +11,8 @@ class QuickEntry extends Component {
           className={styles.input}
           type="text"
           ref={(el) => this.el = el}
-          onKeyDown={this.onKeyDownHandler} />
+          onKeyDown={this.onKeyDownHandler}
+          onChange={this.onChangeHandler} />
         { this.props.projectName ?
           <span
             className={styles.project}
@@ -22,6 +24,14 @@ class QuickEntry extends Component {
       </div>
     )
   }
+
+  onChangeHandler = (event) => {
+    this.onSearchHandler(event.target.value)
+  }
+
+  onSearchHandler = debounce((searchQuery) => {
+    this.props.onSearchHandler(searchQuery)
+  }, 250)
 
   onKeyDownHandler = (event) => {
     if(event.key === 'Enter') {
