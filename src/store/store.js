@@ -25,8 +25,15 @@ const getNewProject = (name) => {
   return {name: name, frequency: 0, status: PROJECT_ACTIVE}
 }
 
+const buildIndex = (searchApi, focusItems) => {
+  focusItems.forEach((item) => {
+    searchApi.indexDocument(item.id, item.value)
+  })
+}
+
 export {
   getInitialState,
   getNewFocusItem,
-  getNewProject
+  getNewProject,
+  buildIndex,
 }

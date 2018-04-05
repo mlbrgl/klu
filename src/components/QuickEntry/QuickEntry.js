@@ -26,19 +26,19 @@ class QuickEntry extends Component {
     )
   }
 
-  onChangeHandler = (event) => {
-    this.onSearchHandler(event.target.value)
+  onChangeHandler = () => {
+    this.onSearchHandler()
   }
 
-  onSearchHandler = debounce((searchQuery) => {
-    this.props.onSearchHandler(searchQuery)
+  onSearchHandler = debounce(() => {
+    this.props.onSearchHandler(this.el.value)
   }, 250)
 
   onKeyDownHandler = (event) => {
     if(event.key === 'Enter') {
       const itemValue = this.props.projectName ? this.el.value + ' +'  + this.props.projectName : this.el.value
       this.props.onEnterHandler(itemValue)
-      this.el.value = ''
+      this.el.value = null
     }
   }
 }

@@ -17,7 +17,7 @@ import Category from '../../components/Category/Category';
 // import localforage from 'localforage';
 
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
-import { getInitialState, getNewFocusItem } from '../../store/store'
+import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
 import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getUpdatedProjects, getNextContract, isItemWithinProject, areProjectsPending } from '../../selectors/selectors'
 import { PROJECT_PAUSED, PROJECT_COMPLETED} from '../../helpers/constants'
@@ -52,10 +52,8 @@ class App extends Component {
         // }
         this.searchApi = new SearchApi()
         if(state !== null) {
-          state.focusItems.forEach((item) => {
-            this.searchApi.indexDocument(item.id, item.value)
-          })
           this.setState(state)
+          buildIndex(this.searchApi, state.focusItems)
         } else {
           this.setState(getInitialState())
         }
@@ -189,7 +187,7 @@ class App extends Component {
           this.onToggleFocusItemHandler();
           this.props.history.push('/')
         }
-        break;
+          break
         default:
       }
     })
@@ -204,8 +202,11 @@ class App extends Component {
   */
 
   onEnterQuickEntryHandler = (itemValue) => {
-    const focusItems = [getNewFocusItem(itemValue), ...this.state.focusItems]
+    const newItem = getNewFocusItem(itemValue)
+    const focusItems = [newItem, ...this.state.focusItems]
     this.resetSearch()
+
+    this.searchApi.indexDocument(newItem.id, newItem.value)
     this.setState({focusItems: focusItems})
   }
 
@@ -234,26 +235,11 @@ class App extends Component {
     case 'Enter':
       event.preventDefault();
       if (event.metaKey || event.ctrlKey) {
-        if (event.shiftKey) {
-          this.onDoneItemHandler(itemId)
-        } else {
-          this.onToggleFocusItemHandler(itemId);
-        }
+        this.onDoneItemHandler(itemId)
+      } else if (this.state.deleteItemId === null){
+        this.onToggleFocusItemHandler(itemId);
       } else if (this.state.deleteItemId !== null) {
         this.onDeletedItemHandler(itemId, event.key)
-      } else {
-        const indexNewItem = window.getSelection().anchorOffset === 0 && focusItems[index].value !== '' ? index : index + 1;
-        const projectName = new URLSearchParams(this.props.location.search).get('project')
-        let newItem = getNewFocusItem();
-        if(projectName) {
-          newItem.value = '+' + projectName
-        }
-        focusItems.splice(indexNewItem, 0, newItem)
-
-        if (this.state.isFocusOn === true) {
-          this.setState({isFocusOn: false});
-        }
-        this.setState({focusItems: focusItems})
       }
       break;
 
@@ -324,6 +310,7 @@ class App extends Component {
      focusItems[index].dates.modified = Date.now();
      this.sortMutable(focusItems)
 
+     this.searchApi.indexDocument(itemId, innerHTML)
      this.setState({focusItems: focusItems})
    }, 250)
 
@@ -367,8 +354,11 @@ class App extends Component {
   onDoneItemHandler = (itemId) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate()};
+
     const focusItemId = this.state.focusItemId === itemId ? this.pickNextFocusItem(focusItems) : this.state.focusItemId
+    focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate(), modified: Date.now()};
+
+    this.sortMutable(focusItems)
 
     this.setState({
       focusItems: focusItems,
@@ -479,7 +469,7 @@ class App extends Component {
 
   sortMutable = debounce((focusItems) => {
     focusItems.sort((itemA, itemB) => itemB.dates.modified - itemA.dates.modified)
-  }, 1000, {leading: true, trailing: false})
+  }, 2000, {leading: true, trailing: false})
 
   resetSearch = () => {
     this.searchQuery = null
