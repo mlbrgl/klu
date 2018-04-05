@@ -50,8 +50,8 @@ class App extends Component {
         //   localforage.setItem(item, state[item])
         //   .catch((err) => { console.error(err) })
         // }
+        this.searchApi = new SearchApi()
         if(state !== null) {
-          this.searchApi = new SearchApi()
           state.focusItems.forEach((item) => {
             this.searchApi.indexDocument(item.id, item.value)
           })
@@ -106,6 +106,7 @@ class App extends Component {
 
   renderFocusItems = (routeProps) => {
     const projectName = new URLSearchParams(routeProps.location.search).get('project')
+
     return (
       this.state.focusItems
       .filter((item) => {
@@ -118,6 +119,7 @@ class App extends Component {
           false
         )
       })
+      .slice(0, projectName || this.searchQuery ? Infinity : 20)
       .map((item, index) => {
         let isFocusOn = item.id === this.state.focusItemId && this.state.isFocusOn ? true : false;
         let isDeleteOn = this.state.deleteItemId === item.id ? true : false;
@@ -203,6 +205,7 @@ class App extends Component {
 
   onEnterQuickEntryHandler = (itemValue) => {
     const focusItems = [getNewFocusItem(itemValue), ...this.state.focusItems]
+    this.resetSearch()
     this.setState({focusItems: focusItems})
   }
 
@@ -218,8 +221,7 @@ class App extends Component {
         this.forceUpdate()
       })
     } else {
-      this.searchQuery = null
-      this.searchResults = [] // not strictly necessary as filtering hits empty searchQuery first
+      this.resetSearch()
       this.forceUpdate()
     }
   }
@@ -251,9 +253,7 @@ class App extends Component {
         if (this.state.isFocusOn === true) {
           this.setState({isFocusOn: false});
         }
-        this.setState({
-          focusItems: focusItems,
-        });
+        this.setState({focusItems: focusItems})
       }
       break;
 
@@ -271,14 +271,22 @@ class App extends Component {
     case 'ArrowUp':
       if (event.metaKey || event.ctrlKey) {
         event.preventDefault();
-        this.shiftDate(focusItems, index, 'plus', event.altKey ? {weeks: 1} : {days: 1})
+        if(this.isCaretAtEdges()) {
+          focusItems[index].dates = this.shiftDate(focusItems[index].dates, 'plus', event.altKey ? {weeks: 1} : {days: 1})
+          this.sortMutable(focusItems)
+          this.setState({focusItems: focusItems})
+        }
       }
       break;
 
     case 'ArrowDown':
       if (event.metaKey || event.ctrlKey) {
         event.preventDefault();
-        this.shiftDate(focusItems, index, 'minus', event.altKey ? {weeks: 1} : {days: 1})
+        if(this.isCaretAtEdges()) {
+          focusItems[index].dates = this.shiftDate(focusItems[index].dates, 'minus', event.altKey ? {weeks: 1} : {days: 1})
+          this.sortMutable(focusItems)
+          this.setState({focusItems: focusItems})
+        }
       }
       break;
 
@@ -314,6 +322,8 @@ class App extends Component {
      const index = focusItems.findIndex((el) => el.id === itemId);
      focusItems[index].value = innerHTML;
      focusItems[index].dates.modified = Date.now();
+     this.sortMutable(focusItems)
+
      this.setState({focusItems: focusItems})
    }, 250)
 
@@ -447,18 +457,33 @@ class App extends Component {
   * Helpers
   */
 
-  shiftDate = (focusItems, index, operator, offset) => {
-   let dateType = null;
-   if(isCaretAtBeginningFieldItem()) {
-     dateType = 'start';
-   } else if (isCaretAtEndFieldItem()) {
-     dateType = 'due';
-   }
-   if(dateType !== null) {
-     let refTime = focusItems[index].dates[dateType] ? DateTime.fromISO(focusItems[index].dates[dateType]) : DateTime.local();
-     focusItems[index].dates = {...focusItems[index].dates, [dateType]: refTime[operator](offset).toISODate()}
-     this.setState({focusItems: focusItems});
-   }
+  isCaretAtEdges = () => {
+   return isCaretAtBeginningFieldItem() || isCaretAtEndFieldItem()
+  }
+
+  shiftDate = (datesObj, operator, offset) => {
+    const dates = {...datesObj}
+    let dateType = null;
+    if(isCaretAtBeginningFieldItem()) {
+      dateType = 'start';
+    } else if (isCaretAtEndFieldItem()) {
+      dateType = 'due';
+    }
+    if(dateType !== null) {
+      let refTime = dates[dateType] ? DateTime.fromISO(dates[dateType]) : DateTime.local();
+      dates[dateType] = refTime[operator](offset).toISODate()
+      dates.modified = Date.now()
+    }
+    return dates;
+  }
+
+  sortMutable = debounce((focusItems) => {
+    focusItems.sort((itemA, itemB) => itemB.dates.modified - itemA.dates.modified)
+  }, 1000, {leading: true, trailing: false})
+
+  resetSearch = () => {
+    this.searchQuery = null
+    this.searchResults = []
   }
 
 }

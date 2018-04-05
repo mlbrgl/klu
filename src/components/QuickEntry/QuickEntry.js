@@ -12,7 +12,8 @@ class QuickEntry extends Component {
           type="text"
           ref={(el) => this.el = el}
           onKeyDown={this.onKeyDownHandler}
-          onChange={this.onChangeHandler} />
+          onChange={this.onChangeHandler}
+          autoFocus />
         { this.props.projectName ?
           <span
             className={styles.project}
