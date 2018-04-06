@@ -76,6 +76,7 @@ class App extends Component {
             </Switch>
             <Actions
               onDoneItem={this.onDoneItemHandler}
+              onDoneAndWaitingItem={this.onDoneAndWaitingItemHandler}
               onFocusNextItem={this.onFocusNextItemHandler}
               itemId={this.state.focusItemId}
               isFocusOn={this.state.isFocusOn} />
@@ -356,7 +357,7 @@ class App extends Component {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
 
-    focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate(), modified: Date.now()};
+    focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate(), modified: Date.now()}
     const focusItemId = this.state.focusItemId === itemId ? this.pickNextFocusItem(focusItems) : this.state.focusItemId
 
     this.sortMutable(focusItems)
@@ -365,6 +366,26 @@ class App extends Component {
       focusItems: focusItems,
       focusItemId: focusItemId,
       isFocusOn: focusItemId === null ? false : this.state.isFocusOn
+    })
+  }
+
+  onDoneAndWaitingItemHandler = (itemId) => {
+    const focusItems = [...this.state.focusItems]
+    const index = focusItems.findIndex((el) => el.id === itemId);
+    const category = focusItems[index].category
+    focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate(), modified: Date.now()}
+
+    const newItem = getNewFocusItem('@qw ' + focusItems[index].value)
+    focusItems.unshift(newItem)
+    focusItems[0].dates = {...focusItems[0].dates, start: DateTime.local().plus({days: 3}).toISODate()}
+    focusItems[0].category = category
+    const focusItemId = newItem.id
+
+    this.sortMutable(focusItems)
+
+    this.setState({
+      focusItems: focusItems,
+      focusItemId: focusItemId
     })
   }
 

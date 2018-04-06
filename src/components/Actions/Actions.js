@@ -9,18 +9,19 @@ class Actions extends PureComponent {
     this.props.onDoneItem(this.props.itemId)
   }
 
-  render () {
-      return (
-        <div className={styles.actions}>
-          <span onClick={this.props.onFocusNextItem}>next up?</span>
-          { this.props.isFocusOn ?
-            <span onClick={this.onDoneItemHandler}>did it!</span>
-            : null
-          }
-        </div>
-      )
+  onDoneAndWaitingItemHandler = () => {
+    this.props.onDoneAndWaitingItem(this.props.itemId)
   }
 
+  render () {
+    return (
+      <div className={styles.actions}>
+        <span onClick={this.props.onFocusNextItem}>next up?</span>
+        { this.props.isFocusOn ? <span onClick={this.onDoneItemHandler}>did it!</span> : null }
+        { this.props.isFocusOn ? <span onClick={this.onDoneAndWaitingItemHandler}>done &amp; waiting</span> : null }
+      </div>
+    )
+  }
 }
 
 export default withRouter(Actions);

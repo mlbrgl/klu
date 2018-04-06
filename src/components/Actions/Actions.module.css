@@ -10,9 +10,6 @@
   color: gray;
   transition: 0.5s;
   cursor: pointer;
-}
-
-.actions span:nth-child(2) {
   margin-left: 1rem;
 }
 
