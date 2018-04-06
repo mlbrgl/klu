@@ -81,8 +81,6 @@ class Project extends Component {
   }
 
   onAddWorkProjectHandler = (event) => {
-    event.stopPropagation()
-    this.props.onAddWorkProject(this.props.name)
     this.props.history.push('/?project=' + this.props.name)
   }
 

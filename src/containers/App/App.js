@@ -169,7 +169,6 @@ class App extends Component {
               name={project.name}
               onUpProjectFrequency={this.onUpProjectFrequencyHandler}
               onDownProjectFrequency={this.onDownProjectFrequencyHandler}
-              onAddWorkProject={this.onAddWorkProjectHandler}
               onSetProjectStatus={this.onSetProjectStatusHandler} />
           )
         })}
@@ -408,20 +407,6 @@ class App extends Component {
         return null
       }
     }
-  }
-
-  onAddWorkProjectHandler = (projectName) => {
-
-    const focusItems = [...this.state.focusItems];
-    const newItem = getNewFocusItem()
-
-    newItem.value = '+' + projectName
-    focusItems.push(newItem)
-
-    this.setState({
-      focusItems: focusItems,
-      focusItemId: newItem.id,
-    });
   }
 
   onSetProjectStatusHandler = (projectName, status) => {
