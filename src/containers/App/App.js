@@ -278,7 +278,9 @@ class App extends Component {
     case 'ArrowRight':
       if (!event.shiftKey) {
         if (event.metaKey || event.ctrlKey) {
-          setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
+          if(event.target.childNodes[0]) { // field not empty
+            setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
+          }
         } else if (isCaretAtEndFieldItem()) {
           //cycle through categories
           let idxOfCurrentCategory = focusItems[index].category !== null ? this.categories.map((category) => category.name).indexOf(focusItems[index].category.name) : 0;
