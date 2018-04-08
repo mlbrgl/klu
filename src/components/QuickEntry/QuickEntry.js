@@ -10,6 +10,7 @@ class QuickEntry extends Component {
         <input
           className={styles.input}
           type="text"
+          defaultValue={this.props.initValue}
           ref={(el) => this.el = el}
           onKeyDown={this.onKeyDownHandler}
           onChange={this.onChangeHandler}

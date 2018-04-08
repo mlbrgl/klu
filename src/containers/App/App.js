@@ -34,8 +34,7 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'nurture', icon: 'leaf'}, {name: 'energy', icon: 'light-up'}];
-    this.searchResults = []
-    this.searchQuery = null
+    this.initSearch()
     this.state = null // redundant but makes the check in render clearer
   }
 
@@ -95,6 +94,7 @@ class App extends Component {
     return (
       !this.state.isFocusOn ?
         <QuickEntry
+          initValue={this.searchQuery}
           onEnterHandler={this.onEnterQuickEntryHandler}
           projectName={projectName}
           onRemoveProjectFilter={this.onRemoveProjectFilterHandler}
@@ -112,9 +112,9 @@ class App extends Component {
         return (
           (this.state.isFocusOn && item.id === this.state.focusItemId) ||
           (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName}) && !this.searchQuery) ||
-          (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName}) && this.searchQuery && this.searchResults.find((res) => item.id === res)) ||
+          (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName}) && this.searchResults.find((res) => item.id === res)) ||
           (!this.state.isFocusOn && !projectName && !this.searchQuery) ||
-          (!this.state.isFocusOn && !projectName && this.searchQuery && this.searchResults.find((res) => item.id === res)) ||
+          (!this.state.isFocusOn && !projectName && this.searchResults.find((res) => item.id === res)) ||
           false
         )
       })
@@ -480,8 +480,12 @@ class App extends Component {
   }, 2000, {leading: true, trailing: false})
 
   resetSearch = () => {
-    this.searchQuery = null
+    this.searchQuery = ''
     this.searchResults = []
+  }
+
+  initSearch = () => {
+    this.resetSearch()
   }
 
 }
