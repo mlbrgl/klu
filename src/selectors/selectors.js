@@ -135,6 +135,7 @@ export {
   isItemEligible,
   getUpdatedProjects,
   getProjectsInfo,
+  getProjectNameFromItem,
   getNextContract,
   isItemWithinProject,
   areProjectsPending

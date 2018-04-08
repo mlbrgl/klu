@@ -17,7 +17,7 @@ class Project extends Component {
     }
 
     return (
-      <div className={projectStyles} onClick={this.onFilterProjectHandler}>
+      <div className={projectStyles} onClick={this.onToggleFilterProjectHandler}>
         {this.props.name}
 
         {this.props.status === PROJECT_ACTIVE ?
@@ -66,8 +66,8 @@ class Project extends Component {
     )
   }
 
-  onFilterProjectHandler = () => {
-    this.props.history.push('/?project=' + this.props.name)
+  onToggleFilterProjectHandler = () => {
+    this.props.onToggleFilterProjectHandler(this.props.name)
   }
 
   onUpProjectFrequencyHandler = (event) => {

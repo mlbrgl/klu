@@ -19,7 +19,7 @@ import Category from '../../components/Category/Category';
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
-import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getUpdatedProjects, getNextContract, isItemWithinProject, areProjectsPending } from '../../selectors/selectors'
+import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getUpdatedProjects, getProjectNameFromItem, getNextContract, isItemWithinProject, areProjectsPending } from '../../selectors/selectors'
 import { PROJECT_PAUSED, PROJECT_COMPLETED} from '../../helpers/constants'
 
 import './App.css';
@@ -95,8 +95,8 @@ class App extends Component {
       !this.state.isFocusOn ?
         <QuickEntry
           initValue={this.searchQuery}
-          onEnterHandler={this.onEnterQuickEntryHandler}
           projectName={projectName}
+          onEnterHandler={this.onEnterQuickEntryHandler}
           onRemoveProjectFilter={this.onRemoveProjectFilterHandler}
           onSearchHandler={this.onSearchHandler} />
         : null
@@ -168,6 +168,7 @@ class App extends Component {
               frequency={project.frequency}
               status={project.status}
               name={project.name}
+              onToggleFilterProjectHandler={this.onToggleFilterProjectHandler}
               onUpProjectFrequency={this.onUpProjectFrequencyHandler}
               onDownProjectFrequency={this.onDownProjectFrequencyHandler}
               onSetProjectStatus={this.onSetProjectStatusHandler} />
@@ -235,7 +236,11 @@ class App extends Component {
     case 'Enter':
       event.preventDefault();
       if (event.metaKey || event.ctrlKey) {
-        this.onDoneItemHandler(itemId)
+        if (event.shiftKey) {
+          this.onDoneItemHandler(itemId)
+        } else {
+          this.onToggleFilterProjectHandler(getProjectNameFromItem(focusItems[index]))
+        }
       } else if (this.state.deleteItemId === null){
         this.onToggleFocusItemHandler(itemId);
       } else if (this.state.deleteItemId !== null) {
@@ -387,6 +392,14 @@ class App extends Component {
       focusItems: focusItems,
       focusItemId: focusItemId
     })
+  }
+
+  onToggleFilterProjectHandler = (projectName) => {
+    if(new URLSearchParams(this.props.location.search).get('project')) {
+      this.props.history.push('/')
+    } else if(projectName) {
+      this.props.history.push('/?project=' + projectName)
+    }
   }
 
   onUpdateProjectsHandler = () => {
