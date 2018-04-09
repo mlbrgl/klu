@@ -97,7 +97,9 @@ class App extends Component {
           initValue={this.searchQuery}
           projectName={projectName}
           onEnterHandler={this.onEnterQuickEntryHandler}
-          onRemoveProjectFilter={this.onRemoveProjectFilterHandler}
+          onToggleFilterProjectHandler={this.onToggleFilterProjectHandler}
+          onRemoveProjectFilterHandler={this.onRemoveProjectFilterHandler}
+          onResetSearchHandler={this.onResetSearchHandler}
           onSearchHandler={this.onSearchHandler} />
         : null
     )
@@ -205,7 +207,7 @@ class App extends Component {
   onEnterQuickEntryHandler = (itemValue) => {
     const newItem = getNewFocusItem(itemValue)
     const focusItems = [newItem, ...this.state.focusItems]
-    this.resetSearch()
+    this.onResetSearchHandler()
 
     this.searchApi.indexDocument(newItem.id, newItem.value)
     this.setState({focusItems: focusItems})
@@ -213,6 +215,11 @@ class App extends Component {
 
   onRemoveProjectFilterHandler = () => {
     this.props.history.push('/')
+  }
+
+  onResetSearchHandler = () => {
+    this.searchQuery = ''
+    this.searchResults = []
   }
 
   onSearchHandler = (searchQuery) => {
@@ -223,7 +230,7 @@ class App extends Component {
         this.forceUpdate()
       })
     } else {
-      this.resetSearch()
+      this.onResetSearchHandler()
       this.forceUpdate()
     }
   }
@@ -492,13 +499,8 @@ class App extends Component {
     focusItems.sort((itemA, itemB) => itemB.dates.modified - itemA.dates.modified)
   }, 2000, {leading: true, trailing: false})
 
-  resetSearch = () => {
-    this.searchQuery = ''
-    this.searchResults = []
-  }
-
   initSearch = () => {
-    this.resetSearch()
+    this.onResetSearchHandler()
   }
 
 }
