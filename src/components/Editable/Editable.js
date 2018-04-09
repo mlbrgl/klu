@@ -32,7 +32,7 @@ class Editable extends Component {
         onInput={this.onInputHandler}
         ref={el => this.ref = el}
         spellCheck="false"
-        contentEditable="true">
+        contentEditable="plaintext-only">
       </div>
     )
   }
