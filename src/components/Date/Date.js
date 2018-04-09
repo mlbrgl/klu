@@ -16,7 +16,7 @@ class Date extends Component {
   }
 
   onRemoveDateHandler= () => {
-    this.props.onRemoveDate(this.props.itemId, this.props.type)
+    this.props.onRemoveDateHandler(this.props.itemId, this.props.type)
   }
 
   formatRelativeTimeFromNow = (date) => {

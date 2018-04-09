@@ -149,9 +149,10 @@ class App extends Component {
               </Editable>
 
               <Dates
-                onRemoveDate={this.onRemoveDateHandler}
+                onRemoveDateHandler={this.onRemoveDateHandler}
                 startdate={item.dates.start}
                 duedate={item.dates.due}
+                donedate={item.dates.done}
                 itemId={item.id} />
 
           </FocusItem>
@@ -369,16 +370,18 @@ class App extends Component {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
 
-    focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate(), modified: Date.now()}
-    const focusItemId = this.state.focusItemId === itemId ? this.pickNextFocusItem(focusItems) : this.state.focusItemId
+    if(!focusItems[index].dates.done) {
+      focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate(), modified: Date.now()}
+      const focusItemId = this.state.focusItemId === itemId ? this.pickNextFocusItem(focusItems) : this.state.focusItemId
 
-    this.sortMutable(focusItems)
+      this.sortMutable(focusItems)
 
-    this.setState({
-      focusItems: focusItems,
-      focusItemId: focusItemId,
-      isFocusOn: focusItemId === null ? false : this.state.isFocusOn
-    })
+      this.setState({
+        focusItems: focusItems,
+        focusItemId: focusItemId,
+        isFocusOn: focusItemId === null ? false : this.state.isFocusOn
+      })
+    }
   }
 
   onDoneAndWaitingItemHandler = (itemId) => {
@@ -388,8 +391,9 @@ class App extends Component {
     focusItems[index].dates = {...focusItems[index].dates, done: DateTime.local().toISODate(), modified: Date.now()}
 
     const newItem = getNewFocusItem('@qw ' + focusItems[index].value)
+    const futureDate = DateTime.local().plus({days: 3}).toISODate()
     focusItems.unshift(newItem)
-    focusItems[0].dates = {...focusItems[0].dates, start: DateTime.local().plus({days: 3}).toISODate()}
+    focusItems[0].dates = {...focusItems[0].dates, start: futureDate, due: futureDate}
     focusItems[0].category = category
     const focusItemId = newItem.id
 
@@ -466,7 +470,9 @@ class App extends Component {
   onRemoveDateHandler = (itemId, dateType) => {
     const focusItems = [...this.state.focusItems];
     const index = focusItems.findIndex((el) => el.id === itemId);
-    focusItems[index].dates = {...focusItems[index].dates, [dateType]: null};
+    focusItems[index].dates = {...focusItems[index].dates, [dateType]: null, modified: Date.now()}
+
+    this.sortMutable(focusItems)
 
     this.setState({focusItems: focusItems})
   }
