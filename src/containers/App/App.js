@@ -4,12 +4,14 @@ import { DateTime } from 'luxon';
 import { Route, Switch, withRouter } from 'react-router-dom'
 import SearchApi from 'js-worker-search'
 
-import Frame from '../../containers/Frame/Frame';
+import Frame from '../Frame/Frame';
 import ContentWrapper from '../ContentWrapper/ContentWrapper';
+import Filters from '../Filters/Filters';
 import FocusItem from '../FocusItem/FocusItem';
 import Projects from '../Projects/Projects';
 import Dates from '../Dates/Dates';
 import QuickEntry from '../../components/QuickEntry/QuickEntry'
+import Filter from '../../components/Filter/Filter'
 import Project from '../../components/Project/Project';
 import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
@@ -19,7 +21,7 @@ import Category from '../../components/Category/Category';
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
-import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, getUpdatedProjects, getProjectNameFromItem, getNextContract, isItemWithinProject, areProjectsPending } from '../../selectors/selectors'
+import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, isItemDone, isItemActionable, isItemFuture, getUpdatedProjects, getProjectNameFromItem, getNextContract, isItemWithinProject, areProjectsPending } from '../../selectors/selectors'
 import { PROJECT_PAUSED, PROJECT_COMPLETED} from '../../helpers/constants'
 
 import './App.css';
@@ -51,6 +53,7 @@ class App extends Component {
         // }
         this.searchApi = new SearchApi()
         if(state !== null) {
+          state.filters= {done: false, actionable: true, future: false}
           this.setState(state)
           buildIndex(this.searchApi, state.focusItems)
         } else {
@@ -68,6 +71,7 @@ class App extends Component {
       <div className="app">
         <Frame>
           <Route path="/" exact render={this.renderQuickEntry} />
+          <Route path="/" exact render={this.renderFilters} />
           <ContentWrapper isFocusOn={this.state.isFocusOn}>
             <Switch>
               <Route path="/" exact render={this.renderFocusItems} />
@@ -105,20 +109,37 @@ class App extends Component {
     )
   }
 
+  renderFilters = () => {
+    return (
+      !this.state.isFocusOn ?
+        <Filters>
+          <Filter active={this.state.filters.done} type="done" onToggleFilterDateHandler={this.onToggleFilterDateHandler}></Filter>
+          <Filter active={this.state.filters.actionable} type="actionable" onToggleFilterDateHandler={this.onToggleFilterDateHandler}></Filter>
+          <Filter active={this.state.filters.future} type="future" onToggleFilterDateHandler={this.onToggleFilterDateHandler}></Filter>
+        </Filters>
+      : null
+    )
+  }
+
   renderFocusItems = (routeProps) => {
     const projectName = new URLSearchParams(routeProps.location.search).get('project')
 
     return (
       this.state.focusItems
       .filter((item) => {
-        return (
-          (this.state.isFocusOn && item.id === this.state.focusItemId) ||
-          (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName}) && !this.searchQuery) ||
-          (!this.state.isFocusOn && projectName && isItemWithinProject(item, {name: projectName}) && this.searchResults.find((res) => item.id === res)) ||
-          (!this.state.isFocusOn && !projectName && !this.searchQuery) ||
-          (!this.state.isFocusOn && !projectName && this.searchResults.find((res) => item.id === res)) ||
-          false
-        )
+        if(this.state.isFocusOn){
+          return item.id === this.state.focusItemId
+        } else if(!this.searchQuery || this.searchResults.find((res) => item.id === res)) {
+          return (
+            (!projectName || isItemWithinProject(item, {name: projectName})) &&
+            (
+              (this.state.filters.done && isItemDone(item)) ||
+              (this.state.filters.actionable && isItemActionable(item)) ||
+              (this.state.filters.future && isItemFuture(item))
+            )
+          )
+        }
+        return false
       })
       .slice(0, projectName || this.searchQuery ? Infinity : 20)
       .map((item, index) => {
@@ -202,7 +223,7 @@ class App extends Component {
   }
 
   /*
-  * HANDLERS
+  * HANDLERS: QUICK ENTRY
   */
 
   onEnterQuickEntryHandler = (itemValue) => {
@@ -235,6 +256,20 @@ class App extends Component {
       this.forceUpdate()
     }
   }
+
+  /*
+  * HANDLERS: DATE FILTERS
+  */
+
+ onToggleFilterDateHandler = (type) => {
+   const filters = {...this.state.filters}
+   filters[type] = !filters[type]
+   this.setState({filters: filters})
+ }
+
+  /*
+  * HANDLERS: ITEMS
+  */
 
   onKeyDownEditableItemHandler = (event, itemId) => {
     const focusItems = [...this.state.focusItems];

@@ -104,21 +104,23 @@ const areProjectsPending = (projects, focusItems) => {
 }
 
 const isItemEligible = ({dates, category}) => {
-  if (isItemActionable({dates}) && category.name !== 'inbox'){
-    return true;
-  } else {
-    return false;
-  }
+  return isItemActionable({dates}) && category.name !== 'inbox'
+}
+
+const isItemDone = ({dates}) => {
+  return !!dates.done
+}
+
+const isItemStartFuture = ({dates}) => {
+  return dates.start !== null && DateTime.fromISO(dates.start) > DateTime.local().startOf('day')
 }
 
 const isItemActionable = ({dates}) => {
-  if (
-      dates.done === null &&
-      (dates.start === null || DateTime.fromISO(dates.start) <= DateTime.local().startOf('day'))) {
-    return true;
-  } else {
-    return false;
-  }
+  return !isItemDone({dates}) && !isItemStartFuture({dates})
+}
+
+const isItemFuture = ({dates}) => {
+  return !isItemDone({dates}) && isItemStartFuture({dates})
 }
 
 const isItemWithinProject = ({ value }, { name }) => {
@@ -133,6 +135,9 @@ export {
   pickDueTodayTomorrow,
   pickDueNextTwoWeeks,
   isItemEligible,
+  isItemDone,
+  isItemActionable,
+  isItemFuture,
   getUpdatedProjects,
   getProjectsInfo,
   getProjectNameFromItem,

@@ -7,7 +7,8 @@ const getInitialState = () => {
     focusItemId: null,
     inputFocusItemId: null,
     deleteItemId: null,
-    projects: []
+    projects: [],
+    filters: {done: false, actionable: true, future: false}
   }
 }
 

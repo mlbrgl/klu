@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import debounce from 'lodash.debounce'
 
 import styles from './QuickEntry.module.css'
 
-class QuickEntry extends Component {
+class QuickEntry extends PureComponent {
 
   render() {
     return (
