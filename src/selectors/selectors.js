@@ -1,18 +1,14 @@
 import { DateTime } from 'luxon';
 import { getNewProject } from '../store/store'
-import { isPast, isToday, isTomorrow, isWithinNextTwoWeeks } from '../helpers/dates'
+import { isPast, isToday, isTomorrow, isWithinNextTwoWeeks, isPeakTime, isTroughTime } from '../helpers/dates'
 import { getRandomElement } from '../helpers/common'
 import { PROJECT_ACTIVE, PROJECT_PENDING, PROJECT_PAUSED, PROJECT_COMPLETED} from '../helpers/constants'
 
 const PROJECT_REGEX = /\+(\w+(?:-\w+)*)$/
 
-const isNurtureDoneToday = (focusItems) => {
-  return focusItems.filter((item) => isToday(item.dates.done) && item.category.name === 'nurture').length ? true : false;
-}
-
-const pickNurtureItem = (eligibleItems) => {
-  let nurtureItems = eligibleItems.filter((item) => item.category.name === 'nurture').map((item) => item.id);
-  return getRandomElement(nurtureItems);
+const pickItemInCategory = (eligibleItems, categoryName) => {
+  let itemsInCategory = eligibleItems.filter((item) => item.category.name === categoryName).map((item) => item.id);
+  return getRandomElement(itemsInCategory);
 }
 
 const pickOverdue = (eligibleItems) => {
@@ -77,7 +73,7 @@ const getProjectNameFromItem = ({value}) => {
   return project !== null ? project[1] : null
 }
 
-const getNextContract = (focusItems, projects) => {
+const getNextContractItems = (focusItems, projects) => {
   const nextFocusProject = projects.map((project, index) => {
     return {
       name: project.name,
@@ -96,6 +92,19 @@ const getNextContract = (focusItems, projects) => {
   } else {
     return focusItems.filter((item) => isItemActionable(item))
   }
+}
+
+const getChronoItems = (items) => {
+  let currentChronoCategoryName = null
+  if (isPeakTime()) {
+    currentChronoCategoryName = 'peak'
+  } else if (isTroughTime()) {
+    currentChronoCategoryName = 'trough'
+  } else {
+    currentChronoCategoryName = 'recovery'
+  }
+
+  return items.filter((item) => item.category.name === currentChronoCategoryName)
 }
 
 const areProjectsPending = (projects, focusItems) => {
@@ -129,8 +138,6 @@ const isItemWithinProject = ({ value }, { name }) => {
 }
 
 export {
-  isNurtureDoneToday,
-  pickNurtureItem,
   pickOverdue,
   pickDueTodayTomorrow,
   pickDueNextTwoWeeks,
@@ -141,7 +148,8 @@ export {
   getUpdatedProjects,
   getProjectsInfo,
   getProjectNameFromItem,
-  getNextContract,
+  getNextContractItems,
+  getChronoItems,
   isItemWithinProject,
   areProjectsPending
 }

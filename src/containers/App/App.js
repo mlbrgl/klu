@@ -21,7 +21,7 @@ import Category from '../../components/Category/Category';
 import { loadFromStorage, commitToStorage } from '../../helpers/storage'
 import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store'
 import { isCaretAtBeginningFieldItem, isCaretAtEndFieldItem, setCaretPosition, getRandomElement } from '../../helpers/common'
-import { isNurtureDoneToday, pickNurtureItem, pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, isItemDone, isItemActionable, isItemFuture, getUpdatedProjects, getProjectNameFromItem, getNextContract, isItemWithinProject, areProjectsPending } from '../../selectors/selectors'
+import { pickOverdue, pickDueTodayTomorrow, pickDueNextTwoWeeks, isItemDone, isItemActionable, isItemFuture, getUpdatedProjects, getProjectNameFromItem, getNextContractItems, getChronoItems, isItemWithinProject, areProjectsPending } from '../../selectors/selectors'
 import { PROJECT_PAUSED, PROJECT_COMPLETED} from '../../helpers/constants'
 
 import './App.css';
@@ -35,7 +35,7 @@ class App extends Component {
 
   constructor(props) {
     super(props)
-    this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'nurture', icon: 'leaf'}, {name: 'energy', icon: 'light-up'}];
+    this.categories = [{name: 'inbox', icon: 'inbox'}, {name: 'peak', icon: 'area-graph'}, {name: 'trough', icon: 'calculator'}, {name: 'recovery', icon: 'palette'}];
     this.initSearch()
     this.state = null // redundant but makes the check in render clearer
   }
@@ -476,10 +476,12 @@ class App extends Component {
       return null
     } else {
       this.props.history.push('/')
-      const items = getNextContract(focusItems, this.state.projects)
+      const contractItems = getNextContractItems(focusItems, this.state.projects)
+      const chronoItems = getChronoItems(contractItems)
+      const items = chronoItems ? chronoItems : contractItems
+
       if(items.length) {
         return (
-          (isNurtureDoneToday(focusItems) ? null : pickNurtureItem(items)) ||
           pickOverdue(items) ||
           pickDueTodayTomorrow(items) ||
           pickDueNextTwoWeeks(items) ||

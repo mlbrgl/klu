@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?mfecv8');
-  src:  url('fonts/icomoon.eot?mfecv8#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?mfecv8') format('truetype'),
-    url('fonts/icomoon.woff?mfecv8') format('woff'),
-    url('fonts/icomoon.svg?mfecv8#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?wcyafl');
+  src:  url('fonts/icomoon.eot?wcyafl#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?wcyafl') format('truetype'),
+    url('fonts/icomoon.woff?wcyafl') format('woff'),
+    url('fonts/icomoon.svg?wcyafl#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,9 +24,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-chevron-thin-right:before {
-  content: "\e900";
-}
 .icon-trash:before {
   content: "\e909";
 }
@@ -36,8 +33,11 @@
 .icon-aircraft-take-off:before {
   content: "\e906";
 }
-.icon-block:before {
-  content: "\e907";
+.icon-area-graph:before {
+  content: "\e903";
+}
+.icon-calculator:before {
+  content: "\e900";
 }
 .icon-circle-with-minus:before {
   content: "\e901";
@@ -48,9 +48,6 @@
 .icon-inbox:before {
   content: "\e904";
 }
-.icon-leaf:before {
+.icon-palette:before {
   content: "\e902";
-}
-.icon-light-up:before {
-  content: "\e903";
 }
