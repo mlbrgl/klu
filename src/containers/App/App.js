@@ -147,7 +147,6 @@ class App extends Component {
         let isDeleteOn = this.state.deleteItemId === item.id ? true : false;
 
         return(
-          // onDeleted={props.onDeletedItem} @TODO #deleteanimation
           <FocusItem
             isFocusOn={isFocusOn}
             key={item.id}
