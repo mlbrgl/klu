@@ -6,11 +6,6 @@ import { PROJECT_ACTIVE, PROJECT_PENDING, PROJECT_PAUSED, PROJECT_COMPLETED} fro
 
 const PROJECT_REGEX = /\+(\w+(?:-\w+)*)$/
 
-const pickItemInCategory = (eligibleItems, categoryName) => {
-  let itemsInCategory = eligibleItems.filter((item) => item.category.name === categoryName).map((item) => item.id);
-  return getRandomElement(itemsInCategory);
-}
-
 const pickOverdue = (eligibleItems) => {
   let overdueIds = eligibleItems.filter((item) => isPast(item.dates.due)).map((item) => item.id);
   return getRandomElement(overdueIds);
