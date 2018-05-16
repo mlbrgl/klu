@@ -5,7 +5,7 @@ import styles from './Frame.module.css'
 class Frame extends Component {
 
   componentWillMount() {
-    this.style = {backgroundImage: "url('" + process.env.PUBLIC_URL + "/images/" + getRandomIntInclusive(1,45) + ".jpg')"}
+    this.style = {backgroundImage: "url('" + process.env.PUBLIC_URL + "/images/" + getRandomIntInclusive(1,8) + ".jpg')"}
   }
 
   render() {
