@@ -477,7 +477,7 @@ class App extends Component {
       this.props.history.push('/')
       const contractItems = getNextContractItems(focusItems, this.state.projects)
       const chronoItems = getChronoItems(contractItems)
-      const items = chronoItems ? chronoItems : contractItems
+      const items = chronoItems.length !== 0 ? chronoItems : contractItems
 
       if(items.length) {
         return (
