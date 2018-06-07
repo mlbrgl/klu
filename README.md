@@ -1,5 +1,6 @@
-# Serial task focuser for process-oriented, proudly mono-tasking ~~robots~~ mortals.
+![](https://user-images.githubusercontent.com/13406362/41087255-7b2b6f68-6a3c-11e8-8a38-e57ce1ebd9ea.png)
 
+# Serial task focuser for process-oriented, proudly mono-tasking ~~robots~~ mortals.
 Klu allows you to tackle your todos, favouring important over urgent. It does this by allowing you to arbitrary define important projects, how many tasks you want to address within those projects every day (contracts), while respecting external time constraints (start and due dates) **as well as your biological rhythm**. You end up with one task in front of your eyes, in big letters. No distractions. No endless lists. No stats. **Just your most important tasks, one at a time.**
 
 You can check whether this is for you, read the full story behind it, as well as dive into Klu's core concepts [here](https://www.matthieubergel.org/klu.html).
@@ -10,6 +11,8 @@ Klu only comes in the shape of a [chrome extension](https://chrome.google.com/we
 ## Usage
 
 ### Basic
+
+![](https://user-images.githubusercontent.com/13406362/41087350-b30c9056-6a3c-11e8-895b-20b15a15db50.png)
 
 - **Create a new task**: type into the omnibox and press `enter`.
 - **Select a task**: use your mouse or the `tab`key to move the keyboard focus onto the task.
@@ -40,6 +43,8 @@ Tip: use `cmd` + `right arrow` or `left arrow` to quickly move between the begin
 - **"done & waiting"**: mark the current task done and create a clone for follow-up.  
 
 ### Projects
+
+![](https://user-images.githubusercontent.com/13406362/41087388-d85d3d7e-6a3c-11e8-8e14-278ae79042ac.png)
 
 - **Attach a new (or existing) project to a task**: type " +nameoftheproject" at the end of a task (without the quotes, but with the leading space).
 - **Remove project from a task**: delete the mention " +nameoftheproject" at the end of a task.
