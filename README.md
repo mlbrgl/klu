@@ -33,7 +33,7 @@ Tip: use `cmd` + `right arrow` or `left arrow` to quickly move between the begin
 
 ### Focus
 
-- **Switch between current focus and tasks view: press `esc` (works anywhere in the app). Useful to make a quick edit before going back to the current focus.
+- **Switch between current focus and tasks view**: press `esc` (works anywhere in the app). Useful to make a quick edit before going back to the current focus.
 - **Focus on selected task**: press `enter`.
 - **"next up?"**: cycle through highest priority tasks (there might just be one).
 - **"did it!"**: mark the current task done and focus on the next highest priority one.
