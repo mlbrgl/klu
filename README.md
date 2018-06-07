@@ -5,6 +5,8 @@ Klu allows you to tackle your todos, favouring important over urgent. It does th
 
 You can check whether this is for you, read the full story behind it, as well as dive into Klu's core concepts [here](https://www.matthieubergel.org/klu.html).
 
+Creative spark courtesy of Matt O'Hagan's [Jot](https://github.com/mattohagan/jot).
+
 ## Installation
 Klu only comes in the shape of a [chrome extension](https://chrome.google.com/webstore/detail/klu/mgbcgeghbmhjgkenjpbiiipjeoaipike) at this stage.
 
