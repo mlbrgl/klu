@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "js-worker-search": "1.2.1",
+    "js-worker-search": "1.4.0",
     "localforage": "1.6.0",
     "lodash.debounce": "4.0.8",
     "luxon": "0.5.3",
