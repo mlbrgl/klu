@@ -31,11 +31,11 @@ class Date extends Component {
     }
     let { months, weeks, days } = duration.toObject();
 
-    if(months !== undefined) {
+    if(months !== 0) {
       let unit = months > 1 ? 'months' : 'month';
       str = past ? 'about ' + months + ' ' + unit + ' ago' : 'in about ' + months + ' ' + unit ;
     } else {
-      if(weeks !== undefined) {
+      if(weeks !== 0) {
         let unit = weeks > 1 ? 'weeks' : 'week';
         str = past ? 'about ' + weeks + ' ' + unit + ' ago' : 'in about ' + weeks + ' ' + unit ;
       } else {
