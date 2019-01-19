@@ -21,8 +21,8 @@ Klu only comes in the shape of a [chrome extension](https://chrome.google.com/we
 - **Edit a task**: select it and modify in place. This will also promote the task to the first spot in the list.
 - **Search through tasks**: type into the omnibox. Tasks are filtered in realtime. When no search is active, only the last 20 edited tasks are shown to preserve a smooth experience.
 - **Delete a task**: select the task and press `cmd` (or `ctrl` on windows) + `backspace` then `enter` to confirm or `esc` to cancel. Alternative: place the focus at the beginning of the task, and press `left arrow`.
-- **Mark a task done**: `cmd` (or `ctrl` on windows) + `enter`.
-- **Cycle through biorhythm categories**: either "peak", "trough" or "recovery". Move the focus at the end of the task and press `right arrow`. Note that uncategorised (aka "inbox") items are displayed in yellow as a way to create a somewhat unsettling feeling, triggering a prompt categorisation :) 
+- **Mark a task done**: `cmd` (or `ctrl` on windows) + `shift` + `enter`.
+- **Cycle through biorhythm categories**: either "peak", "trough" or "recovery". Move the focus at the end of the task and press `right arrow`. Note that uncategorised (aka "inbox") items are displayed in yellow as a way to create a somewhat unsettling feeling, triggering a prompt categorisation :)
 - **Filter tasks**: use the filter boxes
 - 1. past: show / hide done tasks
   2. present: show / hide active tasks
@@ -31,7 +31,7 @@ Klu only comes in the shape of a [chrome extension](https://chrome.google.com/we
 ### Dates
 
 - **Set a start date**: place the focus at the beginning of the task and press `cmd` (or `ctrl` on widows) + `up arrow` or `down arrow` to move the date respectively into the future or the past. Note: as filters are re-evaluated in realtime, setting a start date in the future without the "future" filter will make the task disappear. Activate the "future" filter to see it again.
-- **Set a due date**: same as "set start date", except focus needs to be placed at the end of the task. 
+- **Set a due date**: same as "set start date", except focus needs to be placed at the end of the task.
 - **Remove a date**: click on it.
 
 Tip: use `cmd` + `right arrow` or `left arrow` to quickly move between the beginning and the end of a task and set dates faster.
