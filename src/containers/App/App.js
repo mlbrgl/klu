@@ -215,6 +215,23 @@ class App extends Component {
         default:
       }
     })
+
+    // Makes sure multiple instances of the app remain in sync
+    // Two caveats:
+    // - sync will only happen when the window regains focus, even if it is not hidden
+    // - if the focus was not on the app frame before moving onto another tab / window,
+    // coming back to that tab will not trigger onfocus. Once the app regains focus
+    // (e.g. click within the app frame), onfocus is triggered and the app updates.
+    window.onfocus = () => {
+      loadFromStorage()
+        .then((state) => {
+          // No need to check for state === null since the app has at least been
+          // mounted once (before it lost focus) and the state initialized in componentWillMount
+          this.setState(state)
+          // the index needs to be rebuilt here as it is not saved to the state
+          buildIndex(this.searchApi, state.focusItems)
+        })
+    }
   }
 
   componentDidUpdate = () => {
