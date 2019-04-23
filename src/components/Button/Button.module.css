@@ -1,0 +1,6 @@
+.button {
+  transition: 0.3s;
+  cursor: pointer;
+  font-family: inherit;
+  background: none;
+}

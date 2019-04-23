@@ -13,7 +13,7 @@
   left: 0;
   bottom: 0;
   margin: 1rem;
-  padding: 3rem;
+  padding: 3rem 3rem 4rem;
   border: 0.75rem solid white;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
 }

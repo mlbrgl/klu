@@ -1,11 +1,10 @@
 .project {
-  composes: listItem from '../../containers/ContentWrapper/ContentWrapper.module.css';
+  composes: listItem from "../../containers/ContentWrapper/ContentWrapper.module.css";
   color: white;
-  cursor: pointer;
 }
 
 .project:hover {
-  background-color: rgba(255,255,255, 0.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .pending {
@@ -25,13 +24,17 @@
 
 .frequency {
   float: right;
+}
+
+.frequency button {
+  padding: 0 0.2rem;
   font-size: 1.5rem;
   line-height: 3rem;
   color: gray;
-  transition: 0.5s;
+  border: none;
 }
 
-.frequency span:hover {
+.frequency button:hover {
   color: white;
 }
 
@@ -44,14 +47,15 @@
   font-style: italic;
 }
 
-.actions span {
+.actions button {
   margin-left: 1rem;
-  padding: 0.2rem;
+  padding: 0;
   color: yellow;
   opacity: 0.6;
-  transition: 0.2s;
+  font-size: inherit;
+  border: none;
 }
 
-.actions span:hover {
+.actions button:hover {
   opacity: 1;
 }

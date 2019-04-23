@@ -1,14 +1,21 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 
 class Projects extends Component {
-
   componentWillMount() {
-    this.props.onMount();
+    const { onMount } = this.props;
+    onMount();
   }
 
   render() {
-    return this.props.children
+    const { children } = this.props;
+    return children;
   }
 }
+
+Projects.propTypes = {
+  children: PropTypes.node.isRequired,
+  onMount: PropTypes.func.isRequired,
+};
 
 export default Projects;
