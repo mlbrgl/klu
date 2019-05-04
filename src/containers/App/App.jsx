@@ -4,6 +4,7 @@ import { DateTime } from 'luxon';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import SearchApi from 'js-worker-search';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import {
   isCaretAtBeginningFieldItem,
   isCaretAtEndFieldItem,
@@ -20,7 +21,6 @@ import FocusItem from '../FocusItem/FocusItem';
 import Projects from '../Projects/Projects';
 import Dates from '../Dates/Dates';
 import QuickEntry from '../../components/QuickEntry/QuickEntry';
-import Filter from '../../components/Filter/Filter';
 import Project from '../../components/Project/Project';
 import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
@@ -78,8 +78,8 @@ class App extends Component {
         // }
         this.searchApi = new SearchApi();
         if (state !== null) {
-          const filters = { done: false, actionable: true, future: false };
-          this.setState({ ...state, filters });
+          // const filters = { done: false, actionable: true, future: false };
+          this.setState(state);
           buildIndex(this.searchApi, state.focusItems);
         } else {
           this.setState(getInitialState());
@@ -163,16 +163,6 @@ class App extends Component {
       this.onResetSearchHandler();
       this.forceUpdate();
     }
-  };
-
-  /*
-   * HANDLERS: DATE FILTERS
-   */
-
-  onToggleFilterDateHandler = (type) => {
-    const { filters } = this.state;
-    filters[type] = !filters[type];
-    this.setState({ filters });
   };
 
   /*
@@ -487,36 +477,16 @@ class App extends Component {
 
   renderFilters = () => {
     const { isFocusOn } = this.state;
-    if (!isFocusOn) {
-      const { filters } = this.state;
-      return (
-        <Filters>
-          <Filter
-            active={filters.done}
-            type="done"
-            onToggleFilterDateHandler={this.onToggleFilterDateHandler}
-          />
-          <Filter
-            active={filters.actionable}
-            type="actionable"
-            onToggleFilterDateHandler={this.onToggleFilterDateHandler}
-          />
-          <Filter
-            active={filters.future}
-            type="future"
-            onToggleFilterDateHandler={this.onToggleFilterDateHandler}
-          />
-        </Filters>
-      );
-    }
-    return null;
+    return !isFocusOn ? <Filters /> : null;
   };
 
   renderFocusItems = (routeProps) => {
     const projectName = new URLSearchParams(routeProps.location.search).get('project');
     const {
-      focusItems, isFocusOn, focusItemId, deleteItemId, filters,
+      focusItems, isFocusOn, focusItemId, deleteItemId,
     } = this.state;
+
+    const { filters } = this.props;
 
     return focusItems
       .filter((item) => {
@@ -630,6 +600,18 @@ App.propTypes = {
   location: PropTypes.shape({
     search: PropTypes.string.isRequired,
   }).isRequired,
+  filters: PropTypes.shape({
+    done: PropTypes.bool,
+    actionable: PropTypes.bool,
+    future: PropTypes.bool,
+  }).isRequired,
 };
 
-export default withRouter(App);
+const mapStateToProps = (state) => {
+  const { filters } = state;
+  return {
+    filters,
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(App));

@@ -1,26 +1,39 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import Button from '../Button/Button';
+import { TOGGLE_DATE_FILTER } from '../../store/actionTypes';
 
 import styles from './Filter.module.css';
 
-class Filter extends PureComponent {
-  onToggleFilterDateHandler = () => {
-    const { onToggleFilterDateHandler, type } = this.props;
-    onToggleFilterDateHandler(type);
-  };
+const Filter = (props) => {
+  const { type, active, onToggleDateFilter } = props;
+  const stylesFilter = active ? styles.active : styles.filter;
 
-  render() {
-    const { active } = this.props;
-    const stylesFilter = active ? styles.active : styles.filter;
-    return <Button className={stylesFilter} onClick={this.onToggleFilterDateHandler} />;
-  }
-}
+  return <Button className={stylesFilter} onClick={() => onToggleDateFilter(type)} />;
+};
 
 Filter.propTypes = {
   active: PropTypes.bool.isRequired,
-  onToggleFilterDateHandler: PropTypes.func.isRequired,
+  onToggleDateFilter: PropTypes.func.isRequired,
   type: PropTypes.string.isRequired,
 };
 
-export default Filter;
+const mapStateToProps = (state, ownProps) => {
+  const { filters } = state;
+  const { type } = ownProps;
+
+  return {
+    active: filters[type],
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  // eslint-disable-next-line max-len
+  onToggleDateFilter: type => dispatch({ type: TOGGLE_DATE_FILTER, payload: { type } }),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Filter);

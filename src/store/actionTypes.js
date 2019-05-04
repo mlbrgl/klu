@@ -1,0 +1,1 @@
+export const TOGGLE_DATE_FILTER = 'TOGGLE_DATE_FILTER';

@@ -1,15 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import styles from './Filters.module.css';
+import Filter from '../../components/Filter/Filter';
 
-const filters = (props) => {
-  const { children } = props;
-  return <div className={styles.filters}>{children}</div>;
-};
+const Filters = () => (
+  <div className={styles.filters}>
+    <Filter type="done" />
+    <Filter type="actionable" />
+    <Filter type="future" />
+  </div>
+);
 
-filters.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-export default filters;
+export default Filters;
