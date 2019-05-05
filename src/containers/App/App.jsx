@@ -37,14 +37,12 @@ import {
   isItemDone,
   isItemActionable,
   isItemFuture,
-  getUpdatedProjects,
   getProjectNameFromItem,
   getNextContractItems,
   getChronoItems,
   isItemWithinProject,
   areProjectsPending,
 } from '../../selectors/selectors';
-import { PROJECT_PAUSED, PROJECT_COMPLETED } from '../../helpers/constants';
 
 import './App.css';
 
@@ -372,40 +370,6 @@ class App extends Component {
     });
   };
 
-  onUpdateProjectsHandler = () => {
-    const { projects, focusItems } = this.state;
-    this.setState({ projects: getUpdatedProjects(projects, focusItems) });
-  };
-
-  onUpProjectFrequencyHandler = (projectName) => {
-    const { projects } = this.state;
-    const index = projects.findIndex(el => el.name === projectName);
-
-    projects[index].frequency += 1;
-    this.setState({ projects });
-  };
-
-  onDownProjectFrequencyHandler = (projectName) => {
-    const { projects } = this.state;
-    const index = projects.findIndex(el => el.name === projectName);
-
-    if (projects[index].frequency !== 0) {
-      projects[index].frequency -= 1;
-      this.setState({ projects });
-    }
-  };
-
-  onSetProjectStatusHandler = (projectName, status) => {
-    const { projects } = this.state;
-    const index = projects.findIndex(project => project.name === projectName);
-    projects[index].status = status;
-    if (status === PROJECT_COMPLETED || status === PROJECT_PAUSED) {
-      projects[index].frequency = 0;
-    }
-
-    this.setState({ projects });
-  };
-
   onRemoveDateHandler = (itemId, dateType) => {
     const { focusItems } = this.state;
     const index = focusItems.findIndex(el => el.id === itemId);
@@ -540,22 +504,8 @@ class App extends Component {
   };
 
   renderProjects = () => {
-    const { projects } = this.state;
-    return (
-      <Projects onMount={this.onUpdateProjectsHandler}>
-        {projects.map(project => (
-          <Project
-            key={project.name}
-            frequency={project.frequency}
-            status={project.status}
-            name={project.name}
-            onUpProjectFrequencyHandler={this.onUpProjectFrequencyHandler}
-            onDownProjectFrequencyHandler={this.onDownProjectFrequencyHandler}
-            onSetProjectStatusHandler={this.onSetProjectStatusHandler}
-          />
-        ))}
-      </Projects>
-    );
+    const { focusItems } = this.state;
+    return <Projects focusItems={focusItems} />;
   };
 
   render() {

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 import Button from '../Button/Button';
 import {
   PROJECT_ACTIVE,
@@ -10,6 +11,11 @@ import {
 } from '../../helpers/constants';
 
 import styles from './Project.module.css';
+import {
+  UP_PROJECT_FREQUENCY,
+  DOWN_PROJECT_FREQUENCY,
+  SET_PROJECT_STATUS,
+} from '../../store/actionTypes';
 
 class Project extends Component {
   onToggleFilterProjectHandler = () => {
@@ -27,14 +33,14 @@ class Project extends Component {
 
   onUpProjectFrequencyHandler = (event) => {
     event.stopPropagation();
-    const { onUpProjectFrequencyHandler, name } = this.props;
-    onUpProjectFrequencyHandler(name);
+    const { upFrequency, name } = this.props;
+    upFrequency(name);
   };
 
   onDownProjectFrequencyHandler = (event) => {
     event.stopPropagation();
-    const { onDownProjectFrequencyHandler, name } = this.props;
-    onDownProjectFrequencyHandler(name);
+    const { downFrequency, name } = this.props;
+    downFrequency(name);
   };
 
   onAddWorkProjectHandler = () => {
@@ -44,14 +50,14 @@ class Project extends Component {
 
   onPauseProjectHandler = (event) => {
     event.stopPropagation();
-    const { onSetProjectStatusHandler, name } = this.props;
-    onSetProjectStatusHandler(name, PROJECT_PAUSED);
+    const { setStatus, name } = this.props;
+    setStatus(name, PROJECT_PAUSED);
   };
 
   onCompleteProjectHandler = (event) => {
     event.stopPropagation();
-    const { onSetProjectStatusHandler, name } = this.props;
-    onSetProjectStatusHandler(name, PROJECT_COMPLETED);
+    const { setStatus, name } = this.props;
+    setStatus(name, PROJECT_COMPLETED);
   };
 
   renderInfo() {
@@ -124,9 +130,9 @@ class Project extends Component {
 }
 
 Project.propTypes = {
-  onUpProjectFrequencyHandler: PropTypes.func.isRequired,
-  onDownProjectFrequencyHandler: PropTypes.func.isRequired,
-  onSetProjectStatusHandler: PropTypes.func.isRequired,
+  upFrequency: PropTypes.func.isRequired,
+  downFrequency: PropTypes.func.isRequired,
+  setStatus: PropTypes.func.isRequired,
   location: PropTypes.shape({
     search: PropTypes.string,
   }).isRequired,
@@ -136,4 +142,15 @@ Project.propTypes = {
   frequency: PropTypes.number.isRequired,
 };
 
-export default withRouter(Project);
+const mapDispatchToProps = dispatch => ({
+  upFrequency: name => dispatch({ type: UP_PROJECT_FREQUENCY, payload: { name } }),
+  downFrequency: name => dispatch({ type: DOWN_PROJECT_FREQUENCY, payload: { name } }),
+  setStatus: (name, status) => dispatch({ type: SET_PROJECT_STATUS, payload: { name, status } }),
+});
+
+export default withRouter(
+  connect(
+    null,
+    mapDispatchToProps,
+  )(Project),
+);
