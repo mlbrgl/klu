@@ -180,7 +180,12 @@ class App extends Component {
           if (event.shiftKey) {
             this.onDoneItemHandler(itemId);
           } else {
-            this.onToggleFilterProjectHandler(getProjectNameFromItem(focusItems[index]));
+            const { location, history } = this.props;
+            Project.onToggleFilterProjectHandler(
+              getProjectNameFromItem(focusItems[index]),
+              location,
+              history,
+            );
           }
         } else if (deleteItemId === null) {
           this.onToggleFocusItemHandler(itemId);
@@ -367,15 +372,6 @@ class App extends Component {
     });
   };
 
-  onToggleFilterProjectHandler = (projectName) => {
-    const { location, history } = this.props;
-    if (new URLSearchParams(location.search).get('project')) {
-      history.push('/');
-    } else if (projectName) {
-      history.push(`/?project=${projectName}`);
-    }
-  };
-
   onUpdateProjectsHandler = () => {
     const { projects, focusItems } = this.state;
     this.setState({ projects: getUpdatedProjects(projects, focusItems) });
@@ -465,7 +461,7 @@ class App extends Component {
           initValue={this.searchQuery}
           projectName={projectName}
           onEnterHandler={this.onEnterQuickEntryHandler}
-          onToggleFilterProjectHandler={this.onToggleFilterProjectHandler}
+          onToggleFilterProjectHandler={Project.onToggleFilterProjectHandler}
           onRemoveProjectFilterHandler={this.onRemoveProjectFilterHandler}
           onResetSearchHandler={this.onResetSearchHandler}
           onSearchHandler={this.onSearchHandler}
@@ -553,7 +549,6 @@ class App extends Component {
             frequency={project.frequency}
             status={project.status}
             name={project.name}
-            onToggleFilterProjectHandler={this.onToggleFilterProjectHandler}
             onUpProjectFrequencyHandler={this.onUpProjectFrequencyHandler}
             onDownProjectFrequencyHandler={this.onDownProjectFrequencyHandler}
             onSetProjectStatusHandler={this.onSetProjectStatusHandler}

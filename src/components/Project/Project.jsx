@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 import Button from '../Button/Button';
 import {
   PROJECT_ACTIVE,
@@ -13,8 +13,16 @@ import styles from './Project.module.css';
 
 class Project extends Component {
   onToggleFilterProjectHandler = () => {
-    const { onToggleFilterProjectHandler, name } = this.props;
-    onToggleFilterProjectHandler(name);
+    const { name, location, history } = this.props;
+    this.constructor.onToggleFilterProjectHandler(name, location, history);
+  };
+
+  static onToggleFilterProjectHandler = (name, location, history) => {
+    if (new URLSearchParams(location.search).get('project')) {
+      history.push('/');
+    } else if (name) {
+      history.push(`/?project=${name}`);
+    }
   };
 
   onUpProjectFrequencyHandler = (event) => {
@@ -116,10 +124,12 @@ class Project extends Component {
 }
 
 Project.propTypes = {
-  onToggleFilterProjectHandler: PropTypes.func.isRequired,
   onUpProjectFrequencyHandler: PropTypes.func.isRequired,
   onDownProjectFrequencyHandler: PropTypes.func.isRequired,
   onSetProjectStatusHandler: PropTypes.func.isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string,
+  }).isRequired,
   name: PropTypes.string.isRequired,
   history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
   status: PropTypes.number.isRequired,
