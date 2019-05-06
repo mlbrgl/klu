@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import debounce from 'lodash.debounce';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 import Button from '../Button/Button';
 
 import styles from './QuickEntry.module.css';
@@ -23,9 +24,11 @@ class QuickEntry extends PureComponent {
         onResetSearchHandler,
         onEnterHandler,
         projectName,
+        location,
+        history,
       } = this.props;
       if (event.metaKey || event.ctrlKey) {
-        onToggleFilterProjectHandler(value.split(' ')[0]);
+        onToggleFilterProjectHandler(value.split(' ')[0], location, history);
         onResetSearchHandler();
         this.el.value = null;
       } else {
@@ -72,6 +75,10 @@ QuickEntry.propTypes = {
   onRemoveProjectFilterHandler: PropTypes.func.isRequired,
   projectName: PropTypes.string,
   initValue: PropTypes.string.isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string,
+  }).isRequired,
+  history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
 };
 
-export default QuickEntry;
+export default withRouter(QuickEntry);

@@ -426,7 +426,7 @@ class App extends Component {
           projectName={projectName}
           onEnterHandler={this.onEnterQuickEntryHandler}
           onToggleFilterProjectHandler={Project.onToggleFilterProjectHandler}
-          onRemoveProjectFilterHandler={this.onRemoveProjectFilterHandler}
+          onRemoveProjectFilterHandler={Project.onRemoveProjectFilterHandler}
           onResetSearchHandler={this.onResetSearchHandler}
           onSearchHandler={this.onSearchHandler}
         />
