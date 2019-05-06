@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
 import debounce from 'lodash.debounce';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
-import Button from '../Button/Button';
+import { connect } from 'react-redux';
 
 import styles from './QuickEntry.module.css';
+import ProjectFilter from '../ProjectFilter/ProjectFilter';
+import { SET_PROJECT_FILTER } from '../../store/actionTypes';
 
 class QuickEntry extends PureComponent {
   onChangeHandler = () => {
@@ -20,15 +21,10 @@ class QuickEntry extends PureComponent {
     if (event.key === 'Enter') {
       const { value } = this.el;
       const {
-        onToggleFilterProjectHandler,
-        onResetSearchHandler,
-        onEnterHandler,
-        projectName,
-        location,
-        history,
+        setProjectFilter, onResetSearchHandler, onEnterHandler, projectName,
       } = this.props;
       if (event.metaKey || event.ctrlKey) {
-        onToggleFilterProjectHandler(value.split(' ')[0], location, history);
+        setProjectFilter(value.split(' ')[0]);
         onResetSearchHandler();
         this.el.value = null;
       } else {
@@ -40,7 +36,7 @@ class QuickEntry extends PureComponent {
   };
 
   render() {
-    const { initValue, projectName, onRemoveProjectFilterHandler } = this.props;
+    const { initValue } = this.props;
     return (
       <div className={styles.wrapper}>
         <input
@@ -53,11 +49,7 @@ class QuickEntry extends PureComponent {
           onKeyDown={this.onKeyDownHandler}
           onChange={this.onChangeHandler}
         />
-        {projectName ? (
-          <Button className={styles.project} onClick={onRemoveProjectFilterHandler}>
-            {`+${projectName}`}
-          </Button>
-        ) : null}
+        <ProjectFilter />
       </div>
     );
   }
@@ -69,16 +61,22 @@ QuickEntry.defaultProps = {
 
 QuickEntry.propTypes = {
   onSearchHandler: PropTypes.func.isRequired,
-  onToggleFilterProjectHandler: PropTypes.func.isRequired,
+  setProjectFilter: PropTypes.func.isRequired,
   onResetSearchHandler: PropTypes.func.isRequired,
   onEnterHandler: PropTypes.func.isRequired,
-  onRemoveProjectFilterHandler: PropTypes.func.isRequired,
-  projectName: PropTypes.string,
   initValue: PropTypes.string.isRequired,
-  location: PropTypes.shape({
-    search: PropTypes.string,
-  }).isRequired,
-  history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
+  projectName: PropTypes.string,
 };
 
-export default withRouter(QuickEntry);
+const mapStateToProps = state => ({
+  projectName: state.projectName,
+});
+
+const mapDispatchToProps = dispatch => ({
+  setProjectFilter: name => dispatch({ type: SET_PROJECT_FILTER, payload: { name } }),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(QuickEntry);

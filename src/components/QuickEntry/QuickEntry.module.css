@@ -20,16 +20,3 @@
   border: none;
   outline: none;
 }
-
-.project {
-  padding: 0 0 0 1rem;
-  border: none;
-  border-left: 1px solid grey;
-  font-size: inherit;
-  color: inherit;
-}
-
-.project:hover {
-  color: red;
-  cursor: pointer;
-}

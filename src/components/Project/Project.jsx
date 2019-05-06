@@ -15,20 +15,14 @@ import {
   UP_PROJECT_FREQUENCY,
   DOWN_PROJECT_FREQUENCY,
   SET_PROJECT_STATUS,
+  SET_PROJECT_FILTER,
 } from '../../store/actionTypes';
 
 class Project extends Component {
-  onToggleFilterProjectHandler = () => {
-    const { name, location, history } = this.props;
-    this.constructor.onToggleFilterProjectHandler(name, location, history);
-  };
-
-  static onToggleFilterProjectHandler = (name, location, history) => {
-    if (new URLSearchParams(location.search).get('project')) {
-      history.push('/');
-    } else if (name) {
-      history.push(`/?project=${name}`);
-    }
+  onSetProjectFilter = () => {
+    const { name, history, setProjectFilter } = this.props;
+    history.push('/');
+    setProjectFilter(name);
   };
 
   onUpProjectFrequencyHandler = (event) => {
@@ -41,11 +35,6 @@ class Project extends Component {
     event.stopPropagation();
     const { downFrequency, name } = this.props;
     downFrequency(name);
-  };
-
-  onAddWorkProjectHandler = () => {
-    const { history, name } = this.props;
-    history.push(`/?project=${name}`);
   };
 
   onPauseProjectHandler = (event) => {
@@ -85,7 +74,7 @@ class Project extends Component {
   renderActions() {
     return (
       <div className={styles.actions}>
-        <Button onClick={this.onAddWorkProjectHandler}>yep</Button>
+        <Button onClick={this.onSetProjectFilter}>yep</Button>
         <Button onClick={this.onPauseProjectHandler}>nothing for now</Button>
         <Button onClick={this.onCompleteProjectHandler}>nothing at all</Button>
       </div>
@@ -106,8 +95,8 @@ class Project extends Component {
     return (
       <div
         className={projectStyles}
-        onClick={this.onToggleFilterProjectHandler}
-        onKeyPress={this.onToggleFilterProjectHandler}
+        onClick={this.onSetProjectFilter}
+        onKeyPress={this.onSetProjectFilter}
         role="link"
         tabIndex="0"
       >
@@ -130,22 +119,26 @@ class Project extends Component {
 }
 
 Project.propTypes = {
-  upFrequency: PropTypes.func.isRequired,
   downFrequency: PropTypes.func.isRequired,
-  setStatus: PropTypes.func.isRequired,
+  frequency: PropTypes.number.isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
   location: PropTypes.shape({
     search: PropTypes.string,
   }).isRequired,
   name: PropTypes.string.isRequired,
-  history: PropTypes.shape({ push: PropTypes.func.isRequired }).isRequired,
+  setProjectFilter: PropTypes.func.isRequired,
+  setStatus: PropTypes.func.isRequired,
   status: PropTypes.number.isRequired,
-  frequency: PropTypes.number.isRequired,
+  upFrequency: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({
   upFrequency: name => dispatch({ type: UP_PROJECT_FREQUENCY, payload: { name } }),
   downFrequency: name => dispatch({ type: DOWN_PROJECT_FREQUENCY, payload: { name } }),
   setStatus: (name, status) => dispatch({ type: SET_PROJECT_STATUS, payload: { name, status } }),
+  setProjectFilter: name => dispatch({ type: SET_PROJECT_FILTER, payload: { name } }),
 });
 
 export default withRouter(

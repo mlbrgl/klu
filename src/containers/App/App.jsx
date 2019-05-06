@@ -45,6 +45,7 @@ import {
 } from '../../selectors/selectors';
 
 import './App.css';
+import { SET_PROJECT_FILTER } from '../../store/actionTypes';
 
 // if (process.env.NODE_ENV !== 'production') {
 //   const {whyDidYouUpdate} = require('why-did-you-update')
@@ -169,6 +170,7 @@ class App extends Component {
 
   onKeyDownEditableItemHandler = (event, itemId) => {
     const { focusItems, deleteItemId } = this.state;
+    const { setProjectFilter } = this.props;
     const index = focusItems.findIndex(el => el.id === itemId);
 
     switch (event.key) {
@@ -178,12 +180,7 @@ class App extends Component {
           if (event.shiftKey) {
             this.onDoneItemHandler(itemId);
           } else {
-            const { location, history } = this.props;
-            Project.onToggleFilterProjectHandler(
-              getProjectNameFromItem(focusItems[index]),
-              location,
-              history,
-            );
+            setProjectFilter(getProjectNameFromItem(focusItems[index]));
           }
         } else if (deleteItemId === null) {
           this.onToggleFocusItemHandler(itemId);
@@ -416,17 +413,13 @@ class App extends Component {
    * COMPONENT TREES
    */
 
-  renderQuickEntry = (routeProps) => {
-    const projectName = new URLSearchParams(routeProps.location.search).get('project');
+  renderQuickEntry = () => {
     const { isFocusOn } = this.state;
     if (!isFocusOn) {
       return (
         <QuickEntry
           initValue={this.searchQuery}
-          projectName={projectName}
           onEnterHandler={this.onEnterQuickEntryHandler}
-          onToggleFilterProjectHandler={Project.onToggleFilterProjectHandler}
-          onRemoveProjectFilterHandler={Project.onRemoveProjectFilterHandler}
           onResetSearchHandler={this.onResetSearchHandler}
           onSearchHandler={this.onSearchHandler}
         />
@@ -440,8 +433,8 @@ class App extends Component {
     return !isFocusOn ? <Filters /> : null;
   };
 
-  renderFocusItems = (routeProps) => {
-    const projectName = new URLSearchParams(routeProps.location.search).get('project');
+  renderFocusItems = () => {
+    const { projectName } = this.props;
     const {
       focusItems, isFocusOn, focusItemId, deleteItemId,
     } = this.state;
@@ -538,6 +531,10 @@ class App extends Component {
   }
 }
 
+App.defaultProps = {
+  projectName: null,
+};
+
 App.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
@@ -550,13 +547,25 @@ App.propTypes = {
     actionable: PropTypes.bool,
     future: PropTypes.bool,
   }).isRequired,
+  setProjectFilter: PropTypes.func.isRequired,
+  projectName: PropTypes.string,
 };
 
 const mapStateToProps = (state) => {
-  const { filters } = state;
+  const { filters, projectName } = state;
   return {
     filters,
+    projectName,
   };
 };
 
-export default withRouter(connect(mapStateToProps)(App));
+const mapDispatchToProps = dispatch => ({
+  setProjectFilter: name => dispatch({ type: SET_PROJECT_FILTER, payload: { name } }),
+});
+
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(App),
+);

@@ -5,6 +5,7 @@ import {
   UP_PROJECT_FREQUENCY,
   SET_PROJECT_STATUS,
   DOWN_PROJECT_FREQUENCY,
+  SET_PROJECT_FILTER,
 } from './actionTypes';
 import { getUpdatedProjects } from '../selectors/selectors';
 import { PROJECT_COMPLETED, PROJECT_PAUSED } from '../helpers/constants';
@@ -41,12 +42,15 @@ const rootReducer = (state = getInitialState(), action) => {
       const { name, status } = action.payload;
       const projects = [...state.projects];
       const index = projects.findIndex(el => el.name === name);
-      // TODO check equality here
       projects[index].status = status;
       if (status === PROJECT_COMPLETED || status === PROJECT_PAUSED) {
         projects[index].frequency = 0;
       }
       return { ...state, projects };
+    }
+    case SET_PROJECT_FILTER: {
+      const { name } = action.payload;
+      return { ...state, projectName: name || null };
     }
 
     default:
