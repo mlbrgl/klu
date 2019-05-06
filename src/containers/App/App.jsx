@@ -21,7 +21,6 @@ import FocusItem from '../FocusItem/FocusItem';
 import Projects from '../Projects/Projects';
 import Dates from '../Dates/Dates';
 import QuickEntry from '../../components/QuickEntry/QuickEntry';
-import Project from '../../components/Project/Project';
 import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
 import Category from '../../components/Category/Category';
