@@ -2,8 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { SET_PROJECT_FILTER } from '../../store/actionTypes';
+
 import Button from '../Button/Button';
+import * as actionCreators from '../../store/actionCreators';
+
 import styles from './ProjectFilter.module.css';
 
 const ProjectFilter = (props) => {
@@ -29,13 +31,9 @@ const mapStateToProps = state => ({
   name: state.projectName,
 });
 
-const mapDispatchToProps = dispatch => ({
-  resetProjectFilter: () => dispatch({ type: SET_PROJECT_FILTER, payload: { name: null } }),
-});
-
 export default withRouter(
   connect(
     mapStateToProps,
-    mapDispatchToProps,
+    actionCreators,
   )(ProjectFilter),
 );

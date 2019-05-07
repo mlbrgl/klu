@@ -5,6 +5,7 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import SearchApi from 'js-worker-search';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+
 import {
   isCaretAtBeginningFieldItem,
   isCaretAtEndFieldItem,
@@ -25,10 +26,9 @@ import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
 import Category from '../../components/Category/Category';
 // import localforage from 'localforage';
-
 import { loadFromStorage, commitToStorage } from '../../helpers/storage';
 import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store';
-
+import * as actionCreators from '../../store/actionCreators';
 import {
   pickOverdue,
   pickDueTodayTomorrow,
@@ -44,7 +44,6 @@ import {
 } from '../../selectors/selectors';
 
 import './App.css';
-import { SET_PROJECT_FILTER } from '../../store/actionTypes';
 
 // if (process.env.NODE_ENV !== 'production') {
 //   const {whyDidYouUpdate} = require('why-did-you-update')
@@ -558,13 +557,9 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  setProjectFilter: name => dispatch({ type: SET_PROJECT_FILTER, payload: { name } }),
-});
-
 export default withRouter(
   connect(
     mapStateToProps,
-    mapDispatchToProps,
+    actionCreators,
   )(App),
 );

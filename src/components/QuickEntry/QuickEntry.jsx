@@ -3,9 +3,10 @@ import debounce from 'lodash.debounce';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import styles from './QuickEntry.module.css';
 import ProjectFilter from '../ProjectFilter/ProjectFilter';
-import { SET_PROJECT_FILTER } from '../../store/actionTypes';
+import * as actionCreators from '../../store/actionCreators';
+
+import styles from './QuickEntry.module.css';
 
 class QuickEntry extends PureComponent {
   onChangeHandler = () => {
@@ -72,11 +73,7 @@ const mapStateToProps = state => ({
   projectName: state.projectName,
 });
 
-const mapDispatchToProps = dispatch => ({
-  setProjectFilter: name => dispatch({ type: SET_PROJECT_FILTER, payload: { name } }),
-});
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  actionCreators,
 )(QuickEntry);

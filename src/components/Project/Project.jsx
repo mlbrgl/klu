@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Button from '../Button/Button';
+import * as actionCreators from '../../store/actionCreators';
 import {
   PROJECT_ACTIVE,
   PROJECT_PENDING,
@@ -11,12 +12,6 @@ import {
 } from '../../helpers/constants';
 
 import styles from './Project.module.css';
-import {
-  UP_PROJECT_FREQUENCY,
-  DOWN_PROJECT_FREQUENCY,
-  SET_PROJECT_STATUS,
-  SET_PROJECT_FILTER,
-} from '../../store/actionTypes';
 
 class Project extends Component {
   onSetProjectFilter = () => {
@@ -134,16 +129,9 @@ Project.propTypes = {
   upFrequency: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
-  upFrequency: name => dispatch({ type: UP_PROJECT_FREQUENCY, payload: { name } }),
-  downFrequency: name => dispatch({ type: DOWN_PROJECT_FREQUENCY, payload: { name } }),
-  setStatus: (name, status) => dispatch({ type: SET_PROJECT_STATUS, payload: { name, status } }),
-  setProjectFilter: name => dispatch({ type: SET_PROJECT_FILTER, payload: { name } }),
-});
-
 export default withRouter(
   connect(
     null,
-    mapDispatchToProps,
+    actionCreators,
   )(Project),
 );
