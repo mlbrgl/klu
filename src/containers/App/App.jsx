@@ -28,7 +28,7 @@ import Category from '../../components/Category/Category';
 // import localforage from 'localforage';
 import { loadFromStorage, commitToStorage } from '../../helpers/storage';
 import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store';
-import * as actionCreators from '../../store/actionCreators';
+import * as actionCreators from '../../store/projectFilter/actionCreators';
 import {
   pickOverdue,
   pickDueTodayTomorrow,
@@ -549,13 +549,10 @@ App.propTypes = {
   projectName: PropTypes.string,
 };
 
-const mapStateToProps = (state) => {
-  const { filters, projectName } = state;
-  return {
-    filters,
-    projectName,
-  };
-};
+const mapStateToProps = state => ({
+  filters: state.filters,
+  projectName: state.projectFilter,
+});
 
 export default withRouter(
   connect(

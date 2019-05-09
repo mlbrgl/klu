@@ -17,12 +17,12 @@ const getNewFocusItem = (value = '') => {
 
 const getInitialState = () => ({
   focusItems: [getNewFocusItem()],
+  projects: [],
   isFocusOn: false,
   focusItemId: null,
-  inputFocusItemId: null,
   deleteItemId: null,
-  projects: [],
   filters: { done: false, actionable: true, future: false },
+  projectFilter: null,
 });
 
 const getNewProject = name => ({ name, frequency: 0, status: PROJECT_ACTIVE });

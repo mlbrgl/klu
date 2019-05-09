@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import Project from '../../components/Project/Project';
-import * as actionCreators from '../../store/actionCreators';
+import * as actionCreators from '../../store/projects/actionCreators';
 
 const Projects = (props) => {
   const { focusItems, updateProjects, projects } = props;

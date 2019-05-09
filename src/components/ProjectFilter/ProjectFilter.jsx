@@ -4,31 +4,31 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import Button from '../Button/Button';
-import * as actionCreators from '../../store/actionCreators';
+import * as actionCreators from '../../store/projectFilter/actionCreators';
 
 import styles from './ProjectFilter.module.css';
 
 const ProjectFilter = (props) => {
-  const { name, resetProjectFilter } = props;
+  const { projectName, resetProjectFilter } = props;
 
-  return name ? (
+  return projectName ? (
     <Button className={styles.project} onClick={resetProjectFilter}>
-      {`+${name}`}
+      {`+${projectName}`}
     </Button>
   ) : null;
 };
 
 ProjectFilter.defaultProps = {
-  name: null,
+  projectName: null,
 };
 
 ProjectFilter.propTypes = {
-  name: PropTypes.string,
+  projectName: PropTypes.string,
   resetProjectFilter: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
-  name: state.projectName,
+  projectName: state.projectFilter,
 });
 
 export default withRouter(

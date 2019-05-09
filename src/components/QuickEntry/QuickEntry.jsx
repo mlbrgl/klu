@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import ProjectFilter from '../ProjectFilter/ProjectFilter';
-import * as actionCreators from '../../store/actionCreators';
+import * as actionCreators from '../../store/projectFilter/actionCreators';
 
 import styles from './QuickEntry.module.css';
 
@@ -70,7 +70,7 @@ QuickEntry.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  projectName: state.projectName,
+  projectName: state.projectFilter,
 });
 
 export default connect(

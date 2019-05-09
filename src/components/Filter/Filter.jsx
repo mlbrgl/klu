@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import Button from '../Button/Button';
-import * as actionCreators from '../../store/actionCreators';
+import * as actionCreators from '../../store/filters/actionCreators';
 
 import styles from './Filter.module.css';
 
