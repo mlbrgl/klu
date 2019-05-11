@@ -5,6 +5,15 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import SearchApi from 'js-worker-search';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import {
+  getNextEligibleItems,
+  isItemDone,
+  isItemActionable,
+  isItemFuture,
+  getProjectNameFromItem,
+  isItemWithinProject,
+  areProjectsPending,
+} from '../../selectors/selectors';
 
 import {
   isCaretAtBeginningFieldItem,
@@ -26,22 +35,11 @@ import Editable from '../../components/Editable/Editable';
 import Actions from '../../components/Actions/Actions';
 import Category from '../../components/Category/Category';
 // import localforage from 'localforage';
-import { loadFromStorage, commitToStorage } from '../../helpers/storage';
-import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store';
-import * as actionCreators from '../../store/projectFilter/actionCreators';
-import {
-  pickOverdue,
-  pickDueTodayTomorrow,
-  pickDueNextTwoWeeks,
-  isItemDone,
-  isItemActionable,
-  isItemFuture,
-  getProjectNameFromItem,
-  getNextContractItems,
-  getChronoItems,
-  isItemWithinProject,
-  areProjectsPending,
-} from '../../selectors/selectors';
+// import { loadFromStorage, commitToStorage } from '../../helpers/storage';
+// import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store';
+import { getNewFocusItem, getInitialState } from '../../store/store';
+import * as actionCreatorsProjectFilter from '../../store/projectFilter/actionCreators';
+import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 
 import './App.css';
 
@@ -59,71 +57,73 @@ class App extends Component {
       { name: 'trough', icon: 'calculator' },
       { name: 'recovery', icon: 'palette' },
     ];
+    // TODO: remove state init (done in redux)
+    this.state = getInitialState();
     this.initSearch();
   }
 
   componentWillMount() {
-    loadFromStorage()
-      .then((state) => {
-        // EXPORT (on prod)
-        // localStorage.setItem('state', JSON.stringify(state))
-        // IMPORT (on local)
-        // state = JSON.parse(localStorage.getItem('state'))
-        // for(let item in state){
-        //   localforage.setItem(item, state[item])
-        //   .catch((err) => { console.error(err) })
-        // }
-        this.searchApi = new SearchApi();
-        if (state !== null) {
-          // const filters = { done: false, actionable: true, future: false };
-          this.setState(state);
-          buildIndex(this.searchApi, state.focusItems);
-        } else {
-          this.setState(getInitialState());
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    //   loadFromStorage()
+    //     .then((state) => {
+    //       // EXPORT (on prod)
+    //       // localStorage.setItem('state', JSON.stringify(state))
+    //       // IMPORT (on local)
+    //       // state = JSON.parse(localStorage.getItem('state'))
+    //       // for(let item in state){
+    //       //   localforage.setItem(item, state[item])
+    //       //   .catch((err) => { console.error(err) })
+    //       // }
+    this.searchApi = new SearchApi();
+    //       if (state !== null) {
+    //         // const filters = { done: false, actionable: true, future: false };
+    //         this.setState(state);
+    //         buildIndex(this.searchApi, state.focusItems);
+    //       } else {
+    //         this.setState(getInitialState());
+    //       }
+    //     })
+    //     .catch((err) => {
+    //       console.log(err);
+    //     });
   }
 
-  componentDidMount() {
-    document.addEventListener('keydown', (event) => {
-      const { deleteItemId } = this.state;
-      switch (event.key) {
-        case 'Escape':
-          if (deleteItemId !== null) {
-            this.setState({ deleteItemId: null });
-          } else {
-            const { history } = this.props;
-            this.onToggleFocusItemHandler();
-            history.push('/');
-          }
-          break;
-        default:
-      }
-    });
+  // componentDidMount() {
+  //   document.addEventListener('keydown', (event) => {
+  //     const { deleteItemId } = this.state;
+  //     switch (event.key) {
+  //       case 'Escape':
+  //         if (deleteItemId !== null) {
+  //           this.setState({ deleteItemId: null });
+  //         } else {
+  //           const { history } = this.props;
+  //           this.onToggleFocusItemHandler();
+  //           history.push('/');
+  //         }
+  //         break;
+  //       default:
+  //     }
+  //   });
 
-    // Makes sure multiple instances of the app remain in sync
-    // Two caveats:
-    // - sync will only happen when the window regains focus, even if it is not hidden
-    // - if the focus was not on the app frame before moving onto another tab / window,
-    // coming back to that tab will not trigger onfocus. Once the app regains focus
-    // (e.g. click within the app frame), onfocus is triggered and the app updates.
-    window.onfocus = () => {
-      loadFromStorage().then((state) => {
-        // No need to check for state === null since the app has at least been
-        // mounted once (before it lost focus) and the state initialized in componentWillMount
-        this.setState(state);
-        // the index needs to be rebuilt here as it is not saved to the state
-        buildIndex(this.searchApi, state.focusItems);
-      });
-    };
-  }
+  //   // Makes sure multiple instances of the app remain in sync
+  //   // Two caveats:
+  //   // - sync will only happen when the window regains focus, even if it is not hidden
+  //   // - if the focus was not on the app frame before moving onto another tab / window,
+  //   // coming back to that tab will not trigger onfocus. Once the app regains focus
+  //   // (e.g. click within the app frame), onfocus is triggered and the app updates.
+  //   window.onfocus = () => {
+  //     loadFromStorage().then((state) => {
+  //       // No need to check for state === null since the app has at least been
+  //       // mounted once (before it lost focus) and the state initialized in componentWillMount
+  //       this.setState(state);
+  //       // the index needs to be rebuilt here as it is not saved to the state
+  //       buildIndex(this.searchApi, state.focusItems);
+  //     });
+  //   };
+  // }
 
-  componentDidUpdate() {
-    commitToStorage(this.state);
-  }
+  // componentDidUpdate() {
+  //   commitToStorage(this.state);
+  // }
 
   /*
    * HANDLERS: QUICK ENTRY
@@ -285,7 +285,7 @@ class App extends Component {
       focusItems[0] = getNewFocusItem();
       focusItemId = null;
     } else if (focusItemId === itemId) {
-      focusItemId = this.pickNextFocusItem(focusItems);
+      focusItemId = this.pickNextFocusItemId(focusItems);
     }
 
     this.setState({
@@ -306,7 +306,8 @@ class App extends Component {
   };
 
   onFocusNextItemHandler = () => {
-    const newItemId = this.pickNextFocusItem();
+    const { focusItems } = this.state;
+    const newItemId = this.pickNextFocusItemId(focusItems);
 
     this.setState({
       focusItemId: newItemId,
@@ -325,7 +326,7 @@ class App extends Component {
         modified: Date.now(),
       };
       let { focusItemId } = this.state;
-      focusItemId = focusItemId === itemId ? this.pickNextFocusItem(focusItems) : focusItemId;
+      focusItemId = focusItemId === itemId ? this.pickNextFocusItemId(focusItems) : focusItemId;
 
       sortMutable(focusItems);
 
@@ -379,28 +380,15 @@ class App extends Component {
     this.setState({ focusItems });
   };
 
-  // eslint-disable-next-line react/destructuring-assignment
-  pickNextFocusItem(focusItems = this.state.focusItems) {
-    const { projects } = this.state;
-    const { history } = this.props;
+  pickNextFocusItemId(focusItems) {
+    const { history, projects } = this.props;
     if (areProjectsPending(projects, focusItems)) {
       history.push('/projects');
       return null;
     }
     history.push('/');
-    const contractItems = getNextContractItems(focusItems, projects);
-    const chronoItems = getChronoItems(contractItems);
-    const items = chronoItems.length !== 0 ? chronoItems : contractItems;
-
-    if (items.length) {
-      return (
-        pickOverdue(items)
-        || pickDueTodayTomorrow(items)
-        || pickDueNextTwoWeeks(items)
-        || getRandomElement(items).id
-      );
-    }
-    return null;
+    const nextEligibleItems = getNextEligibleItems(focusItems, projects);
+    return nextEligibleItems.length !== 0 ? getRandomElement(nextEligibleItems).id : null;
   }
 
   initSearch() {
@@ -500,37 +488,38 @@ class App extends Component {
   };
 
   render() {
-    // before the state is loaded from external storage, it is null
-    if (this.state !== null) {
-      const { isFocusOn, focusItemId } = this.state;
-      return (
-        <div className="app">
-          <Frame>
-            <Route path="/" exact render={this.renderQuickEntry} />
-            <Route path="/" exact render={this.renderFilters} />
-            <ContentWrapper isFocusOn={isFocusOn}>
-              <Switch>
-                <Route path="/" exact render={this.renderFocusItems} />
-                <Route path="/projects" render={this.renderProjects} />
-              </Switch>
-              <Actions
-                onDoneItem={this.onDoneItemHandler}
-                onDoneAndWaitingItem={this.onDoneAndWaitingItemHandler}
-                onFocusNextItem={this.onFocusNextItemHandler}
-                itemId={focusItemId}
-                isFocusOn={isFocusOn}
-              />
-            </ContentWrapper>
-          </Frame>
-        </div>
-      );
-    }
-    return null;
+    // // before the state is loaded from external storage, it is null
+    // if (this.state !== null) {
+    const { isFocusOn, focusItemId } = this.state;
+    return (
+      <div className="app">
+        <Frame>
+          <Route path="/" exact render={this.renderQuickEntry} />
+          <Route path="/" exact render={this.renderFilters} />
+          <ContentWrapper isFocusOn={isFocusOn}>
+            <Switch>
+              <Route path="/" exact render={this.renderFocusItems} />
+              <Route path="/projects" render={this.renderProjects} />
+            </Switch>
+            <Actions
+              onDoneItem={this.onDoneItemHandler}
+              onDoneAndWaitingItem={this.onDoneAndWaitingItemHandler}
+              onFocusNextItem={this.onFocusNextItemHandler}
+              itemId={focusItemId}
+              isFocusOn={isFocusOn}
+            />
+          </ContentWrapper>
+        </Frame>
+      </div>
+    );
+    // }
+    // return null;
   }
 }
 
 App.defaultProps = {
   projectName: null,
+  projects: [],
 };
 
 App.propTypes = {
@@ -547,16 +536,28 @@ App.propTypes = {
   }).isRequired,
   setProjectFilter: PropTypes.func.isRequired,
   projectName: PropTypes.string,
+  // focusItems: PropTypes.arrayOf(
+  //   PropTypes.shape({
+  //     id: PropTypes.number,
+  //   }),
+  // ).isRequired,
+  projects: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+    }),
+  ),
 };
 
 const mapStateToProps = state => ({
+  // focusItems: state.focusItems,
   filters: state.filters,
   projectName: state.projectFilter,
+  projects: state.projects,
 });
 
 export default withRouter(
   connect(
     mapStateToProps,
-    actionCreators,
+    { ...actionCreatorsProjectFilter, ...actionCreatorsFocusItems },
   )(App),
 );

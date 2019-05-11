@@ -54,6 +54,8 @@ const sortMutable = debounce(
   },
 );
 
+const nonEmptyArrayOrNull = arr => (arr.length === 0 ? null : arr);
+
 export {
   getRandomElement,
   getRandomIntInclusive,
@@ -63,4 +65,5 @@ export {
   isCaretAtEdges,
   shiftDate,
   sortMutable,
+  nonEmptyArrayOrNull,
 };

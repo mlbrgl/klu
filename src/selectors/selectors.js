@@ -8,13 +8,13 @@ import {
   isPeakTime,
   isTroughTime,
 } from '../helpers/dates';
-import { getRandomElement } from '../helpers/common';
 import {
   PROJECT_ACTIVE,
   PROJECT_PENDING,
   PROJECT_PAUSED,
   PROJECT_COMPLETED,
 } from '../helpers/constants';
+import { nonEmptyArrayOrNull } from '../helpers/common';
 
 const PROJECT_REGEX = /\+(\w+(?:-\w+)*)$/;
 
@@ -33,26 +33,11 @@ const isItemWithinProject = ({ value }, { name }) => {
   return projectRegex.test(value);
 };
 
-const pickOverdue = (eligibleItems) => {
-  const overdueIds = eligibleItems.filter(item => isPast(item.dates.due)).map(item => item.id);
+const getItemsOverdue = eligibleItems => eligibleItems.filter(item => isPast(item.dates.due));
 
-  return getRandomElement(overdueIds);
-};
+const getItemsDueTodayTomorrow = eligibleItems => eligibleItems.filter(item => isToday(item.dates.due) || isTomorrow(item.dates.due));
 
-const pickDueTodayTomorrow = (eligibleItems) => {
-  const dueTodayTomorrowIds = eligibleItems
-    .filter(item => isToday(item.dates.due) || isTomorrow(item.dates.due))
-    .map(item => item.id);
-
-  return getRandomElement(dueTodayTomorrowIds);
-};
-
-const pickDueNextTwoWeeks = (eligibleItems) => {
-  const dueNextTwoWeeksIds = eligibleItems
-    .filter(item => isWithinNextTwoWeeks(item.dates.due))
-    .map(item => item.id);
-  return getRandomElement(dueNextTwoWeeksIds);
-};
+const getItemsDueNextTwoWeeks = eligibleItems => eligibleItems.filter(item => isWithinNextTwoWeeks(item.dates.due));
 
 const getProjectNameFromItem = ({ value }) => {
   const project = value.match(PROJECT_REGEX);
@@ -124,7 +109,7 @@ const getNextContractItems = (focusItems, projects) => {
       item => isItemActionable(item) && isItemWithinProject(item, nextFocusProject),
     );
   }
-  return focusItems.filter(item => isItemActionable(item));
+  return [];
 };
 
 const getChronoItems = (items) => {
@@ -137,7 +122,22 @@ const getChronoItems = (items) => {
     currentChronoCategoryName = 'recovery';
   }
 
-  return items.filter(item => item.category.name === currentChronoCategoryName);
+  return items.filter(
+    item => item.category.name === currentChronoCategoryName && isItemActionable(item),
+  );
+};
+
+const getNextEligibleItems = (focusItems, projects) => {
+  const contractItems = getNextContractItems(focusItems, projects);
+  const chronoItems = getChronoItems(contractItems);
+  const items = chronoItems.length !== 0 ? chronoItems : contractItems;
+
+  const nextEligibleItems = nonEmptyArrayOrNull(getItemsOverdue(items))
+    || nonEmptyArrayOrNull(getItemsDueTodayTomorrow(items))
+    || nonEmptyArrayOrNull(getItemsDueNextTwoWeeks(items))
+    || nonEmptyArrayOrNull(items);
+
+  return nextEligibleItems !== null ? nextEligibleItems : [];
 };
 
 const areProjectsPending = (projects, focusItems) => {
@@ -146,9 +146,9 @@ const areProjectsPending = (projects, focusItems) => {
 };
 
 export {
-  pickOverdue,
-  pickDueTodayTomorrow,
-  pickDueNextTwoWeeks,
+  getItemsOverdue,
+  getItemsDueTodayTomorrow,
+  getItemsDueNextTwoWeeks,
   isItemEligible,
   isItemDone,
   isItemActionable,
@@ -159,5 +159,6 @@ export {
   getNextContractItems,
   getChronoItems,
   isItemWithinProject,
+  getNextEligibleItems,
   areProjectsPending,
 };
