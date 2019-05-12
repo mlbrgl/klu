@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { DateTime } from 'luxon';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -9,7 +10,7 @@ const Projects = (props) => {
   const { focusItems, updateProjects, projects } = props;
 
   useEffect(() => {
-    updateProjects(focusItems);
+    updateProjects(DateTime.local(), focusItems);
   }, [updateProjects, focusItems]);
 
   return projects.map(project => (

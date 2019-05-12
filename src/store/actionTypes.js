@@ -1,6 +1,15 @@
+// filters
 export const TOGGLE_DATE_FILTER = 'TOGGLE_DATE_FILTER';
+
+// projectFilter
+export const SET_PROJECT_FILTER = 'SET_PROJECT_FILTER';
+
+// projects
 export const UPDATE_PROJECTS = 'UPDATE_PROJECTS';
 export const UP_PROJECT_FREQUENCY = 'UP_PROJECT_FREQUENCY';
 export const DOWN_PROJECT_FREQUENCY = 'DOWN_PROJECT_FREQUENCY';
 export const SET_PROJECT_STATUS = 'SET_PROJECT_STATUS';
-export const SET_PROJECT_FILTER = 'SET_PROJECT_FILTER';
+
+// focusItems
+export const ADD_FOCUS_ITEM = 'ADD_FOCUS_ITEM';
+export const PICK_NEXT_FOCUS_ITEM = 'PICK_NEXT_FOCUS_ITEM';

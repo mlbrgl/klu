@@ -6,20 +6,17 @@ import SearchApi from 'js-worker-search';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
-  getNextEligibleItems,
   isItemDone,
   isItemActionable,
   isItemFuture,
   getProjectNameFromItem,
   isItemWithinProject,
-  areProjectsPending,
 } from '../../selectors/selectors';
 
 import {
   isCaretAtBeginningFieldItem,
   isCaretAtEndFieldItem,
   setCaretPosition,
-  getRandomElement,
   isCaretAtEdges,
   shiftDate,
   sortMutable,
@@ -87,39 +84,39 @@ class App extends Component {
     //     });
   }
 
-  // componentDidMount() {
-  //   document.addEventListener('keydown', (event) => {
-  //     const { deleteItemId } = this.state;
-  //     switch (event.key) {
-  //       case 'Escape':
-  //         if (deleteItemId !== null) {
-  //           this.setState({ deleteItemId: null });
-  //         } else {
-  //           const { history } = this.props;
-  //           this.onToggleFocusItemHandler();
-  //           history.push('/');
-  //         }
-  //         break;
-  //       default:
-  //     }
-  //   });
+  componentDidMount() {
+    document.addEventListener('keydown', (event) => {
+      const { deleteItemId } = this.state;
+      switch (event.key) {
+        case 'Escape':
+          if (deleteItemId !== null) {
+            this.setState({ deleteItemId: null });
+          } else {
+            const { history } = this.props;
+            this.onToggleFocusItemHandler();
+            history.push('/');
+          }
+          break;
+        default:
+      }
+    });
 
-  //   // Makes sure multiple instances of the app remain in sync
-  //   // Two caveats:
-  //   // - sync will only happen when the window regains focus, even if it is not hidden
-  //   // - if the focus was not on the app frame before moving onto another tab / window,
-  //   // coming back to that tab will not trigger onfocus. Once the app regains focus
-  //   // (e.g. click within the app frame), onfocus is triggered and the app updates.
-  //   window.onfocus = () => {
-  //     loadFromStorage().then((state) => {
-  //       // No need to check for state === null since the app has at least been
-  //       // mounted once (before it lost focus) and the state initialized in componentWillMount
-  //       this.setState(state);
-  //       // the index needs to be rebuilt here as it is not saved to the state
-  //       buildIndex(this.searchApi, state.focusItems);
-  //     });
-  //   };
-  // }
+    //   // Makes sure multiple instances of the app remain in sync
+    //   // Two caveats:
+    //   // - sync will only happen when the window regains focus, even if it is not hidden
+    //   // - if the focus was not on the app frame before moving onto another tab / window,
+    //   // coming back to that tab will not trigger onfocus. Once the app regains focus
+    //   // (e.g. click within the app frame), onfocus is triggered and the app updates.
+    //   window.onfocus = () => {
+    //     loadFromStorage().then((state) => {
+    //       // No need to check for state === null since the app has at least been
+    //       // mounted once (before it lost focus) and the state initialized in componentWillMount
+    //       this.setState(state);
+    //       // the index needs to be rebuilt here as it is not saved to the state
+    //       buildIndex(this.searchApi, state.focusItems);
+    //     });
+    //   };
+  }
 
   // componentDidUpdate() {
   //   commitToStorage(this.state);
@@ -276,6 +273,7 @@ class App extends Component {
 
   onDeletedItemHandler = (itemId) => {
     const { focusItems, isFocusOn } = this.state;
+    const { history, pickNextFocusItemId } = this.props;
     let { focusItemId } = this.state;
 
     const index = focusItems.findIndex(el => el.id === itemId);
@@ -285,7 +283,7 @@ class App extends Component {
       focusItems[0] = getNewFocusItem();
       focusItemId = null;
     } else if (focusItemId === itemId) {
-      focusItemId = this.pickNextFocusItemId(focusItems);
+      focusItemId = pickNextFocusItemId(history, focusItems);
     }
 
     this.setState({
@@ -307,7 +305,8 @@ class App extends Component {
 
   onFocusNextItemHandler = () => {
     const { focusItems } = this.state;
-    const newItemId = this.pickNextFocusItemId(focusItems);
+    const { pickNextFocusItemId, history } = this.props;
+    const newItemId = pickNextFocusItemId(history, focusItems);
 
     this.setState({
       focusItemId: newItemId,
@@ -317,6 +316,7 @@ class App extends Component {
 
   onDoneItemHandler = (itemId) => {
     const { focusItems, isFocusOn } = this.state;
+    const { pickNextFocusItemId, history } = this.props;
     const index = focusItems.findIndex(el => el.id === itemId);
 
     if (!focusItems[index].dates.done) {
@@ -326,7 +326,7 @@ class App extends Component {
         modified: Date.now(),
       };
       let { focusItemId } = this.state;
-      focusItemId = focusItemId === itemId ? this.pickNextFocusItemId(focusItems) : focusItemId;
+      focusItemId = focusItemId === itemId ? pickNextFocusItemId(history, focusItems) : focusItemId;
 
       sortMutable(focusItems);
 
@@ -354,7 +354,11 @@ class App extends Component {
       .plus({ days: 3 })
       .toISODate();
     focusItems.unshift(newItem);
-    focusItems[0].dates = { ...focusItems[0].dates, start: futureDate, due: futureDate };
+    focusItems[0].dates = {
+      ...focusItems[0].dates,
+      start: futureDate,
+      due: futureDate,
+    };
     focusItems[0].category = category;
     const focusItemId = newItem.id;
 
@@ -379,17 +383,6 @@ class App extends Component {
 
     this.setState({ focusItems });
   };
-
-  pickNextFocusItemId(focusItems) {
-    const { history, projects } = this.props;
-    if (areProjectsPending(projects, focusItems)) {
-      history.push('/projects');
-      return null;
-    }
-    history.push('/');
-    const nextEligibleItems = getNextEligibleItems(focusItems, projects);
-    return nextEligibleItems.length !== 0 ? getRandomElement(nextEligibleItems).id : null;
-  }
 
   initSearch() {
     this.onResetSearchHandler();
@@ -424,6 +417,7 @@ class App extends Component {
     const {
       focusItems, isFocusOn, focusItemId, deleteItemId,
     } = this.state;
+    const now = DateTime.local();
 
     const { filters } = this.props;
 
@@ -436,8 +430,8 @@ class App extends Component {
           return (
             (!projectName || isItemWithinProject(item, { name: projectName }))
             && ((filters.done && isItemDone(item))
-              || (filters.actionable && isItemActionable(item))
-              || (filters.future && isItemFuture(item)))
+              || (filters.actionable && isItemActionable(now, item))
+              || (filters.future && isItemFuture(now, item)))
           );
         }
         return false;
@@ -519,7 +513,6 @@ class App extends Component {
 
 App.defaultProps = {
   projectName: null,
-  projects: [],
 };
 
 App.propTypes = {
@@ -541,18 +534,13 @@ App.propTypes = {
   //     id: PropTypes.number,
   //   }),
   // ).isRequired,
-  projects: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-    }),
-  ),
+  pickNextFocusItemId: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
   // focusItems: state.focusItems,
   filters: state.filters,
   projectName: state.projectFilter,
-  projects: state.projects,
 });
 
 export default withRouter(
