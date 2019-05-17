@@ -1,6 +1,8 @@
 ![](https://user-images.githubusercontent.com/13406362/41087255-7b2b6f68-6a3c-11e8-8a38-e57ce1ebd9ea.png)
 
 # Biologically aligned task focuser for process-oriented, proudly mono-tasking ~~robots~~ mortals.
+[![Build Status](https://travis-ci.com/mlbrgl/klu.svg?branch=master)](https://travis-ci.com/mlbrgl/klu)
+
 Klu allows you to tackle your todos, favouring important over urgent. It does this by allowing you to arbitrary define important projects, how many tasks you want to address within those projects every day (contracts), while respecting external time constraints (start and due dates) **as well as your biological rhythm**. You end up with one task in front of your eyes, in big letters. No distractions. No endless lists. No stats. **Just your most important tasks, one at a time.**
 
 You can check whether this is for you, read the full story behind it, as well as dive into Klu's core concepts [here](https://matthieubergel.org/klu).
