@@ -3,7 +3,7 @@ import { areProjectsPending, getNextEligibleItems } from '../../selectors/select
 import { updateProjects } from '../projects/actionCreators';
 import { getRandomElement } from '../../helpers/common';
 
-const pickNextFocusItemId = (history, focusItems) => (dispatch, getState) => {
+export const pickNextFocusItemId = (history, focusItems) => (dispatch, getState) => {
   const now = DateTime.local();
   dispatch(updateProjects(now, focusItems));
 

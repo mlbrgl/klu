@@ -5,10 +5,10 @@ import {
   SET_PROJECT_STATUS,
 } from '../actionTypes';
 
-export const updateProjects = focusItems => ({
+export const updateProjects = (now, focusItems) => ({
   // TODO: get focusItems from state
   type: UPDATE_PROJECTS,
-  payload: { focusItems },
+  payload: { now, focusItems },
 });
 
 export const upFrequency = name => ({ type: UP_PROJECT_FREQUENCY, payload: { name } });
