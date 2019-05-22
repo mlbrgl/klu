@@ -3,5 +3,5 @@ cache:
   directories:
     - ~/.cache
 script:
-  - yarn cypress run
+  - yarn ci
   - yarn build
