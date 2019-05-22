@@ -49,6 +49,7 @@ class QuickEntry extends PureComponent {
           value={value}
           onKeyDown={this.onKeyDownHandler}
           onChange={this.onChangeHandler}
+          data-test="quick-entry"
         />
         <ProjectFilter />
       </div>
