@@ -24,7 +24,7 @@
     "eject": "react-scripts eject",
     "lint": "./node_modules/.bin/eslint src --fix",
     "cypress:open": "cypress open",
-    "ci": "yarn start & wait-on http://localhost:3000 && cypress run"
+    "ci": "yarn start & wait-on http://localhost:3000 && cypress run --record"
   },
   "eslintConfig": {
     "extends": "airbnb",
