@@ -43,16 +43,9 @@ const shiftDate = (datesObj, operator, offset) => {
   return dates;
 };
 
-const sortMutable = debounce(
-  (focusItems) => {
-    focusItems.sort((itemA, itemB) => itemB.dates.modified - itemA.dates.modified);
-  },
-  2000,
-  {
-    leading: true,
-    trailing: false,
-  },
-);
+const sortMutable = debounce((focusItems) => {
+  focusItems.sort((itemA, itemB) => itemB.dates.modified - itemA.dates.modified);
+}, 2000);
 
 const nonEmptyArrayOrNull = arr => (arr.length === 0 ? null : arr);
 

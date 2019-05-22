@@ -56,7 +56,6 @@ class App extends Component {
     ];
     // TODO: remove state init (done in redux)
     this.state = getInitialState();
-    this.initSearch();
   }
 
   componentWillMount() {
@@ -130,10 +129,13 @@ class App extends Component {
     const newItem = getNewFocusItem(itemValue);
     let { focusItems } = this.state;
     focusItems = [newItem, ...focusItems];
-    this.onResetSearchHandler();
 
     this.searchApi.indexDocument(newItem.id, newItem.value);
-    this.setState({ focusItems });
+    this.setState({ focusItems, searchQuery: '', searchResults: [] });
+  };
+
+  onInputQuickEntryHandler = (value) => {
+    this.setState({ searchQuery: value });
   };
 
   onRemoveProjectFilterHandler = () => {
@@ -142,20 +144,17 @@ class App extends Component {
   };
 
   onResetSearchHandler = () => {
-    this.searchQuery = '';
-    this.searchResults = [];
+    this.setState({ searchQuery: '', searchResults: [] });
   };
 
-  onSearchHandler = (searchQuery) => {
+  onSearchHandler = () => {
+    const { searchQuery } = this.state;
     if (searchQuery) {
       this.searchApi.search(searchQuery).then((results) => {
-        this.searchResults = results;
-        this.searchQuery = searchQuery;
-        this.forceUpdate();
+        this.setState({ searchResults: results });
       });
     } else {
       this.onResetSearchHandler();
-      this.forceUpdate();
     }
   };
 
@@ -260,16 +259,22 @@ class App extends Component {
     }
   };
 
-  onInputEditableItemHandler = debounce((innerHTML, itemId) => {
-    const { focusItems } = this.state;
-    const index = focusItems.findIndex(el => el.id === itemId);
-    focusItems[index].value = innerHTML;
-    focusItems[index].dates.modified = Date.now();
-    sortMutable(focusItems);
+  onInputEditableItemHandler = debounce(
+    (innerHTML, itemId) => {
+      const { focusItems } = this.state;
+      const index = focusItems.findIndex(el => el.id === itemId);
+      focusItems[index].value = innerHTML;
+      focusItems[index].dates.modified = Date.now();
+      sortMutable(focusItems);
 
-    this.searchApi.indexDocument(itemId, innerHTML);
-    this.setState({ focusItems });
-  }, 250);
+      this.searchApi.indexDocument(itemId, innerHTML);
+      this.setState({ focusItems });
+    },
+    250,
+    // leading: updating modified date straightaway so that next item
+    // created appears on top of the list (only really necessary for high speed tests)
+    { leading: true, trailing: true },
+  );
 
   onDeletedItemHandler = (itemId) => {
     const { focusItems, isFocusOn } = this.state;
@@ -384,20 +389,17 @@ class App extends Component {
     this.setState({ focusItems });
   };
 
-  initSearch() {
-    this.onResetSearchHandler();
-  }
-
   /*
    * COMPONENT TREES
    */
 
   renderQuickEntry = () => {
-    const { isFocusOn } = this.state;
+    const { isFocusOn, searchQuery } = this.state;
     if (!isFocusOn) {
       return (
         <QuickEntry
-          initValue={this.searchQuery}
+          value={searchQuery}
+          onInputHandler={this.onInputQuickEntryHandler}
           onEnterHandler={this.onEnterQuickEntryHandler}
           onResetSearchHandler={this.onResetSearchHandler}
           onSearchHandler={this.onSearchHandler}
@@ -415,7 +417,12 @@ class App extends Component {
   renderFocusItems = () => {
     const { projectName } = this.props;
     const {
-      focusItems, isFocusOn, focusItemId, deleteItemId,
+      focusItems,
+      isFocusOn,
+      focusItemId,
+      deleteItemId,
+      searchQuery,
+      searchResults,
     } = this.state;
     const now = DateTime.local();
 
@@ -426,7 +433,7 @@ class App extends Component {
         if (isFocusOn) {
           return item.id === focusItemId;
         }
-        if (!this.searchQuery || this.searchResults.find(res => item.id === res)) {
+        if (!searchQuery || searchResults.find(res => item.id === res)) {
           return (
             (!projectName || isItemWithinProject(item, { name: projectName }))
             && ((filters.done && isItemDone(item))
@@ -436,7 +443,7 @@ class App extends Component {
         }
         return false;
       })
-      .slice(0, projectName || this.searchQuery ? Infinity : 20)
+      .slice(0, projectName || searchQuery ? Infinity : 20)
       .map((item) => {
         const isFocusOnItem = !!(item.id === focusItemId && isFocusOn);
         const isDeleteOnItem = deleteItemId === item.id;

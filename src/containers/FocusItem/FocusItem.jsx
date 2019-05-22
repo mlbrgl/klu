@@ -35,8 +35,7 @@ FocusItem.propTypes = {
   dates: PropTypes.shape({
     done: PropTypes.string,
   }).isRequired,
-  category: PropTypes.shape({ name: PropTypes.string, icon: PropTypes.string })
-    .isRequired,
+  category: PropTypes.shape({ name: PropTypes.string, icon: PropTypes.string }).isRequired,
   isFocusOn: PropTypes.bool.isRequired,
   children: PropTypes.node.isRequired,
 };

@@ -23,6 +23,8 @@ const getInitialState = () => ({
   deleteItemId: null,
   filters: { done: false, actionable: true, future: false },
   projectFilter: null,
+  searchQuery: '',
+  searchResults: [],
 });
 
 const getNewProject = name => ({ name, frequency: 0, status: PROJECT_ACTIVE });

@@ -9,44 +9,44 @@ import * as actionCreators from '../../store/projectFilter/actionCreators';
 import styles from './QuickEntry.module.css';
 
 class QuickEntry extends PureComponent {
-  onChangeHandler = () => {
+  onChangeHandler = (event) => {
+    const { onInputHandler } = this.props;
+    onInputHandler(event.target.value);
     this.onSearchHandler();
   };
 
   onSearchHandler = debounce(() => {
     const { onSearchHandler } = this.props;
-    onSearchHandler(this.el.value);
+    onSearchHandler();
   }, 250);
 
   onKeyDownHandler = (event) => {
     if (event.key === 'Enter') {
-      const { value } = this.el;
       const {
-        setProjectFilter, onResetSearchHandler, onEnterHandler, projectName,
+        setProjectFilter,
+        onResetSearchHandler,
+        onEnterHandler,
+        projectName,
+        value,
       } = this.props;
       if (event.metaKey || event.ctrlKey) {
         setProjectFilter(value.split(' ')[0]);
         onResetSearchHandler();
-        this.el.value = null;
       } else {
         const itemValue = projectName ? `${value} +${projectName}` : value;
         onEnterHandler(itemValue);
-        this.el.value = null;
       }
     }
   };
 
   render() {
-    const { initValue } = this.props;
+    const { value } = this.props;
     return (
       <div className={styles.wrapper}>
         <input
           className={styles.input}
           type="text"
-          defaultValue={initValue}
-          ref={(el) => {
-            this.el = el;
-          }}
+          value={value}
           onKeyDown={this.onKeyDownHandler}
           onChange={this.onChangeHandler}
         />
@@ -58,6 +58,7 @@ class QuickEntry extends PureComponent {
 
 QuickEntry.defaultProps = {
   projectName: null,
+  value: '',
 };
 
 QuickEntry.propTypes = {
@@ -65,8 +66,9 @@ QuickEntry.propTypes = {
   setProjectFilter: PropTypes.func.isRequired,
   onResetSearchHandler: PropTypes.func.isRequired,
   onEnterHandler: PropTypes.func.isRequired,
-  initValue: PropTypes.string.isRequired,
+  onInputHandler: PropTypes.func.isRequired,
   projectName: PropTypes.string,
+  value: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
