@@ -502,14 +502,14 @@ class App extends Component {
               <Route path="/" exact render={this.renderFocusItems} />
               <Route path="/projects" render={this.renderProjects} />
             </Switch>
-            <Actions
-              onDoneItem={this.onDoneItemHandler}
-              onDoneAndWaitingItem={this.onDoneAndWaitingItemHandler}
-              onFocusNextItem={this.onFocusNextItemHandler}
-              itemId={focusItemId}
-              isFocusOn={isFocusOn}
-            />
           </ContentWrapper>
+          <Actions
+            onDoneItem={this.onDoneItemHandler}
+            onDoneAndWaitingItem={this.onDoneAndWaitingItemHandler}
+            onFocusNextItem={this.onFocusNextItemHandler}
+            itemId={focusItemId}
+            isFocusOn={isFocusOn}
+          />
         </Frame>
       </div>
     );

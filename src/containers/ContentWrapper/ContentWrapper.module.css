@@ -10,7 +10,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -21,7 +21,7 @@
   display: block;
   font-size: 2rem;
   padding: 1rem;
-  clear:both;
+  clear: both;
   text-decoration: none;
 }
 
