@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import debounce from 'lodash.debounce';
 
 const getRandomElement = arr => (arr.length ? arr[Math.floor(Math.random() * arr.length)] : null);
@@ -25,24 +24,6 @@ const setCaretPosition = (element, position) => {
   sel.addRange(range);
 };
 
-const isCaretAtEdges = () => isCaretAtBeginningFieldItem() || isCaretAtEndFieldItem();
-
-const shiftDate = (datesObj, operator, offset) => {
-  const dates = { ...datesObj };
-  let dateType = null;
-  if (isCaretAtBeginningFieldItem()) {
-    dateType = 'start';
-  } else if (isCaretAtEndFieldItem()) {
-    dateType = 'due';
-  }
-  if (dateType !== null) {
-    const refTime = dates[dateType] ? DateTime.fromISO(dates[dateType]) : DateTime.local();
-    dates[dateType] = refTime[operator](offset).toISODate();
-    dates.modified = Date.now();
-  }
-  return dates;
-};
-
 const sortMutable = debounce((focusItems) => {
   focusItems.sort((itemA, itemB) => itemB.dates.modified - itemA.dates.modified);
 }, 2000);
@@ -55,8 +36,6 @@ export {
   isCaretAtBeginningFieldItem,
   isCaretAtEndFieldItem,
   setCaretPosition,
-  isCaretAtEdges,
-  shiftDate,
   sortMutable,
   nonEmptyArrayOrNull,
 };

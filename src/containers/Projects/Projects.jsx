@@ -7,11 +7,11 @@ import Project from '../../components/Project/Project';
 import * as actionCreators from '../../store/projects/actionCreators';
 
 const Projects = (props) => {
-  const { focusItems, updateProjects, projects } = props;
+  const { updateProjects, projects } = props;
 
   useEffect(() => {
-    updateProjects(DateTime.local(), focusItems);
-  }, [updateProjects, focusItems]);
+    updateProjects(DateTime.local());
+  }, [updateProjects]);
 
   return projects.map(project => (
     <Project
@@ -41,6 +41,7 @@ Projects.propTypes = {
 
 const mapStateToProps = state => ({
   projects: state.projects,
+  focusItems: state.focusItems,
 });
 
 export default connect(

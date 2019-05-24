@@ -95,6 +95,7 @@ class Project extends Component {
         onKeyPress={this.onSetProjectFilter}
         role="link"
         tabIndex="0"
+        data-test="project"
       >
         {name}
 

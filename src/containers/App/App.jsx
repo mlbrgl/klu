@@ -17,9 +17,7 @@ import {
   isCaretAtBeginningFieldItem,
   isCaretAtEndFieldItem,
   setCaretPosition,
-  isCaretAtEdges,
-  shiftDate,
-  sortMutable,
+  // @TODO sortMutable,
 } from '../../helpers/common';
 import Frame from '../Frame/Frame';
 import ContentWrapper from '../ContentWrapper/ContentWrapper';
@@ -39,6 +37,7 @@ import * as actionCreatorsProjectFilter from '../../store/projectFilter/actionCr
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 
 import './App.css';
+import { CATEGORIES } from '../../helpers/constants';
 
 // if (process.env.NODE_ENV !== 'production') {
 //   const {whyDidYouUpdate} = require('why-did-you-update')
@@ -48,12 +47,6 @@ import './App.css';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.categories = [
-      { name: 'inbox', icon: 'inbox' },
-      { name: 'peak', icon: 'area-graph' },
-      { name: 'trough', icon: 'calculator' },
-      { name: 'recovery', icon: 'palette' },
-    ];
     // TODO: remove state init (done in redux)
     this.state = getInitialState();
   }
@@ -126,12 +119,12 @@ class App extends Component {
    */
 
   onEnterQuickEntryHandler = (itemValue) => {
-    const newItem = getNewFocusItem(itemValue);
-    let { focusItems } = this.state;
-    focusItems = [newItem, ...focusItems];
+    const newItem = getNewFocusItem(DateTime.local(), itemValue);
+    const { addFocusItem } = this.props;
+    addFocusItem(newItem);
 
     this.searchApi.indexDocument(newItem.id, newItem.value);
-    this.setState({ focusItems, searchQuery: '', searchResults: [] });
+    this.setState({ searchQuery: '', searchResults: [] });
   };
 
   onInputQuickEntryHandler = (value) => {
@@ -163,7 +156,8 @@ class App extends Component {
    */
 
   onKeyDownEditableItemHandler = (event, itemId) => {
-    const { focusItems, deleteItemId } = this.state;
+    const { deleteItemId } = this.state;
+    const { focusItems } = this.props;
     const { setProjectFilter } = this.props;
     const index = focusItems.findIndex(el => el.id === itemId);
 
@@ -196,31 +190,40 @@ class App extends Component {
 
       case 'ArrowUp':
         if (event.metaKey || event.ctrlKey) {
+          const { incStartDateFocusItem, incDueDateFocusItem } = this.props;
           event.preventDefault();
-          if (isCaretAtEdges()) {
-            focusItems[index].dates = shiftDate(
-              focusItems[index].dates,
-              'plus',
+          if (isCaretAtBeginningFieldItem()) {
+            incStartDateFocusItem(
+              DateTime.local(),
               event.altKey ? { weeks: 1 } : { days: 1 },
+              itemId,
             );
-
-            sortMutable(focusItems);
-            this.setState({ focusItems });
+          } else if (isCaretAtEndFieldItem()) {
+            incDueDateFocusItem(
+              DateTime.local(),
+              event.altKey ? { weeks: 1 } : { days: 1 },
+              itemId,
+            );
           }
         }
         break;
 
       case 'ArrowDown':
         if (event.metaKey || event.ctrlKey) {
+          const { decStartDateFocusItem, decDueDateFocusItem } = this.props;
           event.preventDefault();
-          if (isCaretAtEdges()) {
-            focusItems[index].dates = shiftDate(
-              focusItems[index].dates,
-              'minus',
+          if (isCaretAtBeginningFieldItem()) {
+            decStartDateFocusItem(
+              DateTime.local(),
               event.altKey ? { weeks: 1 } : { days: 1 },
+              itemId,
             );
-            sortMutable(focusItems);
-            this.setState({ focusItems });
+          } else if (isCaretAtEndFieldItem()) {
+            decDueDateFocusItem(
+              DateTime.local(),
+              event.altKey ? { weeks: 1 } : { days: 1 },
+              itemId,
+            );
           }
         }
         break;
@@ -233,15 +236,8 @@ class App extends Component {
               setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
             }
           } else if (isCaretAtEndFieldItem()) {
-            // cycle through categories
-            const idxOfCurrentCategory = focusItems[index].category !== null
-              ? this.categories
-                .map(category => category.name)
-                .indexOf(focusItems[index].category.name)
-              : 0;
-            const idxOfNextCategory = (idxOfCurrentCategory + 1) % this.categories.length;
-            focusItems[index].category = this.categories[idxOfNextCategory];
-            this.setState({ focusItems });
+            const { nextCategoryFocusItem } = this.props;
+            nextCategoryFocusItem(DateTime.local(), itemId, CATEGORIES);
           }
         }
         break;
@@ -261,14 +257,9 @@ class App extends Component {
 
   onInputEditableItemHandler = debounce(
     (innerHTML, itemId) => {
-      const { focusItems } = this.state;
-      const index = focusItems.findIndex(el => el.id === itemId);
-      focusItems[index].value = innerHTML;
-      focusItems[index].dates.modified = Date.now();
-      sortMutable(focusItems);
-
+      const { editFocusItem } = this.props;
+      editFocusItem(DateTime.local(), innerHTML, itemId);
       this.searchApi.indexDocument(itemId, innerHTML);
-      this.setState({ focusItems });
     },
     250,
     // leading: updating modified date straightaway so that next item
@@ -277,22 +268,14 @@ class App extends Component {
   );
 
   onDeletedItemHandler = (itemId) => {
-    const { focusItems, isFocusOn } = this.state;
-    const { history, pickNextFocusItemId } = this.props;
+    const { isFocusOn } = this.state;
+    const { history, deletingFocusItem } = this.props;
     let { focusItemId } = this.state;
 
-    const index = focusItems.findIndex(el => el.id === itemId);
-
-    focusItems.splice(index, 1);
-    if (focusItems.length === 0) {
-      focusItems[0] = getNewFocusItem();
-      focusItemId = null;
-    } else if (focusItemId === itemId) {
-      focusItemId = pickNextFocusItemId(history, focusItems);
-    }
+    // TEMP - for transition purposes
+    focusItemId = deletingFocusItem(history, focusItemId, itemId);
 
     this.setState({
-      focusItems,
       deleteItemId: null,
       focusItemId,
       isFocusOn: focusItemId === null ? false : isFocusOn,
@@ -309,9 +292,8 @@ class App extends Component {
   };
 
   onFocusNextItemHandler = () => {
-    const { focusItems } = this.state;
     const { pickNextFocusItemId, history } = this.props;
-    const newItemId = pickNextFocusItemId(history, focusItems);
+    const newItemId = pickNextFocusItemId(history);
 
     this.setState({
       focusItemId: newItemId,
@@ -320,73 +302,34 @@ class App extends Component {
   };
 
   onDoneItemHandler = (itemId) => {
-    const { focusItems, isFocusOn } = this.state;
-    const { pickNextFocusItemId, history } = this.props;
-    const index = focusItems.findIndex(el => el.id === itemId);
+    const { isFocusOn } = this.state;
+    const { pickNextFocusItemId, markDoneFocusItem, history } = this.props;
+    let { focusItemId } = this.state;
+    markDoneFocusItem(DateTime.local(), itemId);
+    focusItemId = focusItemId === itemId ? pickNextFocusItemId(history) : focusItemId;
 
-    if (!focusItems[index].dates.done) {
-      focusItems[index].dates = {
-        ...focusItems[index].dates,
-        done: DateTime.local().toISODate(),
-        modified: Date.now(),
-      };
-      let { focusItemId } = this.state;
-      focusItemId = focusItemId === itemId ? pickNextFocusItemId(history, focusItems) : focusItemId;
-
-      sortMutable(focusItems);
-
-      this.setState({
-        focusItems,
-        focusItemId,
-        isFocusOn: focusItemId === null ? false : isFocusOn,
-      });
-    }
+    this.setState({
+      focusItemId,
+      isFocusOn: focusItemId === null ? false : isFocusOn,
+    });
   };
 
   onDoneAndWaitingItemHandler = (itemId) => {
-    const { focusItems } = this.state;
-    const index = focusItems.findIndex(el => el.id === itemId);
-    const { category } = focusItems[index];
+    const { markDoneFocusItem, addFutureWaitingFocusItem } = this.props;
+    const now = DateTime.local();
 
-    focusItems[index].dates = {
-      ...focusItems[index].dates,
-      done: DateTime.local().toISODate(),
-      modified: Date.now(),
-    };
-
-    const newItem = getNewFocusItem(`@qw ${focusItems[index].value}`);
-    const futureDate = DateTime.local()
-      .plus({ days: 3 })
-      .toISODate();
-    focusItems.unshift(newItem);
-    focusItems[0].dates = {
-      ...focusItems[0].dates,
-      start: futureDate,
-      due: futureDate,
-    };
-    focusItems[0].category = category;
-    const focusItemId = newItem.id;
-
-    sortMutable(focusItems);
+    markDoneFocusItem(now, itemId);
+    const focusItemId = addFutureWaitingFocusItem(now, itemId);
 
     this.setState({
-      focusItems,
       focusItemId,
     });
   };
 
   onRemoveDateHandler = (itemId, dateType) => {
-    const { focusItems } = this.state;
-    const index = focusItems.findIndex(el => el.id === itemId);
-    focusItems[index].dates = {
-      ...focusItems[index].dates,
-      [dateType]: null,
-      modified: Date.now(),
-    };
-
-    sortMutable(focusItems);
-
-    this.setState({ focusItems });
+    const now = DateTime.local();
+    const { removeDateFocusItem } = this.props;
+    removeDateFocusItem(now, dateType, itemId);
   };
 
   /*
@@ -415,18 +358,11 @@ class App extends Component {
   };
 
   renderFocusItems = () => {
-    const { projectName } = this.props;
+    const { filters, projectName, focusItems } = this.props;
     const {
-      focusItems,
-      isFocusOn,
-      focusItemId,
-      deleteItemId,
-      searchQuery,
-      searchResults,
+      isFocusOn, focusItemId, deleteItemId, searchQuery, searchResults,
     } = this.state;
     const now = DateTime.local();
-
-    const { filters } = this.props;
 
     return focusItems
       .filter((item) => {
@@ -483,11 +419,6 @@ class App extends Component {
       });
   };
 
-  renderProjects = () => {
-    const { focusItems } = this.state;
-    return <Projects focusItems={focusItems} />;
-  };
-
   render() {
     // // before the state is loaded from external storage, it is null
     // if (this.state !== null) {
@@ -500,7 +431,7 @@ class App extends Component {
           <ContentWrapper isFocusOn={isFocusOn}>
             <Switch>
               <Route path="/" exact render={this.renderFocusItems} />
-              <Route path="/projects" render={this.renderProjects} />
+              <Route path="/projects" component={Projects} />
             </Switch>
           </ContentWrapper>
           <Actions
@@ -536,16 +467,27 @@ App.propTypes = {
   }).isRequired,
   setProjectFilter: PropTypes.func.isRequired,
   projectName: PropTypes.string,
-  // focusItems: PropTypes.arrayOf(
-  //   PropTypes.shape({
-  //     id: PropTypes.number,
-  //   }),
-  // ).isRequired,
+  addFocusItem: PropTypes.func.isRequired,
+  focusItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+    }),
+  ).isRequired,
   pickNextFocusItemId: PropTypes.func.isRequired,
+  editFocusItem: PropTypes.func.isRequired,
+  deletingFocusItem: PropTypes.func.isRequired,
+  markDoneFocusItem: PropTypes.func.isRequired,
+  incStartDateFocusItem: PropTypes.func.isRequired,
+  incDueDateFocusItem: PropTypes.func.isRequired,
+  decStartDateFocusItem: PropTypes.func.isRequired,
+  decDueDateFocusItem: PropTypes.func.isRequired,
+  addFutureWaitingFocusItem: PropTypes.func.isRequired,
+  removeDateFocusItem: PropTypes.func.isRequired,
+  nextCategoryFocusItem: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
-  // focusItems: state.focusItems,
+  focusItems: state.focusItems,
   filters: state.filters,
   projectName: state.projectFilter,
 });

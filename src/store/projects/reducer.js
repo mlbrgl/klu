@@ -31,10 +31,7 @@ const reducer = produce((projects, action) => {
 
           if (projectInfo.hasActionableItems) {
             project.status = PROJECT_ACTIVE;
-          } else if (
-            project.status !== PROJECT_PAUSED
-            && project.status !== PROJECT_COMPLETED
-          ) {
+          } else if (project.status !== PROJECT_PAUSED && project.status !== PROJECT_COMPLETED) {
             project.status = PROJECT_PENDING;
           }
           return project;

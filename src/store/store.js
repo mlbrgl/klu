@@ -1,22 +1,23 @@
+import { DateTime } from 'luxon';
 import { PROJECT_ACTIVE } from '../helpers/constants';
 
-const getNewFocusItem = (value = '') => {
-  const currentDate = Date.now();
+const getNewFocusItem = (now, value = '') => {
+  const timestamp = now.toMillis();
   return {
-    id: currentDate,
+    id: timestamp,
     value,
     category: { name: 'inbox', icon: 'inbox' },
     dates: {
       start: null,
       done: null,
       due: null,
-      modified: currentDate,
+      modified: timestamp,
     },
   };
 };
 
 const getInitialState = () => ({
-  focusItems: [getNewFocusItem()],
+  focusItems: [getNewFocusItem(DateTime.local())],
   projects: [],
   isFocusOn: false,
   focusItemId: null,
