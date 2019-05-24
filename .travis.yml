@@ -3,5 +3,6 @@ cache:
   directories:
     - ~/.cache
 script:
-  - yarn ci
+  - yarn test
   - yarn build
+  - yarn ci

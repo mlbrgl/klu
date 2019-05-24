@@ -23,18 +23,22 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "./node_modules/.bin/eslint src --fix",
-    "cypress:open": "cypress open",
+    "e2e": "cypress open",
     "ci": "yarn start & wait-on http://localhost:3000 && cypress run --record"
   },
   "eslintConfig": {
     "extends": "airbnb",
+    "plugins": [
+      "eslint-plugin-jest"
+    ],
     "rules": {
       "no-underscore-dangle": "off",
       "max-len": "off"
     },
     "parser": "babel-eslint",
     "env": {
-      "browser": "true"
+      "browser": true,
+      "jest/globals": true
     }
   },
   "browserslist": {
@@ -50,10 +54,11 @@
     ]
   },
   "devDependencies": {
-    "cypress": "^3.3.0",
+    "cypress": "^3.3.1",
     "eslint-config-airbnb": "17.1.0",
     "eslint-plugin-cypress": "^2.2.1",
     "eslint-plugin-import": "2.17.2",
+    "eslint-plugin-jest": "^22.6.4",
     "eslint-plugin-jsx-a11y": "6.2.1",
     "eslint-plugin-react": "7.12.4",
     "redux-devtools": "^3.5.0",
