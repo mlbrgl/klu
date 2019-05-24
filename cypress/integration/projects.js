@@ -25,7 +25,8 @@ describe('Projects', () => {
       cy.contains('did it').click();
     }
 
-    cy.contains('p1')
+    cy.get('[data-test=project]')
+      .first()
       .find('.icon-circle-with-plus')
       .should('not.exist');
   });
