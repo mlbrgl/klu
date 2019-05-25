@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { DateTime } from 'luxon';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import styles from './FocusItem.module.css';
 import { isItemEligible } from '../../selectors/selectors';
 
@@ -40,4 +41,8 @@ FocusItem.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export default FocusItem;
+const mapStateToProps = state => ({
+  isFocusOn: state.app.isFocusOn,
+});
+
+export default connect(mapStateToProps)(FocusItem);

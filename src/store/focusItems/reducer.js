@@ -16,10 +16,10 @@ import {
 } from '../actionTypes';
 import { getNewFocusItem } from '../store';
 
-export const addFutureWaitingFocusItem = (now, itemId, focusItems) => {
+export const addFutureWaitingFocusItem = (now, newFocusItem, itemId, focusItems) => {
   const futureDate = now.plus({ days: 3 }).toISODate();
   const baseFocusItem = focusItems.find(item => item.id === itemId);
-  const newFocusItem = getNewFocusItem(now, `@qw ${baseFocusItem.value}`);
+  newFocusItem.value = `@qw ${baseFocusItem.value}`;
   newFocusItem.category = baseFocusItem.category;
 
   focusItems.unshift(newFocusItem);
@@ -82,8 +82,8 @@ const reducer = produce(
         return focusItems;
       }
       case ADD_FUTURE_WAITING_FOCUS_ITEM: {
-        const { now, itemId } = action.payload;
-        addFutureWaitingFocusItem(now, itemId, focusItems);
+        const { now, newFocusItem, itemId } = action.payload;
+        addFutureWaitingFocusItem(now, newFocusItem, itemId, focusItems);
         return focusItems;
       }
       case EDIT_FOCUS_ITEM: {

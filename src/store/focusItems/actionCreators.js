@@ -16,20 +16,25 @@ import {
   NEXT_CATEGORY_FOCUS_ITEM,
 } from '../actionTypes';
 import { getNewFocusItem } from '../store';
+import { setFocus } from '../app/actionCreators';
 
-export const pickNextFocusItemId = history => (dispatch, getState) => {
+export const focusingNextFocusItem = history => (dispatch, getState) => {
   const now = DateTime.local();
   dispatch(updateProjects(now));
 
   const { projects } = getState();
   if (areProjectsPending(projects)) {
     history.push('/projects');
-    return null;
+    return;
   }
   history.push('/');
   const { focusItems } = getState();
   const nextEligibleItems = getNextEligibleItems(now, focusItems, projects);
-  return nextEligibleItems.length !== 0 ? getRandomElement(nextEligibleItems).id : null;
+  if (nextEligibleItems.length) {
+    dispatch(setFocus({ isFocusOn: true, focusItemId: getRandomElement(nextEligibleItems).id }));
+  } else {
+    dispatch(setFocus({ focusItemId: null }));
+  }
 };
 
 export const addFocusItem = focusItem => ({
@@ -37,38 +42,50 @@ export const addFocusItem = focusItem => ({
   payload: { focusItem },
 });
 
-export const addFutureWaitingFocusItem = (now, itemId) => ({
-  type: ADD_FUTURE_WAITING_FOCUS_ITEM,
-  payload: { now, itemId },
-});
+export const addingFutureWaitingFocusItem = (now, itemId) => (dispatch) => {
+  const newFocusItem = getNewFocusItem(now);
+
+  dispatch({
+    type: ADD_FUTURE_WAITING_FOCUS_ITEM,
+    payload: { now, newFocusItem, itemId },
+  });
+  dispatch(setFocus({ focusItemId: newFocusItem.id }));
+};
 
 export const editFocusItem = (now, value, itemId) => ({
   type: EDIT_FOCUS_ITEM,
   payload: { now, value, itemId },
 });
 
-export const deleteFocusItem = itemId => ({
+export const _deleteFocusItem = itemId => ({
   type: DELETE_FOCUS_ITEM,
   payload: { itemId },
 });
 
-export const deletingFocusItem = (history, focusItemId, itemId) => (dispatch, getState) => {
-  dispatch(deleteFocusItem(itemId));
-  let newFocusItemId = focusItemId;
-  const { focusItems } = getState();
-  if (focusItems.length === 0) {
-    dispatch(addFocusItem(getNewFocusItem(DateTime.local())));
-    newFocusItemId = null;
-  } else if (focusItemId === itemId) {
-    newFocusItemId = dispatch(pickNextFocusItemId(history));
+export const deletingFocusItem = (history, itemId) => (dispatch, getState) => {
+  dispatch(_deleteFocusItem(itemId));
+  const {
+    app: { focusItemId },
+  } = getState();
+  if (focusItemId === itemId) {
+    dispatch(focusingNextFocusItem(history));
   }
-  return newFocusItemId;
 };
 
-export const markDoneFocusItem = (now, itemId) => ({
+export const _markDoneFocusItem = (now, itemId) => ({
   type: MARK_DONE_FOCUS_ITEM,
   payload: { now, itemId },
 });
+
+export const markingDoneFocusItem = (history, itemId) => (dispatch, getState) => {
+  dispatch(_markDoneFocusItem(DateTime.local(), itemId));
+  const {
+    app: { focusItemId },
+  } = getState();
+  if (focusItemId === itemId) {
+    dispatch(focusingNextFocusItem(history));
+  }
+};
 
 export const incStartDateFocusItem = (now, quantity, itemId) => ({
   type: INC_START_DATE_FOCUS_ITEM,

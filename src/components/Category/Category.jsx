@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import styles from './Category.module.css';
 
 const category = (props) => {
@@ -15,4 +16,8 @@ category.propTypes = {
   isFocusOn: PropTypes.bool.isRequired,
 };
 
-export default category;
+const mapStateToProps = state => ({
+  isFocusOn: state.app.isFocusOn,
+});
+
+export default connect(mapStateToProps)(category);

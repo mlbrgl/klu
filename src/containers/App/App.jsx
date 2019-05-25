@@ -35,6 +35,7 @@ import Category from '../../components/Category/Category';
 import { getNewFocusItem, getInitialState } from '../../store/store';
 import * as actionCreatorsProjectFilter from '../../store/projectFilter/actionCreators';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
+import * as actionCreatorsApp from '../../store/app/actionCreators';
 
 import './App.css';
 import { CATEGORIES } from '../../helpers/constants';
@@ -84,8 +85,8 @@ class App extends Component {
           if (deleteItemId !== null) {
             this.setState({ deleteItemId: null });
           } else {
-            const { history } = this.props;
-            this.onToggleFocusItemHandler();
+            const { history, toggleFocus } = this.props;
+            toggleFocus();
             history.push('/');
           }
           break;
@@ -131,11 +132,6 @@ class App extends Component {
     this.setState({ searchQuery: value });
   };
 
-  onRemoveProjectFilterHandler = () => {
-    const { history } = this.props;
-    history.push('/');
-  };
-
   onResetSearchHandler = () => {
     this.setState({ searchQuery: '', searchResults: [] });
   };
@@ -157,23 +153,29 @@ class App extends Component {
 
   onKeyDownEditableItemHandler = (event, itemId) => {
     const { deleteItemId } = this.state;
-    const { focusItems } = this.props;
-    const { setProjectFilter } = this.props;
-    const index = focusItems.findIndex(el => el.id === itemId);
+    const {
+      history,
+      focusItems,
+      setProjectFilter,
+      markingDoneFocusItem,
+      setFocus,
+      deletingFocusItem,
+    } = this.props;
+    const index = focusItems.findIndex(item => item.id === itemId);
 
     switch (event.key) {
       case 'Enter':
         event.preventDefault();
         if (event.metaKey || event.ctrlKey) {
           if (event.shiftKey) {
-            this.onDoneItemHandler(itemId);
+            markingDoneFocusItem(history, itemId);
           } else {
             setProjectFilter(getProjectNameFromItem(focusItems[index]));
           }
         } else if (deleteItemId === null) {
-          this.onToggleFocusItemHandler(itemId);
+          setFocus({ isFocusOn: true, focusItemId: itemId });
         } else if (deleteItemId !== null) {
-          this.onDeletedItemHandler(itemId, event.key);
+          deletingFocusItem(history, itemId);
         }
         break;
 
@@ -181,7 +183,7 @@ class App extends Component {
       case 'Delete':
         if (focusItems[index].value.length === 0) {
           event.preventDefault();
-          this.onDeletedItemHandler(itemId, event.key);
+          deletingFocusItem(history, itemId);
         } else if (event.metaKey || event.ctrlKey) {
           event.preventDefault();
           this.setState({ deleteItemId: itemId });
@@ -267,68 +269,9 @@ class App extends Component {
     { leading: true, trailing: true },
   );
 
-  onDeletedItemHandler = (itemId) => {
-    const { isFocusOn } = this.state;
-    const { history, deletingFocusItem } = this.props;
-    let { focusItemId } = this.state;
-
-    // TEMP - for transition purposes
-    focusItemId = deletingFocusItem(history, focusItemId, itemId);
-
-    this.setState({
-      deleteItemId: null,
-      focusItemId,
-      isFocusOn: focusItemId === null ? false : isFocusOn,
-    });
-  };
-
-  // eslint-disable-next-line react/destructuring-assignment
-  onToggleFocusItemHandler = (itemId = this.state.focusItemId) => {
-    const { isFocusOn } = this.state;
-    this.setState({
-      focusItemId: itemId,
-      isFocusOn: itemId === null ? false : !isFocusOn,
-    });
-  };
-
-  onFocusNextItemHandler = () => {
-    const { pickNextFocusItemId, history } = this.props;
-    const newItemId = pickNextFocusItemId(history);
-
-    this.setState({
-      focusItemId: newItemId,
-      isFocusOn: newItemId !== null,
-    });
-  };
-
-  onDoneItemHandler = (itemId) => {
-    const { isFocusOn } = this.state;
-    const { pickNextFocusItemId, markDoneFocusItem, history } = this.props;
-    let { focusItemId } = this.state;
-    markDoneFocusItem(DateTime.local(), itemId);
-    focusItemId = focusItemId === itemId ? pickNextFocusItemId(history) : focusItemId;
-
-    this.setState({
-      focusItemId,
-      isFocusOn: focusItemId === null ? false : isFocusOn,
-    });
-  };
-
-  onDoneAndWaitingItemHandler = (itemId) => {
-    const { markDoneFocusItem, addFutureWaitingFocusItem } = this.props;
-    const now = DateTime.local();
-
-    markDoneFocusItem(now, itemId);
-    const focusItemId = addFutureWaitingFocusItem(now, itemId);
-
-    this.setState({
-      focusItemId,
-    });
-  };
-
   onRemoveDateHandler = (itemId, dateType) => {
-    const now = DateTime.local();
     const { removeDateFocusItem } = this.props;
+    const now = DateTime.local();
     removeDateFocusItem(now, dateType, itemId);
   };
 
@@ -337,7 +280,8 @@ class App extends Component {
    */
 
   renderQuickEntry = () => {
-    const { isFocusOn, searchQuery } = this.state;
+    const { searchQuery } = this.state;
+    const { isFocusOn } = this.props;
     if (!isFocusOn) {
       return (
         <QuickEntry
@@ -353,15 +297,15 @@ class App extends Component {
   };
 
   renderFilters = () => {
-    const { isFocusOn } = this.state;
+    const { isFocusOn } = this.props;
     return !isFocusOn ? <Filters /> : null;
   };
 
   renderFocusItems = () => {
-    const { filters, projectName, focusItems } = this.props;
     const {
-      isFocusOn, focusItemId, deleteItemId, searchQuery, searchResults,
-    } = this.state;
+      filters, isFocusOn, focusItemId, projectName, focusItems,
+    } = this.props;
+    const { deleteItemId, searchQuery, searchResults } = this.state;
     const now = DateTime.local();
 
     return focusItems
@@ -395,7 +339,6 @@ class App extends Component {
             <Category
               name={item.category.name}
               icon={item.category.icon}
-              isFocusOn={isFocusOn}
               isDeleteOn={isDeleteOnItem}
             />
 
@@ -422,25 +365,19 @@ class App extends Component {
   render() {
     // // before the state is loaded from external storage, it is null
     // if (this.state !== null) {
-    const { isFocusOn, focusItemId } = this.state;
+    const { history } = this.props;
     return (
       <div className="app">
         <Frame>
           <Route path="/" exact render={this.renderQuickEntry} />
           <Route path="/" exact render={this.renderFilters} />
-          <ContentWrapper isFocusOn={isFocusOn}>
+          <ContentWrapper>
             <Switch>
               <Route path="/" exact render={this.renderFocusItems} />
               <Route path="/projects" component={Projects} />
             </Switch>
           </ContentWrapper>
-          <Actions
-            onDoneItem={this.onDoneItemHandler}
-            onDoneAndWaitingItem={this.onDoneAndWaitingItemHandler}
-            onFocusNextItem={this.onFocusNextItemHandler}
-            itemId={focusItemId}
-            isFocusOn={isFocusOn}
-          />
+          <Actions history={history} />
         </Frame>
       </div>
     );
@@ -451,6 +388,7 @@ class App extends Component {
 
 App.defaultProps = {
   projectName: null,
+  focusItemId: null,
 };
 
 App.propTypes = {
@@ -465,6 +403,8 @@ App.propTypes = {
     actionable: PropTypes.bool,
     future: PropTypes.bool,
   }).isRequired,
+  isFocusOn: PropTypes.bool.isRequired,
+  focusItemId: PropTypes.number,
   setProjectFilter: PropTypes.func.isRequired,
   projectName: PropTypes.string,
   addFocusItem: PropTypes.func.isRequired,
@@ -473,28 +413,30 @@ App.propTypes = {
       id: PropTypes.number,
     }),
   ).isRequired,
-  pickNextFocusItemId: PropTypes.func.isRequired,
   editFocusItem: PropTypes.func.isRequired,
   deletingFocusItem: PropTypes.func.isRequired,
-  markDoneFocusItem: PropTypes.func.isRequired,
+  markingDoneFocusItem: PropTypes.func.isRequired,
   incStartDateFocusItem: PropTypes.func.isRequired,
   incDueDateFocusItem: PropTypes.func.isRequired,
   decStartDateFocusItem: PropTypes.func.isRequired,
   decDueDateFocusItem: PropTypes.func.isRequired,
-  addFutureWaitingFocusItem: PropTypes.func.isRequired,
   removeDateFocusItem: PropTypes.func.isRequired,
   nextCategoryFocusItem: PropTypes.func.isRequired,
+  setFocus: PropTypes.func.isRequired,
+  toggleFocus: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
   focusItems: state.focusItems,
-  filters: state.filters,
+  isFocusOn: state.app.isFocusOn,
+  focusItemId: state.app.focusItemId,
+  filters: state.app.filters,
   projectName: state.projectFilter,
 });
 
 export default withRouter(
   connect(
     mapStateToProps,
-    { ...actionCreatorsProjectFilter, ...actionCreatorsFocusItems },
+    { ...actionCreatorsProjectFilter, ...actionCreatorsFocusItems, ...actionCreatorsApp },
   )(App),
 );

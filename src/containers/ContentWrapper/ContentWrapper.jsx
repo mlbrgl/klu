@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import styles from './ContentWrapper.module.css';
 
@@ -36,4 +37,8 @@ contentWrapper.propTypes = {
   }).isRequired,
 };
 
-export default withRouter(contentWrapper);
+const mapStateToProps = state => ({
+  isFocusOn: state.app.isFocusOn,
+});
+
+export default withRouter(connect(mapStateToProps)(contentWrapper));

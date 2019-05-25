@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import Button from '../Button/Button';
-import * as actionCreators from '../../store/filters/actionCreators';
+import * as actionCreators from '../../store/app/actionCreators';
 
 import styles from './Filter.module.css';
 
@@ -21,7 +21,7 @@ Filter.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const { filters } = state;
+  const { filters } = state.app;
   const { type } = ownProps;
 
   return {

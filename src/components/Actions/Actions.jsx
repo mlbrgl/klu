@@ -1,26 +1,38 @@
 import React, { PureComponent } from 'react';
-import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { DateTime } from 'luxon';
 import Button from '../Button/Button';
+import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 
 import styles from './Actions.module.css';
 
 class Actions extends PureComponent {
   onDoneItemHandler = () => {
-    const { onDoneItem, itemId } = this.props;
-    onDoneItem(itemId);
+    const { history, markingDoneFocusItem, itemId } = this.props;
+    markingDoneFocusItem(history, itemId);
   };
 
   onDoneAndWaitingItemHandler = () => {
-    const { onDoneAndWaitingItem, itemId } = this.props;
-    onDoneAndWaitingItem(itemId);
+    const {
+      markingDoneFocusItem, addingFutureWaitingFocusItem, history, itemId,
+    } = this.props;
+    const now = DateTime.local();
+
+    addingFutureWaitingFocusItem(now, itemId);
+    markingDoneFocusItem(history, itemId);
+  };
+
+  onFocusingNextFocusItem = () => {
+    const { focusingNextFocusItem, history } = this.props;
+    focusingNextFocusItem(history);
   };
 
   render() {
-    const { onFocusNextItem, isFocusOn } = this.props;
+    const { isFocusOn } = this.props;
     return (
       <div className={styles.actions}>
-        <Button onClick={onFocusNextItem}>next up?</Button>
+        <Button onClick={this.onFocusingNextFocusItem}>next up?</Button>
         {isFocusOn ? <Button onClick={this.onDoneItemHandler}>did it!</Button> : null}
         {isFocusOn ? (
           <Button onClick={this.onDoneAndWaitingItemHandler}>done &amp; waiting</Button>
@@ -35,11 +47,22 @@ Actions.defaultProps = {
 };
 
 Actions.propTypes = {
+  addingFutureWaitingFocusItem: PropTypes.func.isRequired,
+  focusingNextFocusItem: PropTypes.func.isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
   isFocusOn: PropTypes.bool.isRequired,
   itemId: PropTypes.number,
-  onDoneAndWaitingItem: PropTypes.func.isRequired,
-  onDoneItem: PropTypes.func.isRequired,
-  onFocusNextItem: PropTypes.func.isRequired,
+  markingDoneFocusItem: PropTypes.func.isRequired,
 };
 
-export default withRouter(Actions);
+const mapStateToProps = state => ({
+  isFocusOn: state.app.isFocusOn,
+  itemId: state.app.focusItemId,
+});
+
+export default connect(
+  mapStateToProps,
+  actionCreatorsFocusItems,
+)(Actions);
