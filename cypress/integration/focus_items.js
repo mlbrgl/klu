@@ -51,7 +51,7 @@ describe('Focus items', () => {
     // Check not focusing
     cy.get('[data-test=quick-entry]');
 
-    // Check new item created automatically
-    cy.get('@firstContentEditable').should('have.text', '');
+    // Check no items
+    cy.get('[contenteditable]').should('not.exist');
   });
 });

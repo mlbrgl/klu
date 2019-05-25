@@ -14,7 +14,8 @@ import { CATEGORIES } from '../../helpers/constants';
 it('Adds a waiting future item', () => {
   const now = DateTime.local();
   const focusItems = [getNewFocusItem(now, 'value')];
-  addFutureWaitingFocusItem(now, focusItems[0].id, focusItems);
+  const newFocusItem = getNewFocusItem(now);
+  addFutureWaitingFocusItem(now, newFocusItem, focusItems[0].id, focusItems);
 
   expect(focusItems[0].value).toEqual('@qw value');
   expect(focusItems[0].dates.start).toEqual(now.plus({ days: 3 }).toISODate());
