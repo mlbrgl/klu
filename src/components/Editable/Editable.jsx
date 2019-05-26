@@ -1,6 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { DateTime } from 'luxon';
 import styles from './Editable.module.css';
+import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
+import * as actionCreatorsProjectFilter from '../../store/projectFilter/actionCreators';
+import * as actionsCreatorsApp from '../../store/app/actionCreators';
+import { CATEGORIES } from '../../helpers/constants';
+import {
+  isCaretAtEndFieldItem,
+  setCaretPosition,
+  isCaretAtBeginningFieldItem,
+} from '../../helpers/common';
+import { getProjectNameFromItem } from '../../selectors/selectors';
 
 class Editable extends Component {
   constructor(props) {
@@ -25,20 +37,130 @@ class Editable extends Component {
     this.updateInnerHtml();
   }
 
-  onKeyDownHandler(event) {
-    const { onKeyDownHandler, itemId } = this.props;
-    onKeyDownHandler(event, itemId);
-  }
-
   onInputHandler(event) {
     const { onInputHandler, itemId } = this.props;
     onInputHandler(event.target.innerHTML, itemId);
   }
 
+  onKeyDownHandler(event) {
+    const {
+      itemId,
+      history,
+      setProjectFilter,
+      markingDoneFocusItem,
+      setFocus,
+      toggleFocus,
+      deletingFocusItem,
+      isDeleteOn,
+      setDeleteOn,
+      children: value,
+    } = this.props;
+
+    switch (event.key) {
+      case 'Escape':
+        if (isDeleteOn) {
+          event.stopPropagation();
+          setDeleteOn(false);
+        }
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (event.metaKey || event.ctrlKey) {
+          if (event.shiftKey) {
+            markingDoneFocusItem(history, itemId);
+          } else {
+            setProjectFilter(getProjectNameFromItem(value));
+          }
+        } else if (isDeleteOn) {
+          deletingFocusItem(history, itemId);
+        } else {
+          setFocus({ focusItemId: itemId });
+          toggleFocus();
+        }
+        break;
+
+      case 'Backspace':
+      case 'Delete':
+        if (value.length === 0) {
+          event.preventDefault();
+          deletingFocusItem(history, itemId);
+        } else if (event.metaKey || event.ctrlKey) {
+          event.preventDefault();
+          setDeleteOn(true);
+        }
+        break;
+
+      case 'ArrowUp':
+        if (event.metaKey || event.ctrlKey) {
+          const { incStartDateFocusItem, incDueDateFocusItem } = this.props;
+          event.preventDefault();
+          if (isCaretAtBeginningFieldItem()) {
+            incStartDateFocusItem(
+              DateTime.local(),
+              event.altKey ? { weeks: 1 } : { days: 1 },
+              itemId,
+            );
+          } else if (isCaretAtEndFieldItem()) {
+            incDueDateFocusItem(
+              DateTime.local(),
+              event.altKey ? { weeks: 1 } : { days: 1 },
+              itemId,
+            );
+          }
+        }
+        break;
+
+      case 'ArrowDown':
+        if (event.metaKey || event.ctrlKey) {
+          const { decStartDateFocusItem, decDueDateFocusItem } = this.props;
+          event.preventDefault();
+          if (isCaretAtBeginningFieldItem()) {
+            decStartDateFocusItem(
+              DateTime.local(),
+              event.altKey ? { weeks: 1 } : { days: 1 },
+              itemId,
+            );
+          } else if (isCaretAtEndFieldItem()) {
+            decDueDateFocusItem(
+              DateTime.local(),
+              event.altKey ? { weeks: 1 } : { days: 1 },
+              itemId,
+            );
+          }
+        }
+        break;
+
+      case 'ArrowRight':
+        if (!event.shiftKey) {
+          if (event.metaKey || event.ctrlKey) {
+            if (event.target.childNodes[0]) {
+              // field not empty
+              setCaretPosition(event.target.childNodes[0], event.target.childNodes[0].length);
+            }
+          } else if (isCaretAtEndFieldItem()) {
+            const { nextCategoryFocusItem } = this.props;
+            nextCategoryFocusItem(DateTime.local(), itemId, CATEGORIES);
+          }
+        }
+        break;
+
+      case 'ArrowLeft':
+        if (!event.shiftKey) {
+          if (event.metaKey || event.ctrlKey) {
+            setCaretPosition(event.target.childNodes[0], 0);
+          } else if (isCaretAtBeginningFieldItem()) {
+            setDeleteOn(true);
+          }
+        }
+        break;
+      default:
+    }
+  }
+
   // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
   updateInnerHtml() {
-    const { children } = this.props;
-    this.ref.innerHTML = children;
+    const { children: value } = this.props;
+    this.ref.innerHTML = value;
   }
 
   render() {
@@ -60,10 +182,27 @@ class Editable extends Component {
 }
 
 Editable.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.string.isRequired,
+  decDueDateFocusItem: PropTypes.func.isRequired,
+  decStartDateFocusItem: PropTypes.func.isRequired,
+  deletingFocusItem: PropTypes.func.isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
+  incDueDateFocusItem: PropTypes.func.isRequired,
+  incStartDateFocusItem: PropTypes.func.isRequired,
+  isDeleteOn: PropTypes.bool.isRequired,
   itemId: PropTypes.number.isRequired,
+  markingDoneFocusItem: PropTypes.func.isRequired,
+  nextCategoryFocusItem: PropTypes.func.isRequired,
   onInputHandler: PropTypes.func.isRequired,
-  onKeyDownHandler: PropTypes.func.isRequired,
+  setDeleteOn: PropTypes.func.isRequired,
+  setFocus: PropTypes.func.isRequired,
+  toggleFocus: PropTypes.func.isRequired,
+  setProjectFilter: PropTypes.func.isRequired,
 };
 
-export default Editable;
+export default connect(
+  null,
+  { ...actionCreatorsFocusItems, ...actionsCreatorsApp, ...actionCreatorsProjectFilter },
+)(Editable);
