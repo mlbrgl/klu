@@ -18,7 +18,6 @@ const FocusItem = (props) => {
     },
     history,
     onInputEditableItemHandler,
-    onRemoveDateHandler,
   } = props;
   const now = DateTime.local();
   const [isDeleteOn, setDeleteOn] = useState(false);
@@ -52,13 +51,7 @@ const FocusItem = (props) => {
         {value}
       </Editable>
 
-      <Dates
-        onRemoveDateHandler={onRemoveDateHandler}
-        startdate={dates.start}
-        duedate={dates.due}
-        donedate={dates.done}
-        itemId={id}
-      />
+      <Dates startdate={dates.start} duedate={dates.due} donedate={dates.done} itemId={id} />
     </div>
   );
 };
@@ -85,7 +78,6 @@ FocusItem.propTypes = {
   }).isRequired,
   focusItemId: PropTypes.number,
   onInputEditableItemHandler: PropTypes.func.isRequired,
-  onRemoveDateHandler: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({

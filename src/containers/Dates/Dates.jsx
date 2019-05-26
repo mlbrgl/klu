@@ -20,16 +20,11 @@ class Dates extends PureComponent {
     }
 
     if (dates.length) {
-      const { itemId, onRemoveDateHandler } = this.props;
+      const { itemId } = this.props;
       return (
         <div className={styles.dates}>
           {dates.map(date => (
-            <Date
-              key={date.icon}
-              onRemoveDateHandler={onRemoveDateHandler}
-              itemId={itemId}
-              {...date}
-            />
+            <Date key={date.icon} itemId={itemId} {...date} />
           ))}
         </div>
       );
@@ -49,7 +44,6 @@ Dates.propTypes = {
   duedate: PropTypes.string,
   startdate: PropTypes.string,
   itemId: PropTypes.number.isRequired,
-  onRemoveDateHandler: PropTypes.func.isRequired,
 };
 
 export default Dates;

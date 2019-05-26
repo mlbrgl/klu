@@ -147,12 +147,6 @@ class App extends Component {
     { leading: true, trailing: true },
   );
 
-  onRemoveDateHandler = (itemId, dateType) => {
-    const { removeDateFocusItem } = this.props;
-    const now = DateTime.local();
-    removeDateFocusItem(now, dateType, itemId);
-  };
-
   /*
    * COMPONENT TREES
    */
@@ -205,7 +199,6 @@ class App extends Component {
       .map(item => (
         <FocusItem
           key={item.id}
-          onRemoveDateHandler={this.onRemoveDateHandler}
           onInputEditableItemHandler={this.onInputEditableItemHandler}
           item={item}
           history={history}
@@ -264,7 +257,6 @@ App.propTypes = {
     }),
   ).isRequired,
   editFocusItem: PropTypes.func.isRequired,
-  removeDateFocusItem: PropTypes.func.isRequired,
   toggleFocus: PropTypes.func.isRequired,
 };
 
