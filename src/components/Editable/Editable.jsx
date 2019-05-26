@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { DateTime } from 'luxon';
+import debounce from 'lodash.debounce';
 import styles from './Editable.module.css';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 import * as actionCreatorsProjectFilter from '../../store/projectFilter/actionCreators';
@@ -29,17 +30,22 @@ class Editable extends Component {
     // From https://github.com/lovasoa/react-contenteditable/blob/master/src/react-contenteditable.js
     // "We need not rerender if the change of props simply reflects the user's edits.
     // Rerendering in this case would make the cursor/caret jump"
-    // return nextProps.index === 0 && nextProps.children === '';
-    return nextProps.children !== this.ref.innerHTML;
+    return nextProps.value !== this.ref.innerHTML;
   }
 
   componentDidUpdate() {
     this.updateInnerHtml();
   }
 
+  onInputEditableItemHandler = debounce((innerHTML, itemId) => {
+    const { editFocusItem } = this.props;
+    editFocusItem(DateTime.local(), innerHTML, itemId);
+    // this.searchApi.indexDocument(itemId, innerHTML);
+  }, 250);
+
   onInputHandler(event) {
-    const { onInputHandler, itemId } = this.props;
-    onInputHandler(event.target.innerHTML, itemId);
+    const { itemId } = this.props;
+    this.onInputEditableItemHandler(event.target.innerHTML, itemId);
   }
 
   onKeyDownHandler(event) {
@@ -53,7 +59,7 @@ class Editable extends Component {
       deletingFocusItem,
       isDeleteOn,
       setDeleteOn,
-      children: value,
+      value,
     } = this.props;
 
     switch (event.key) {
@@ -159,7 +165,7 @@ class Editable extends Component {
 
   // Whole story here https://codepen.io/mlbrgl/pen/QQVMRP
   updateInnerHtml() {
-    const { children: value } = this.props;
+    const { value } = this.props;
     this.ref.innerHTML = value;
   }
 
@@ -182,7 +188,7 @@ class Editable extends Component {
 }
 
 Editable.propTypes = {
-  children: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
   decDueDateFocusItem: PropTypes.func.isRequired,
   decStartDateFocusItem: PropTypes.func.isRequired,
   deletingFocusItem: PropTypes.func.isRequired,
@@ -195,11 +201,11 @@ Editable.propTypes = {
   itemId: PropTypes.number.isRequired,
   markingDoneFocusItem: PropTypes.func.isRequired,
   nextCategoryFocusItem: PropTypes.func.isRequired,
-  onInputHandler: PropTypes.func.isRequired,
   setDeleteOn: PropTypes.func.isRequired,
   setFocus: PropTypes.func.isRequired,
   toggleFocus: PropTypes.func.isRequired,
   setProjectFilter: PropTypes.func.isRequired,
+  editFocusItem: PropTypes.func.isRequired,
 };
 
 export default connect(

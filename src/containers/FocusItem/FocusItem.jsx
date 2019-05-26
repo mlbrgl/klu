@@ -17,7 +17,6 @@ const FocusItem = (props) => {
       dates, category, id, value,
     },
     history,
-    onInputEditableItemHandler,
   } = props;
   const now = DateTime.local();
   const [isDeleteOn, setDeleteOn] = useState(false);
@@ -35,21 +34,19 @@ const FocusItem = (props) => {
   if (isFocusOnItem) {
     focusItemStyles.push(styles.focused);
   }
-
   focusItemStyles = focusItemStyles.join(' ');
+
   return (
     <div className={focusItemStyles}>
       <Category name={category.name} icon={category.icon} isDeleteOn={isDeleteOn} />
 
       <Editable
-        onInputHandler={onInputEditableItemHandler}
         isDeleteOn={isDeleteOn}
         setDeleteOn={setDeleteOn}
         itemId={id}
         history={history}
-      >
-        {value}
-      </Editable>
+        value={value}
+      />
 
       <Dates startdate={dates.start} duedate={dates.due} donedate={dates.done} itemId={id} />
     </div>
@@ -77,7 +74,6 @@ FocusItem.propTypes = {
     push: PropTypes.func.isRequired,
   }).isRequired,
   focusItemId: PropTypes.number,
-  onInputEditableItemHandler: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import debounce from 'lodash.debounce';
 import { DateTime } from 'luxon';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import SearchApi from 'js-worker-search';
@@ -132,22 +131,6 @@ class App extends Component {
   };
 
   /*
-   * HANDLERS: ITEMS
-   */
-
-  onInputEditableItemHandler = debounce(
-    (innerHTML, itemId) => {
-      const { editFocusItem } = this.props;
-      editFocusItem(DateTime.local(), innerHTML, itemId);
-      this.searchApi.indexDocument(itemId, innerHTML);
-    },
-    250,
-    // leading: updating modified date straightaway so that next item
-    // created appears on top of the list (only really necessary for high speed tests)
-    { leading: true, trailing: true },
-  );
-
-  /*
    * COMPONENT TREES
    */
 
@@ -196,14 +179,7 @@ class App extends Component {
         return false;
       })
       .slice(0, projectName || searchQuery ? Infinity : 20)
-      .map(item => (
-        <FocusItem
-          key={item.id}
-          onInputEditableItemHandler={this.onInputEditableItemHandler}
-          item={item}
-          history={history}
-        />
-      ));
+      .map(item => <FocusItem key={item.id} item={item} history={history} />);
   };
 
   render() {
@@ -256,7 +232,6 @@ App.propTypes = {
       id: PropTypes.number,
     }),
   ).isRequired,
-  editFocusItem: PropTypes.func.isRequired,
   toggleFocus: PropTypes.func.isRequired,
 };
 
