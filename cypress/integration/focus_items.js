@@ -30,21 +30,21 @@ describe('Focus items', () => {
       .type('Item 1');
     cy.get('[data-test=quick-entry]').type('Item 2{enter}');
 
-    // Focus on Item 2
+    // Focus on Item 1
     cy.get('@firstContentEditable').type('{enter}');
-    cy.contains('Item 1').should('not.exist');
+    cy.contains('Item 2').should('not.exist');
 
-    // Delete focused Item 2
+    // Delete focused Item 1
     cy.get('@firstContentEditable')
       .type('{cmd}{backspace}')
       .type('{enter}');
-    cy.get('@firstContentEditable').should('have.text', 'Item 1');
+    cy.get('[contenteditable]').should('have.text', 'Item 2');
 
     // Check still focusing
     cy.get('[data-test=quick-entry]').should('not.exist');
 
     // Delete the last item
-    cy.get('@firstContentEditable')
+    cy.get('[contenteditable]')
       .type('{cmd}{backspace}')
       .type('{enter}');
 
