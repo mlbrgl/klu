@@ -25,7 +25,7 @@
     "serve": "./node_modules/.bin/serve build",
     "lint": "./node_modules/.bin/eslint src --fix",
     "e2e": "cypress open",
-    "ci": "yarn test && yarn build && yarn serve & wait-on http://localhost:5000 && cypress run --record"
+    "ci": "yarn test && yarn build && yarn serve & wait-on http://localhost:5000 && cypress run --record --env baseUrl=http://localhost:5000"
   },
   "eslintConfig": {
     "extends": "airbnb",
