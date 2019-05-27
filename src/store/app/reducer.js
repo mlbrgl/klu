@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 import produce from 'immer';
-import { TOGGLE_DATE_FILTER, SET_FOCUS, TOGGLE_FOCUS } from '../actionTypes';
+import {
+  TOGGLE_DATE_FILTER, SET_FOCUS, TOGGLE_FOCUS, RESET_SEARCH, SEARCH,
+} from '../actionTypes';
 
 export const setFocus = (isFocusOn, focusItemId, app) => {
   isFocusOn = isFocusOn === undefined ? app.isFocusOn : isFocusOn;
@@ -30,6 +32,17 @@ const reducer = produce(
 
         return app;
       }
+      case SEARCH: {
+        const { searchQuery, searchResults } = action.payload;
+        app.searchQuery = searchQuery;
+        app.searchResults = searchResults;
+        return app;
+      }
+      case RESET_SEARCH: {
+        app.searchQuery = '';
+        app.searchResults = [];
+        return app;
+      }
       // not necessary, added for lisibility
       default:
         return app;
@@ -39,6 +52,8 @@ const reducer = produce(
     isFocusOn: false,
     focusItemId: null,
     filters: { done: false, actionable: true, future: false },
+    searchQuery: '',
+    searchResults: [],
   },
 );
 

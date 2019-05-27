@@ -40,7 +40,6 @@ class Editable extends Component {
   onInputEditableItemHandler = debounce((innerHTML, itemId) => {
     const { editFocusItem } = this.props;
     editFocusItem(DateTime.local(), innerHTML, itemId);
-    // this.searchApi.indexDocument(itemId, innerHTML);
   }, 250);
 
   onInputHandler(event) {

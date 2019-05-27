@@ -20,8 +20,7 @@ import Actions from '../../components/Actions/Actions';
 // import localforage from 'localforage';
 // import { loadFromStorage, commitToStorage } from '../../helpers/storage';
 // import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store';
-import { getNewFocusItem, getInitialState } from '../../store/store';
-import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
+import { getInitialState } from '../../store/store';
 import * as actionCreatorsApp from '../../store/app/actionCreators';
 
 import './App.css';
@@ -98,54 +97,13 @@ class App extends Component {
   // }
 
   /*
-   * HANDLERS: QUICK ENTRY
-   */
-
-  onEnterQuickEntryHandler = (itemValue) => {
-    const newItem = getNewFocusItem(DateTime.local(), itemValue);
-    const { addFocusItem } = this.props;
-    addFocusItem(newItem);
-
-    this.setState({ searchQuery: '', searchResults: [] });
-  };
-
-  onInputQuickEntryHandler = (value) => {
-    this.setState({ searchQuery: value });
-  };
-
-  onResetSearchHandler = () => {
-    this.setState({ searchQuery: '', searchResults: [] });
-  };
-
-  onSearchHandler = () => {
-    const { searchApi } = this.props;
-    const { searchQuery } = this.state;
-    if (searchQuery) {
-      searchApi.search(searchQuery).then((results) => {
-        this.setState({ searchResults: results });
-      });
-    } else {
-      this.onResetSearchHandler();
-    }
-  };
-
-  /*
    * COMPONENT TREES
    */
 
   renderQuickEntry = () => {
-    const { searchQuery } = this.state;
-    const { isFocusOn } = this.props;
+    const { isFocusOn, searchApi } = this.props;
     if (!isFocusOn) {
-      return (
-        <QuickEntry
-          value={searchQuery}
-          onInputHandler={this.onInputQuickEntryHandler}
-          onEnterHandler={this.onEnterQuickEntryHandler}
-          onResetSearchHandler={this.onResetSearchHandler}
-          onSearchHandler={this.onSearchHandler}
-        />
-      );
+      return <QuickEntry searchApi={searchApi} />;
     }
     return null;
   };
@@ -157,9 +115,15 @@ class App extends Component {
 
   renderFocusItems = () => {
     const {
-      filters, isFocusOn, focusItemId, projectName, focusItems, history,
+      filters,
+      isFocusOn,
+      focusItemId,
+      projectName,
+      focusItems,
+      history,
+      searchQuery,
+      searchResults,
     } = this.props;
-    const { searchQuery, searchResults } = this.state;
     const now = DateTime.local();
 
     return focusItems
@@ -225,7 +189,6 @@ App.propTypes = {
   isFocusOn: PropTypes.bool.isRequired,
   focusItemId: PropTypes.number,
   projectName: PropTypes.string,
-  addFocusItem: PropTypes.func.isRequired,
   focusItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number,
@@ -235,6 +198,8 @@ App.propTypes = {
   searchApi: PropTypes.shape({
     search: PropTypes.func,
   }).isRequired,
+  searchQuery: PropTypes.string.isRequired,
+  searchResults: PropTypes.arrayOf(PropTypes.number).isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -243,11 +208,13 @@ const mapStateToProps = state => ({
   focusItemId: state.app.focusItemId,
   filters: state.app.filters,
   projectName: state.projectFilter,
+  searchQuery: state.app.searchQuery,
+  searchResults: state.app.searchResults,
 });
 
 export default withRouter(
   connect(
     mapStateToProps,
-    { ...actionCreatorsFocusItems, ...actionCreatorsApp },
+    { ...actionCreatorsApp },
   )(App),
 );
