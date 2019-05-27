@@ -10,23 +10,10 @@ import {
   DEC_START_DATE_FOCUS_ITEM,
   DEC_DUE_DATE_FOCUS_ITEM,
   MARK_DONE_FOCUS_ITEM,
-  ADD_FUTURE_WAITING_FOCUS_ITEM,
   REMOVE_DATE_FOCUS_ITEM,
   NEXT_CATEGORY_FOCUS_ITEM,
 } from '../actionTypes';
 import { getNewFocusItem } from '../store';
-
-export const addFutureWaitingFocusItem = (now, newFocusItem, itemId, focusItems) => {
-  const futureDate = now.plus({ days: 3 }).toISODate();
-  const baseFocusItem = focusItems.find(item => item.id === itemId);
-  newFocusItem.value = `@qw ${baseFocusItem.value}`;
-  newFocusItem.category = baseFocusItem.category;
-
-  focusItems.unshift(newFocusItem);
-  const { dates } = focusItems[0];
-  dates.start = futureDate;
-  dates.due = futureDate;
-};
 
 export const shiftDateFocusItem = (dateType, operator, now, quantity, itemId, focusItems) => {
   const focusItem = focusItems.find(item => item.id === itemId);
@@ -79,11 +66,6 @@ const reducer = produce(
       case ADD_FOCUS_ITEM: {
         const { focusItem } = action.payload;
         focusItems.unshift(focusItem);
-        return focusItems;
-      }
-      case ADD_FUTURE_WAITING_FOCUS_ITEM: {
-        const { now, newFocusItem, itemId } = action.payload;
-        addFutureWaitingFocusItem(now, newFocusItem, itemId, focusItems);
         return focusItems;
       }
       case EDIT_FOCUS_ITEM: {

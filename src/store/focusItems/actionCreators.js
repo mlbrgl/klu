@@ -11,7 +11,6 @@ import {
   EDIT_FOCUS_ITEM,
   DELETE_FOCUS_ITEM,
   MARK_DONE_FOCUS_ITEM,
-  ADD_FUTURE_WAITING_FOCUS_ITEM,
   REMOVE_DATE_FOCUS_ITEM,
   NEXT_CATEGORY_FOCUS_ITEM,
 } from '../actionTypes';
@@ -42,13 +41,17 @@ export const addFocusItem = focusItem => ({
   payload: { focusItem },
 });
 
-export const addingFutureWaitingFocusItem = (now, itemId) => (dispatch) => {
-  const newFocusItem = getNewFocusItem(now);
+export const addingFutureWaitingFocusItem = (now, itemId) => (dispatch, getState) => {
+  const baseFocusItem = getState().focusItems.find(item => item.id === itemId);
+  const futureDate = now.plus({ days: 3 }).toISODate();
 
-  dispatch({
-    type: ADD_FUTURE_WAITING_FOCUS_ITEM,
-    payload: { now, newFocusItem, itemId },
-  });
+  const newFocusItem = getNewFocusItem(now);
+  newFocusItem.value = `@qw ${baseFocusItem.value}`;
+  newFocusItem.category = baseFocusItem.category;
+  newFocusItem.dates.start = futureDate;
+  newFocusItem.dates.due = futureDate;
+
+  dispatch(addFocusItem(newFocusItem));
   dispatch(setFocus({ focusItemId: newFocusItem.id }));
 };
 

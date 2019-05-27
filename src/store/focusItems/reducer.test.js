@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 import { getNewFocusItem } from '../store';
 import {
-  addFutureWaitingFocusItem,
   shiftDateFocusItem,
   editFocusItem,
   deleteFocusItem,
@@ -10,17 +9,6 @@ import {
   nextCategoryFocusItem,
 } from './reducer';
 import { CATEGORIES } from '../../helpers/constants';
-
-it('Adds a waiting future item', () => {
-  const now = DateTime.local();
-  const focusItems = [getNewFocusItem(now, 'value')];
-  const newFocusItem = getNewFocusItem(now);
-  addFutureWaitingFocusItem(now, newFocusItem, focusItems[0].id, focusItems);
-
-  expect(focusItems[0].value).toEqual('@qw value');
-  expect(focusItems[0].dates.start).toEqual(now.plus({ days: 3 }).toISODate());
-  expect(focusItems[0].dates.due).toEqual(now.plus({ days: 3 }).toISODate());
-});
 
 it('Edits the focus item value', () => {
   const now = DateTime.local();

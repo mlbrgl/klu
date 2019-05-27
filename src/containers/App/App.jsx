@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { DateTime } from 'luxon';
 import { Route, Switch, withRouter } from 'react-router-dom';
-import SearchApi from 'js-worker-search';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
@@ -50,7 +49,7 @@ class App extends Component {
     //       //   localforage.setItem(item, state[item])
     //       //   .catch((err) => { console.error(err) })
     //       // }
-    this.searchApi = new SearchApi();
+    // this.searchApi = new SearchApi();
     //       if (state !== null) {
     //         // const filters = { done: false, actionable: true, future: false };
     //         this.setState(state);
@@ -107,7 +106,6 @@ class App extends Component {
     const { addFocusItem } = this.props;
     addFocusItem(newItem);
 
-    this.searchApi.indexDocument(newItem.id, newItem.value);
     this.setState({ searchQuery: '', searchResults: [] });
   };
 
@@ -120,9 +118,10 @@ class App extends Component {
   };
 
   onSearchHandler = () => {
+    const { searchApi } = this.props;
     const { searchQuery } = this.state;
     if (searchQuery) {
-      this.searchApi.search(searchQuery).then((results) => {
+      searchApi.search(searchQuery).then((results) => {
         this.setState({ searchResults: results });
       });
     } else {
@@ -233,6 +232,9 @@ App.propTypes = {
     }),
   ).isRequired,
   toggleFocus: PropTypes.func.isRequired,
+  searchApi: PropTypes.shape({
+    search: PropTypes.func,
+  }).isRequired,
 };
 
 const mapStateToProps = state => ({
