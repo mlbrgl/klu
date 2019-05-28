@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import Project from '../../components/Project/Project';
+import Project from '../Project/Project';
 import * as actionCreators from '../../store/projects/actionCreators';
 
 const Projects = (props) => {

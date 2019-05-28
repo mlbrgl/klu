@@ -1,5 +1,5 @@
 .project {
-  composes: listItem from "../../containers/ContentWrapper/ContentWrapper.module.css";
+  composes: listItem from "../../components/ContentWrapper/ContentWrapper.module.css";
   color: white;
 }
 

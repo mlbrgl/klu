@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import SearchApi from 'js-worker-search';
-import App from './containers/App/App';
+import App from './components/App/App';
 import registerServiceWorker from './registerServiceWorker';
 import rootReducer from './store/rootReducer';
 import { index } from './store/middlewares';

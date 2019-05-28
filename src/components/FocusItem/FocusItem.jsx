@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import styles from './FocusItem.module.css';
 import { isItemEligible } from '../../selectors/selectors';
 import Dates from '../Dates/Dates';
-import Editable from '../../components/Editable/Editable';
-import Category from '../../components/Category/Category';
+import Editable from '../Editable/Editable';
+import Category from '../Category/Category';
 
 const FocusItem = (props) => {
   let focusItemStyles = [styles.focusitem];

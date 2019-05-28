@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './Filters.module.css';
-import Filter from '../../components/Filter/Filter';
+import Filter from '../Filter/Filter';
 
 const Filters = () => (
   <div className={styles.filters}>

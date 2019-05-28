@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import Date from '../../components/Date/Date';
+import Date from '../Date/Date';
 import styles from './Dates.module.css';
 
 class Dates extends PureComponent {
