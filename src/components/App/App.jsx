@@ -1,19 +1,13 @@
 import React, { Component } from 'react';
-import { DateTime } from 'luxon';
+
 import { Route, Switch, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  isItemDone,
-  isItemActionable,
-  isItemFuture,
-  isItemWithinProject,
-} from '../../selectors/selectors';
 
 import Frame from '../Frame/Frame';
 import ContentWrapper from '../ContentWrapper/ContentWrapper';
 import Filters from '../Filters/Filters';
-import FocusItem from '../FocusItem/FocusItem';
+import FocusItems from '../FocusItems/FocusItems';
 import Projects from '../Projects/Projects';
 import QuickEntry from '../QuickEntry/QuickEntry';
 import Actions from '../Actions/Actions';
@@ -113,38 +107,6 @@ class App extends Component {
     return !isFocusOn ? <Filters /> : null;
   };
 
-  renderFocusItems = () => {
-    const {
-      filters,
-      isFocusOn,
-      focusItemId,
-      projectName,
-      focusItems,
-      history,
-      searchQuery,
-      searchResults,
-    } = this.props;
-    const now = DateTime.local();
-
-    return focusItems
-      .filter((item) => {
-        if (isFocusOn) {
-          return item.id === focusItemId;
-        }
-        if (!searchQuery || searchResults.find(res => item.id === res)) {
-          return (
-            (!projectName || isItemWithinProject(item, { name: projectName }))
-            && ((filters.done && isItemDone(item))
-              || (filters.actionable && isItemActionable(now, item))
-              || (filters.future && isItemFuture(now, item)))
-          );
-        }
-        return false;
-      })
-      .slice(0, projectName || searchQuery ? Infinity : 20)
-      .map(item => <FocusItem key={item.id} item={item} history={history} />);
-  };
-
   render() {
     // // before the state is loaded from external storage, it is null
     // if (this.state !== null) {
@@ -156,7 +118,7 @@ class App extends Component {
           <Route path="/" exact render={this.renderFilters} />
           <ContentWrapper>
             <Switch>
-              <Route path="/" exact render={this.renderFocusItems} />
+              <Route path="/" exact render={() => <FocusItems history={history} />} />
               <Route path="/projects" component={Projects} />
             </Switch>
           </ContentWrapper>
@@ -169,47 +131,19 @@ class App extends Component {
   }
 }
 
-App.defaultProps = {
-  projectName: null,
-  focusItemId: null,
-};
-
 App.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }).isRequired,
-  location: PropTypes.shape({
-    search: PropTypes.string.isRequired,
-  }).isRequired,
-  filters: PropTypes.shape({
-    done: PropTypes.bool,
-    actionable: PropTypes.bool,
-    future: PropTypes.bool,
-  }).isRequired,
   isFocusOn: PropTypes.bool.isRequired,
-  focusItemId: PropTypes.number,
-  projectName: PropTypes.string,
-  focusItems: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-    }),
-  ).isRequired,
   toggleFocus: PropTypes.func.isRequired,
   searchApi: PropTypes.shape({
     search: PropTypes.func,
   }).isRequired,
-  searchQuery: PropTypes.string.isRequired,
-  searchResults: PropTypes.arrayOf(PropTypes.number).isRequired,
 };
 
 const mapStateToProps = state => ({
-  focusItems: state.focusItems,
   isFocusOn: state.app.isFocusOn,
-  focusItemId: state.app.focusItemId,
-  filters: state.app.filters,
-  projectName: state.projectFilter,
-  searchQuery: state.app.searchQuery,
-  searchResults: state.app.searchResults,
 });
 
 export default withRouter(
