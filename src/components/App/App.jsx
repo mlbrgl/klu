@@ -90,32 +90,19 @@ class App extends Component {
   //   commitToStorage(this.state);
   // }
 
-  /*
-   * COMPONENT TREES
-   */
-
-  renderQuickEntry = () => {
-    const { isFocusOn, searchApi } = this.props;
-    if (!isFocusOn) {
-      return <QuickEntry searchApi={searchApi} />;
-    }
-    return null;
-  };
-
-  renderFilters = () => {
-    const { isFocusOn } = this.props;
-    return !isFocusOn ? <Filters /> : null;
-  };
-
   render() {
     // // before the state is loaded from external storage, it is null
     // if (this.state !== null) {
-    const { history } = this.props;
+    const { history, isFocusOn, searchApi } = this.props;
     return (
       <div className="app">
         <Frame>
-          <Route path="/" exact render={this.renderQuickEntry} />
-          <Route path="/" exact render={this.renderFilters} />
+          {!isFocusOn ? (
+            <>
+              <Route path="/" exact render={() => <QuickEntry searchApi={searchApi} />} />
+              <Route path="/" exact component={Filters} />
+            </>
+          ) : null}
           <ContentWrapper>
             <Switch>
               <Route path="/" exact render={() => <FocusItems history={history} />} />

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import Button from '../Button/Button';
@@ -31,9 +30,7 @@ const mapStateToProps = state => ({
   projectName: state.projectFilter,
 });
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    actionCreators,
-  )(ProjectFilter),
-);
+export default connect(
+  mapStateToProps,
+  actionCreators,
+)(ProjectFilter);
