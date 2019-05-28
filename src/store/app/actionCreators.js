@@ -6,6 +6,7 @@ import {
   SEARCH,
   SET_PROJECT_FILTER,
 } from '../actionTypes';
+import { searchApi } from '../store';
 
 export const toggleDateFilter = type => ({ type: TOGGLE_DATE_FILTER, payload: { type } });
 
@@ -22,7 +23,7 @@ export const resetSearch = () => ({
   type: RESET_SEARCH,
 });
 
-export const searching = (searchQuery, searchApi) => (dispatch) => {
+export const searching = searchQuery => (dispatch) => {
   if (searchQuery) {
     searchApi.search(searchQuery).then((searchResults) => {
       dispatch({

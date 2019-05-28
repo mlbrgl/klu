@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import SearchApi from 'js-worker-search';
 import { PROJECT_ACTIVE } from '../helpers/constants';
 
 const getNewFocusItem = (now, value = '') => {
@@ -30,12 +31,14 @@ const getInitialState = () => ({
 
 const getNewProject = name => ({ name, frequency: 0, status: PROJECT_ACTIVE });
 
-const buildIndex = (searchApi, focusItems) => {
+const searchApi = new SearchApi();
+
+const buildIndex = (focusItems) => {
   focusItems.forEach((item) => {
     searchApi.indexDocument(item.id, item.value);
   });
 };
 
 export {
-  getInitialState, getNewFocusItem, getNewProject, buildIndex,
+  getInitialState, getNewFocusItem, getNewProject, buildIndex, searchApi,
 };

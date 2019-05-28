@@ -15,7 +15,7 @@ class QuickEntry extends PureComponent {
   refInput = React.createRef();
 
   onSearchHandler = debounce(() => {
-    const { searching, searchApi } = this.props;
+    const { searching } = this.props;
     // When the user creates an item (validates the input) before the end of the debounce timeout,
     // the search will return after the creation of the item and leave the UI in an inconsistent
     // state, with the search input field empty but the list filtered by the search query.
@@ -25,7 +25,7 @@ class QuickEntry extends PureComponent {
     // Is the field still in the DOM? (might be unmounted by the time we try and reach it, e.g.
     // by focusing on an item. Only really happens in high speed e2e tests)
     if (this.refInput.current !== null) {
-      searching(this.refInput.current.value, searchApi);
+      searching(this.refInput.current.value);
     }
   }, 250);
 
@@ -73,9 +73,6 @@ QuickEntry.propTypes = {
   addFocusItem: PropTypes.func.isRequired,
   projectFilter: PropTypes.string,
   resetSearch: PropTypes.PropTypes.func.isRequired,
-  searchApi: PropTypes.shape({
-    search: PropTypes.func,
-  }).isRequired,
   searching: PropTypes.PropTypes.func.isRequired,
   setProjectFilter: PropTypes.func.isRequired,
   searchQuery: PropTypes.string.isRequired,

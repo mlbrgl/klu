@@ -14,7 +14,7 @@ import Actions from '../Actions/Actions';
 // import localforage from 'localforage';
 // import { loadFromStorage, commitToStorage } from '../../helpers/storage';
 // import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store';
-import { getInitialState } from '../../store/store';
+import { getInitialState, searchApi } from '../../store/store';
 import * as actionCreatorsApp from '../../store/app/actionCreators';
 
 import './App.css';
@@ -93,7 +93,7 @@ class App extends Component {
   render() {
     // // before the state is loaded from external storage, it is null
     // if (this.state !== null) {
-    const { history, isFocusOn, searchApi } = this.props;
+    const { history, isFocusOn } = this.props;
     return (
       <div className="app">
         <Frame>
@@ -124,9 +124,6 @@ App.propTypes = {
   }).isRequired,
   isFocusOn: PropTypes.bool.isRequired,
   toggleFocus: PropTypes.func.isRequired,
-  searchApi: PropTypes.shape({
-    search: PropTypes.func,
-  }).isRequired,
 };
 
 const mapStateToProps = state => ({

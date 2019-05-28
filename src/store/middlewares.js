@@ -1,6 +1,7 @@
 import { ADD_FOCUS_ITEM, EDIT_FOCUS_ITEM } from './actionTypes';
+import { searchApi } from './store';
 
-export const index = searchApi => () => next => (action) => {
+export const index = () => next => (action) => {
   let itemId = null;
   let value = null;
 
