@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 
 import { DateTime } from 'luxon';
 import ProjectFilter from '../ProjectFilter/ProjectFilter';
-import * as actionCreatorsProjectFilter from '../../store/projectFilter/actionCreators';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 import * as actionCreatorsApp from '../../store/app/actionCreators';
 import { getNewFocusItem } from '../../store/store';
@@ -32,13 +31,13 @@ class QuickEntry extends PureComponent {
 
   onKeyDownHandler = (event) => {
     if (event.key === 'Enter') {
-      const { setProjectFilter, resetSearch, projectName } = this.props;
+      const { setProjectFilter, resetSearch, projectFilter } = this.props;
       const { value } = this.refInput.current;
       if (event.metaKey || event.ctrlKey) {
         setProjectFilter(value.split(' ')[0]);
       } else {
         const { addFocusItem } = this.props;
-        const itemValue = projectName ? `${value} +${projectName}` : value;
+        const itemValue = projectFilter ? `${value} +${projectFilter}` : value;
         const newItem = getNewFocusItem(DateTime.local(), itemValue);
         addFocusItem(newItem);
       }
@@ -67,12 +66,12 @@ class QuickEntry extends PureComponent {
 }
 
 QuickEntry.defaultProps = {
-  projectName: null,
+  projectFilter: null,
 };
 
 QuickEntry.propTypes = {
   addFocusItem: PropTypes.func.isRequired,
-  projectName: PropTypes.string,
+  projectFilter: PropTypes.string,
   resetSearch: PropTypes.PropTypes.func.isRequired,
   searchApi: PropTypes.shape({
     search: PropTypes.func,
@@ -83,11 +82,11 @@ QuickEntry.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  projectName: state.projectFilter,
+  projectFilter: state.app.projectFilter,
   searchQuery: state.app.searchQuery,
 });
 
 export default connect(
   mapStateToProps,
-  { ...actionCreatorsProjectFilter, ...actionCreatorsFocusItems, ...actionCreatorsApp },
+  { ...actionCreatorsFocusItems, ...actionCreatorsApp },
 )(QuickEntry);

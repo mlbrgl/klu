@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Button from '../Button/Button';
 import * as actionCreatorsProjects from '../../store/projects/actionCreators';
-import * as actionCreatorsProjectFilter from '../../store/projectFilter/actionCreators';
+import * as actionCreatorsApp from '../../store/app/actionCreators';
 import {
   PROJECT_ACTIVE,
   PROJECT_PENDING,
@@ -134,6 +134,6 @@ Project.propTypes = {
 export default withRouter(
   connect(
     null,
-    { ...actionCreatorsProjects, ...actionCreatorsProjectFilter },
+    { ...actionCreatorsProjects, ...actionCreatorsApp },
   )(Project),
 );

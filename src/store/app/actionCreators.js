@@ -1,5 +1,10 @@
 import {
-  TOGGLE_DATE_FILTER, SET_FOCUS, TOGGLE_FOCUS, RESET_SEARCH, SEARCH,
+  TOGGLE_DATE_FILTER,
+  SET_FOCUS,
+  TOGGLE_FOCUS,
+  RESET_SEARCH,
+  SEARCH,
+  SET_PROJECT_FILTER,
 } from '../actionTypes';
 
 export const toggleDateFilter = type => ({ type: TOGGLE_DATE_FILTER, payload: { type } });
@@ -29,3 +34,10 @@ export const searching = (searchQuery, searchApi) => (dispatch) => {
     dispatch(resetSearch());
   }
 };
+
+export const setProjectFilter = projectFilter => ({
+  type: SET_PROJECT_FILTER,
+  payload: { projectFilter },
+});
+
+export const resetProjectFilter = () => setProjectFilter(null);

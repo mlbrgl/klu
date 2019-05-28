@@ -15,7 +15,7 @@ const FocusItems = (props) => {
     filters,
     isFocusOn,
     focusItemId,
-    projectName,
+    projectFilter,
     focusItems,
     history,
     searchQuery,
@@ -30,7 +30,7 @@ const FocusItems = (props) => {
       }
       if (!searchQuery || searchResults.find(res => item.id === res)) {
         return (
-          (!projectName || isItemWithinProject(item, { name: projectName }))
+          (!projectFilter || isItemWithinProject(item, { name: projectFilter }))
           && ((filters.done && isItemDone(item))
             || (filters.actionable && isItemActionable(now, item))
             || (filters.future && isItemFuture(now, item)))
@@ -38,12 +38,12 @@ const FocusItems = (props) => {
       }
       return false;
     })
-    .slice(0, projectName || searchQuery ? Infinity : 20)
+    .slice(0, projectFilter || searchQuery ? Infinity : 20)
     .map(item => <FocusItem key={item.id} item={item} history={history} />);
 };
 
 FocusItems.defaultProps = {
-  projectName: null,
+  projectFilter: null,
   focusItemId: null,
 };
 
@@ -57,7 +57,7 @@ FocusItems.propTypes = {
     }),
   ).isRequired,
   focusItemId: PropTypes.number,
-  projectName: PropTypes.string,
+  projectFilter: PropTypes.string,
   isFocusOn: PropTypes.bool.isRequired,
   filters: PropTypes.shape({
     done: PropTypes.bool,
@@ -73,7 +73,7 @@ const mapStateToProps = state => ({
   isFocusOn: state.app.isFocusOn,
   focusItemId: state.app.focusItemId,
   filters: state.app.filters,
-  projectName: state.projectFilter,
+  projectFilter: state.app.projectFilter,
   searchQuery: state.app.searchQuery,
   searchResults: state.app.searchResults,
 });

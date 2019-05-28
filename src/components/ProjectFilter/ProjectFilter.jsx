@@ -3,34 +3,34 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import Button from '../Button/Button';
-import * as actionCreators from '../../store/projectFilter/actionCreators';
+import * as actionCreatorsApp from '../../store/app/actionCreators';
 
 import styles from './ProjectFilter.module.css';
 
 const ProjectFilter = (props) => {
-  const { projectName, resetProjectFilter } = props;
+  const { projectFilter, resetProjectFilter } = props;
 
-  return projectName ? (
+  return projectFilter ? (
     <Button className={styles.project} onClick={resetProjectFilter}>
-      {`+${projectName}`}
+      {`+${projectFilter}`}
     </Button>
   ) : null;
 };
 
 ProjectFilter.defaultProps = {
-  projectName: null,
+  projectFilter: null,
 };
 
 ProjectFilter.propTypes = {
-  projectName: PropTypes.string,
+  projectFilter: PropTypes.string,
   resetProjectFilter: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
-  projectName: state.projectFilter,
+  projectFilter: state.app.projectFilter,
 });
 
 export default connect(
   mapStateToProps,
-  actionCreators,
+  actionCreatorsApp,
 )(ProjectFilter);

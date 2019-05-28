@@ -5,7 +5,6 @@ import { DateTime } from 'luxon';
 import debounce from 'lodash.debounce';
 import styles from './Editable.module.css';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
-import * as actionCreatorsProjectFilter from '../../store/projectFilter/actionCreators';
 import * as actionsCreatorsApp from '../../store/app/actionCreators';
 import { CATEGORIES } from '../../helpers/constants';
 import {
@@ -209,5 +208,5 @@ Editable.propTypes = {
 
 export default connect(
   null,
-  { ...actionCreatorsFocusItems, ...actionsCreatorsApp, ...actionCreatorsProjectFilter },
+  { ...actionCreatorsFocusItems, ...actionsCreatorsApp },
 )(Editable);

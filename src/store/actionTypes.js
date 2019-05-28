@@ -4,8 +4,6 @@ export const SET_FOCUS = 'SET_FOCUS';
 export const TOGGLE_FOCUS = 'TOGGLE_FOCUS';
 export const SEARCH = 'SEARCH';
 export const RESET_SEARCH = 'RESET_SEARCH';
-
-// projectFilter
 export const SET_PROJECT_FILTER = 'SET_PROJECT_FILTER';
 
 // projects
