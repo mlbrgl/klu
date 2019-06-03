@@ -18,11 +18,6 @@ import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators
 
 import './App.css';
 
-// if (process.env.NODE_ENV !== 'production') {
-//   const {whyDidYouUpdate} = require('why-did-you-update')
-//   whyDidYouUpdate(React)
-// }
-
 class App extends Component {
   async componentDidMount() {
     const { setFocusItems } = this.props;
