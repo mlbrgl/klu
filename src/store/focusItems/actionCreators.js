@@ -15,8 +15,7 @@ import {
   NEXT_CATEGORY_FOCUS_ITEM,
   SET_FOCUS_ITEMS,
 } from '../actionTypes';
-import { getNewFocusItem, searchApi } from '../store';
-import { commitToStorage } from '../../helpers/storage';
+import { getNewFocusItem } from '../store';
 import { setFocus } from '../app/actionCreators';
 
 export const focusingNextFocusItem = history => (dispatch, getState) => {
@@ -43,15 +42,10 @@ export const setFocusItems = focusItemsFromStorage => ({
   payload: { focusItemsFromStorage },
 });
 
-export const addFocusItem = focusItem => (dispatch, getState) => {
-  dispatch({
-    type: ADD_FOCUS_ITEM,
-    payload: { focusItem },
-  });
-  const { focusItems } = getState();
-  searchApi.indexDocument(focusItem.id, focusItem.value);
-  commitToStorage({ focusItems });
-};
+export const addFocusItem = focusItem => ({
+  type: ADD_FOCUS_ITEM,
+  payload: { focusItem },
+});
 
 export const addingFutureWaitingFocusItem = (now, itemId) => (dispatch, getState) => {
   const baseFocusItem = getState().focusItems.find(item => item.id === itemId);
@@ -67,15 +61,10 @@ export const addingFutureWaitingFocusItem = (now, itemId) => (dispatch, getState
   dispatch(setFocus({ focusItemId: newFocusItem.id }));
 };
 
-export const editFocusItem = (now, value, itemId) => (dispatch, getState) => {
-  dispatch({
-    type: EDIT_FOCUS_ITEM,
-    payload: { now, value, itemId },
-  });
-  const { focusItems } = getState();
-  searchApi.indexDocument(itemId, value);
-  commitToStorage({ focusItems });
-};
+export const editFocusItem = (now, value, itemId) => ({
+  type: EDIT_FOCUS_ITEM,
+  payload: { now, value, itemId },
+});
 
 export const deleteFocusItem = (history, itemId) => (dispatch, getState) => {
   dispatch({

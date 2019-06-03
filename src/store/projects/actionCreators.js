@@ -3,7 +3,13 @@ import {
   UP_PROJECT_FREQUENCY,
   DOWN_PROJECT_FREQUENCY,
   SET_PROJECT_STATUS,
+  SET_PROJECTS,
 } from '../actionTypes';
+
+export const setProjects = projectsFromStorage => ({
+  type: SET_PROJECTS,
+  payload: { projectsFromStorage },
+});
 
 export const updateProjects = now => (dispatch, getState) => {
   const { focusItems } = getState();

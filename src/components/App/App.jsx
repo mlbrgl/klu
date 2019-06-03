@@ -15,13 +15,14 @@ import { loadFromStorage, commitToStorage } from '../../helpers/storage';
 import { searchApi } from '../../store/store';
 import * as actionCreatorsApp from '../../store/app/actionCreators';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
+import * as actionCreatorsProjects from '../../store/projects/actionCreators';
 
 import './App.css';
 
 class App extends Component {
   async componentDidMount() {
-    const { setFocusItems } = this.props;
-    await loadFromStorage(setFocusItems);
+    const { setFocusItems, setProjects } = this.props;
+    await loadFromStorage(setFocusItems, setProjects);
     // EXPORT (on prod)
     // localStorage.setItem('state', JSON.stringify(state))
     // IMPORT (on local)
@@ -50,15 +51,20 @@ class App extends Component {
     //   // coming back to that tab will not trigger onfocus. Once the app regains focus
     //   // (e.g. click within the app frame), onfocus is triggered and the app updates.
     window.onfocus = async () => {
-      await loadFromStorage(setFocusItems);
+      await loadFromStorage(setFocusItems, setProjects);
     };
   }
 
   componentDidUpdate(prevProps) {
-    const { focusItems } = this.props;
-    if (focusItems !== prevProps.focusItems) {
-      commitToStorage({ focusItems });
-    }
+    const { focusItems, projects } = this.props;
+    const stateToPersist = [{ focusItems }, { projects }];
+    stateToPersist.forEach((slice) => {
+      const sliceKey = Object.keys(slice)[0];
+      // Only commit to storage if relevant slices of state have been changed
+      if (slice[sliceKey].length !== 0 && slice[sliceKey] !== prevProps[sliceKey]) {
+        commitToStorage(slice);
+      }
+    });
   }
 
   render() {
@@ -97,16 +103,25 @@ App.propTypes = {
       id: PropTypes.number,
     }),
   ).isRequired,
+  projects: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      frequency: PropTypes.number,
+      status: PropTypes.number,
+    }),
+  ).isRequired,
+  setProjects: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
   isFocusOn: state.app.isFocusOn,
   focusItems: state.focusItems,
+  projects: state.projects,
 });
 
 export default withRouter(
   connect(
     mapStateToProps,
-    { ...actionCreatorsApp, ...actionCreatorsFocusItems },
+    { ...actionCreatorsApp, ...actionCreatorsFocusItems, ...actionCreatorsProjects },
   )(App),
 );

@@ -5,6 +5,7 @@ import {
   UP_PROJECT_FREQUENCY,
   SET_PROJECT_STATUS,
   DOWN_PROJECT_FREQUENCY,
+  SET_PROJECTS,
 } from '../actionTypes';
 import { getProjectsInfo } from '../../selectors/selectors';
 import {
@@ -17,6 +18,10 @@ import { getNewProject } from '../store';
 
 const reducer = produce((projects, action) => {
   switch (action.type) {
+    case SET_PROJECTS: {
+      const { projectsFromStorage } = action.payload;
+      return projectsFromStorage;
+    }
     case UPDATE_PROJECTS: {
       const { now, focusItems } = action.payload;
 
