@@ -1,6 +1,7 @@
 describe('Projects', () => {
   beforeEach(() => {
     cy.visit('/');
+    indexedDB.deleteDatabase('localforage');
   });
 
   it('Selects focus items from the right project', () => {

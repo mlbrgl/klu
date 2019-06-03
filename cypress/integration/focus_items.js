@@ -1,6 +1,7 @@
 describe('Focus items', () => {
   beforeEach(() => {
     cy.visit('/');
+    indexedDB.deleteDatabase('localforage');
   });
 
   it('Creates a new focus item from the quick entry', () => {
