@@ -11,11 +11,10 @@ import FocusItems from '../FocusItems/FocusItems';
 import Projects from '../Projects/Projects';
 import QuickEntry from '../QuickEntry/QuickEntry';
 import Actions from '../Actions/Actions';
-// import localforage from 'localforage';
-// import { loadFromStorage, commitToStorage } from '../../helpers/storage';
-// import { getInitialState, getNewFocusItem, buildIndex } from '../../store/store';
-import { getInitialState, searchApi } from '../../store/store';
+import { loadFromStorage, commitToStorage } from '../../helpers/storage';
+import { searchApi } from '../../store/store';
 import * as actionCreatorsApp from '../../store/app/actionCreators';
+import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 
 import './App.css';
 
@@ -25,38 +24,18 @@ import './App.css';
 // }
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    // TODO: remove state init (done in redux)
-    this.state = getInitialState();
-  }
+  async componentDidMount() {
+    const { setFocusItems } = this.props;
+    await loadFromStorage(setFocusItems);
+    // EXPORT (on prod)
+    // localStorage.setItem('state', JSON.stringify(state))
+    // IMPORT (on local)
+    // state = JSON.parse(localStorage.getItem('state'))
+    // for(let item in state){
+    //   localforage.setItem(item, state[item])
+    //   .catch((err) => { console.error(err) })
+    // }
 
-  componentWillMount() {
-    //   loadFromStorage()
-    //     .then((state) => {
-    //       // EXPORT (on prod)
-    //       // localStorage.setItem('state', JSON.stringify(state))
-    //       // IMPORT (on local)
-    //       // state = JSON.parse(localStorage.getItem('state'))
-    //       // for(let item in state){
-    //       //   localforage.setItem(item, state[item])
-    //       //   .catch((err) => { console.error(err) })
-    //       // }
-    // this.searchApi = new SearchApi();
-    //       if (state !== null) {
-    //         // const filters = { done: false, actionable: true, future: false };
-    //         this.setState(state);
-    //         buildIndex(this.searchApi, state.focusItems);
-    //       } else {
-    //         this.setState(getInitialState());
-    //       }
-    //     })
-    //     .catch((err) => {
-    //       console.log(err);
-    //     });
-  }
-
-  componentDidMount() {
     document.addEventListener('keydown', (event) => {
       switch (event.key) {
         case 'Escape': {
@@ -75,24 +54,19 @@ class App extends Component {
     //   // - if the focus was not on the app frame before moving onto another tab / window,
     //   // coming back to that tab will not trigger onfocus. Once the app regains focus
     //   // (e.g. click within the app frame), onfocus is triggered and the app updates.
-    //   window.onfocus = () => {
-    //     loadFromStorage().then((state) => {
-    //       // No need to check for state === null since the app has at least been
-    //       // mounted once (before it lost focus) and the state initialized in componentWillMount
-    //       this.setState(state);
-    //       // the index needs to be rebuilt here as it is not saved to the state
-    //       buildIndex(this.searchApi, state.focusItems);
-    //     });
-    //   };
+    window.onfocus = async () => {
+      await loadFromStorage(setFocusItems);
+    };
   }
 
-  // componentDidUpdate() {
-  //   commitToStorage(this.state);
-  // }
+  componentDidUpdate(prevProps) {
+    const { focusItems } = this.props;
+    if (focusItems !== prevProps.focusItems) {
+      commitToStorage({ focusItems });
+    }
+  }
 
   render() {
-    // // before the state is loaded from external storage, it is null
-    // if (this.state !== null) {
     const { history, isFocusOn } = this.props;
     return (
       <div className="app">
@@ -113,8 +87,6 @@ class App extends Component {
         </Frame>
       </div>
     );
-    // }
-    // return null;
   }
 }
 
@@ -124,15 +96,22 @@ App.propTypes = {
   }).isRequired,
   isFocusOn: PropTypes.bool.isRequired,
   toggleFocus: PropTypes.func.isRequired,
+  setFocusItems: PropTypes.func.isRequired,
+  focusItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+    }),
+  ).isRequired,
 };
 
 const mapStateToProps = state => ({
   isFocusOn: state.app.isFocusOn,
+  focusItems: state.focusItems,
 });
 
 export default withRouter(
   connect(
     mapStateToProps,
-    { ...actionCreatorsApp },
+    { ...actionCreatorsApp, ...actionCreatorsFocusItems },
   )(App),
 );

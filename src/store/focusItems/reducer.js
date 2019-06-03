@@ -12,6 +12,7 @@ import {
   MARK_DONE_FOCUS_ITEM,
   REMOVE_DATE_FOCUS_ITEM,
   NEXT_CATEGORY_FOCUS_ITEM,
+  SET_FOCUS_ITEMS,
 } from '../actionTypes';
 import { getNewFocusItem } from '../store';
 
@@ -63,6 +64,10 @@ export const nextCategoryFocusItem = (now, itemId, categories, focusItems) => {
 const reducer = produce(
   (focusItems, action) => {
     switch (action.type) {
+      case SET_FOCUS_ITEMS: {
+        const { focusItemsFromStorage } = action.payload;
+        return focusItemsFromStorage;
+      }
       case ADD_FOCUS_ITEM: {
         const { focusItem } = action.payload;
         focusItems.unshift(focusItem);

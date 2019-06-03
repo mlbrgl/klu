@@ -1,21 +1,16 @@
 import localforage from 'localforage';
 import debounce from 'lodash.debounce';
+import { buildIndex } from '../store/store';
 
-const loadFromStorage = async () => {
-  const state = {};
+const loadFromStorage = async (setFocusItems) => {
   try {
-    await localforage.iterate((value, key) => {
-      // localforage stores null in first level keys as undefined
-      // When returned and passed through setState(key: undefined), these
-      // keys are not turned back into null by setState and are ignored.
-      // As some app behaviors require the presence of these null values, I am
-      // casting them back into null manually
-      const valueSafe = value === undefined ? null : value;
-      state[key] = valueSafe;
-    });
-    return Object.keys(state).length !== 0 ? state : null;
+    const focusItems = await localforage.getItem('focusItems');
+    if (focusItems) {
+      setFocusItems(focusItems);
+      buildIndex(focusItems);
+    }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
   return null;
 };
@@ -24,7 +19,7 @@ const commitToStorage = debounce((state) => {
   const keys = Object.keys(state);
   keys.forEach((key) => {
     localforage.setItem(key, state[key]).catch((err) => {
-      console.err(err);
+      console.error(err);
     });
   });
 }, 250);

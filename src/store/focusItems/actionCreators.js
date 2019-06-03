@@ -13,8 +13,10 @@ import {
   MARK_DONE_FOCUS_ITEM,
   REMOVE_DATE_FOCUS_ITEM,
   NEXT_CATEGORY_FOCUS_ITEM,
+  SET_FOCUS_ITEMS,
 } from '../actionTypes';
-import { getNewFocusItem } from '../store';
+import { getNewFocusItem, searchApi } from '../store';
+import { commitToStorage } from '../../helpers/storage';
 import { setFocus } from '../app/actionCreators';
 
 export const focusingNextFocusItem = history => (dispatch, getState) => {
@@ -36,10 +38,20 @@ export const focusingNextFocusItem = history => (dispatch, getState) => {
   }
 };
 
-export const addFocusItem = focusItem => ({
-  type: ADD_FOCUS_ITEM,
-  payload: { focusItem },
+export const setFocusItems = focusItemsFromStorage => ({
+  type: SET_FOCUS_ITEMS,
+  payload: { focusItemsFromStorage },
 });
+
+export const addFocusItem = focusItem => (dispatch, getState) => {
+  dispatch({
+    type: ADD_FOCUS_ITEM,
+    payload: { focusItem },
+  });
+  const { focusItems } = getState();
+  searchApi.indexDocument(focusItem.id, focusItem.value);
+  commitToStorage({ focusItems });
+};
 
 export const addingFutureWaitingFocusItem = (now, itemId) => (dispatch, getState) => {
   const baseFocusItem = getState().focusItems.find(item => item.id === itemId);
@@ -55,18 +67,21 @@ export const addingFutureWaitingFocusItem = (now, itemId) => (dispatch, getState
   dispatch(setFocus({ focusItemId: newFocusItem.id }));
 };
 
-export const editFocusItem = (now, value, itemId) => ({
-  type: EDIT_FOCUS_ITEM,
-  payload: { now, value, itemId },
-});
+export const editFocusItem = (now, value, itemId) => (dispatch, getState) => {
+  dispatch({
+    type: EDIT_FOCUS_ITEM,
+    payload: { now, value, itemId },
+  });
+  const { focusItems } = getState();
+  searchApi.indexDocument(itemId, value);
+  commitToStorage({ focusItems });
+};
 
-export const _deleteFocusItem = itemId => ({
-  type: DELETE_FOCUS_ITEM,
-  payload: { itemId },
-});
-
-export const deletingFocusItem = (history, itemId) => (dispatch, getState) => {
-  dispatch(_deleteFocusItem(itemId));
+export const deleteFocusItem = (history, itemId) => (dispatch, getState) => {
+  dispatch({
+    type: DELETE_FOCUS_ITEM,
+    payload: { itemId },
+  });
   const {
     app: { focusItemId },
   } = getState();
@@ -75,13 +90,11 @@ export const deletingFocusItem = (history, itemId) => (dispatch, getState) => {
   }
 };
 
-export const _markDoneFocusItem = (now, itemId) => ({
-  type: MARK_DONE_FOCUS_ITEM,
-  payload: { now, itemId },
-});
-
-export const markingDoneFocusItem = (history, itemId) => (dispatch, getState) => {
-  dispatch(_markDoneFocusItem(DateTime.local(), itemId));
+export const markDoneFocusItem = (history, itemId) => (dispatch, getState) => {
+  dispatch({
+    type: MARK_DONE_FOCUS_ITEM,
+    payload: { now: DateTime.local(), itemId },
+  });
   const {
     app: { focusItemId },
   } = getState();

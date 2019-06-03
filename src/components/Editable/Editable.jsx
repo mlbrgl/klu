@@ -51,10 +51,10 @@ class Editable extends Component {
       itemId,
       history,
       setProjectFilter,
-      markingDoneFocusItem,
+      markDoneFocusItem,
       setFocus,
       toggleFocus,
-      deletingFocusItem,
+      deleteFocusItem,
       isDeleteOn,
       setDeleteOn,
       value,
@@ -71,12 +71,12 @@ class Editable extends Component {
         event.preventDefault();
         if (event.metaKey || event.ctrlKey) {
           if (event.shiftKey) {
-            markingDoneFocusItem(history, itemId);
+            markDoneFocusItem(history, itemId);
           } else {
             setProjectFilter(getProjectNameFromItem(value));
           }
         } else if (isDeleteOn) {
-          deletingFocusItem(history, itemId);
+          deleteFocusItem(history, itemId);
         } else {
           setFocus({ focusItemId: itemId });
           toggleFocus();
@@ -87,7 +87,7 @@ class Editable extends Component {
       case 'Delete':
         if (value.length === 0) {
           event.preventDefault();
-          deletingFocusItem(history, itemId);
+          deleteFocusItem(history, itemId);
         } else if (event.metaKey || event.ctrlKey) {
           event.preventDefault();
           setDeleteOn(true);
@@ -189,7 +189,7 @@ Editable.propTypes = {
   value: PropTypes.string.isRequired,
   decDueDateFocusItem: PropTypes.func.isRequired,
   decStartDateFocusItem: PropTypes.func.isRequired,
-  deletingFocusItem: PropTypes.func.isRequired,
+  deleteFocusItem: PropTypes.func.isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
   }).isRequired,
@@ -197,7 +197,7 @@ Editable.propTypes = {
   incStartDateFocusItem: PropTypes.func.isRequired,
   isDeleteOn: PropTypes.bool.isRequired,
   itemId: PropTypes.number.isRequired,
-  markingDoneFocusItem: PropTypes.func.isRequired,
+  markDoneFocusItem: PropTypes.func.isRequired,
   nextCategoryFocusItem: PropTypes.func.isRequired,
   setDeleteOn: PropTypes.func.isRequired,
   setFocus: PropTypes.func.isRequired,

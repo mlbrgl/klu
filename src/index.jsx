@@ -7,10 +7,12 @@ import thunk from 'redux-thunk';
 import App from './components/App/App';
 import registerServiceWorker from './registerServiceWorker';
 import rootReducer from './store/rootReducer';
-import { index } from './store/middlewares';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk, index)));
+const store = createStore(
+  rootReducer,
+  composeEnhancers(applyMiddleware(thunk /* , customMiddleware */)),
+);
 
 ReactDOM.render(
   <Provider store={store}>

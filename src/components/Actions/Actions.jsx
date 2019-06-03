@@ -9,18 +9,18 @@ import styles from './Actions.module.css';
 
 class Actions extends PureComponent {
   onDoneItemHandler = () => {
-    const { history, markingDoneFocusItem, itemId } = this.props;
-    markingDoneFocusItem(history, itemId);
+    const { history, markDoneFocusItem, itemId } = this.props;
+    markDoneFocusItem(history, itemId);
   };
 
   onDoneAndWaitingItemHandler = () => {
     const {
-      markingDoneFocusItem, addingFutureWaitingFocusItem, history, itemId,
+      markDoneFocusItem, addingFutureWaitingFocusItem, history, itemId,
     } = this.props;
     const now = DateTime.local();
 
     addingFutureWaitingFocusItem(now, itemId);
-    markingDoneFocusItem(history, itemId);
+    markDoneFocusItem(history, itemId);
   };
 
   onFocusingNextFocusItem = () => {
@@ -54,7 +54,7 @@ Actions.propTypes = {
   }).isRequired,
   isFocusOn: PropTypes.bool.isRequired,
   itemId: PropTypes.number,
-  markingDoneFocusItem: PropTypes.func.isRequired,
+  markDoneFocusItem: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
