@@ -2,10 +2,29 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { DateTime } from 'luxon';
+import styled from 'styled-components/macro';
 import Button from '../Button/Button';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 
-import styles from './Actions.module.css';
+const StyledActions = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 0 1.5rem 1rem 0;
+`;
+
+const StyledButton = styled(Button)`
+  ${StyledActions} & {
+    margin-left: 1rem;
+    font-size: 1.5rem;
+    color: grey;
+    border: 1px solid;
+  }
+
+  ${StyledActions} &:hover {
+    color: white;
+  }
+`;
 
 class Actions extends PureComponent {
   onDoneItemHandler = () => {
@@ -31,13 +50,13 @@ class Actions extends PureComponent {
   render() {
     const { isFocusOn } = this.props;
     return (
-      <div className={styles.actions}>
-        <Button onClick={this.onFocusingNextFocusItem}>next up?</Button>
-        {isFocusOn ? <Button onClick={this.onDoneItemHandler}>did it!</Button> : null}
+      <StyledActions>
+        <StyledButton onClick={this.onFocusingNextFocusItem}>next up?</StyledButton>
+        {isFocusOn ? <StyledButton onClick={this.onDoneItemHandler}>did it!</StyledButton> : null}
         {isFocusOn ? (
-          <Button onClick={this.onDoneAndWaitingItemHandler}>done &amp; waiting</Button>
+          <StyledButton onClick={this.onDoneAndWaitingItemHandler}>done &amp; waiting</StyledButton>
         ) : null}
-      </div>
+      </StyledActions>
     );
   }
 }

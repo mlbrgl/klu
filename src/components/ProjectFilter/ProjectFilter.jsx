@@ -2,18 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
+import styled from 'styled-components/macro';
 import Button from '../Button/Button';
 import * as actionCreatorsApp from '../../store/app/actionCreators';
 
-import styles from './ProjectFilter.module.css';
+
+const StyledProjectFilter = styled(Button)`
+  padding: 0 0 0 1rem;
+  border: none;
+  border-left: 1px solid grey;
+  font-size: inherit;
+  color: inherit;
+
+  &:hover {
+    color: red;
+    cursor: pointer;
+  }
+`;
 
 const ProjectFilter = (props) => {
   const { projectFilter, resetProjectFilter } = props;
 
   return projectFilter ? (
-    <Button className={styles.project} onClick={resetProjectFilter}>
-      {`+${projectFilter}`}
-    </Button>
+    <StyledProjectFilter onClick={resetProjectFilter}>{`+${projectFilter}`}</StyledProjectFilter>
   ) : null;
 };
 

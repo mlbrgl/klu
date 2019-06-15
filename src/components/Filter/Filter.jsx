@@ -2,16 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
+import styled from 'styled-components/macro';
 import Button from '../Button/Button';
 import * as actionCreators from '../../store/app/actionCreators';
 
-import styles from './Filter.module.css';
-
+const StyledFilter = styled(Button)`
+  cursor: pointer;
+  height: 1.5rem;
+  width: 1.5rem;
+  background-color: white;
+  opacity: ${props => (props.isActive ? 1 : 0.3)};
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  margin: 0 0.5rem;
+`;
 const Filter = (props) => {
   const { type, active, toggleDateFilter } = props;
-  const stylesFilter = active ? styles.active : styles.filter;
 
-  return <Button className={stylesFilter} onClick={() => toggleDateFilter(type)} />;
+  return <StyledFilter isActive={active} onClick={() => toggleDateFilter(type)} />;
 };
 
 Filter.propTypes = {

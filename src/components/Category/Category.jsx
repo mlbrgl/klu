@@ -1,16 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import styles from './Category.module.css';
+import styled from 'styled-components/macro';
 
-const category = (props) => {
+const StyledCategory = styled.span`
+  font-size: 1.5rem;
+  line-height: 3rem;
+  float: left;
+
+  ${props => (props.isFocusOn
+    ? `
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 1rem 1rem 0 0;
+  line-height: 1;`
+    : '')}
+`;
+
+const Category = (props) => {
   const { isDeleteOn, isFocusOn, icon } = props;
-  const categoryStyles = isFocusOn ? styles.focused : styles.category;
 
-  return <span className={`${categoryStyles} icon-${isDeleteOn ? 'trash' : icon}`} />;
+  return <StyledCategory isFocusOn={isFocusOn} className={`icon-${isDeleteOn ? 'trash' : icon}`} />;
 };
 
-category.propTypes = {
+Category.propTypes = {
   icon: PropTypes.string.isRequired,
   isDeleteOn: PropTypes.bool.isRequired,
   isFocusOn: PropTypes.bool.isRequired,
@@ -20,4 +34,4 @@ const mapStateToProps = state => ({
   isFocusOn: state.app.isFocusOn,
 });
 
-export default connect(mapStateToProps)(category);
+export default connect(mapStateToProps)(Category);

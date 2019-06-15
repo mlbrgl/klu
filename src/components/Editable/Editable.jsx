@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { DateTime } from 'luxon';
 import debounce from 'lodash.debounce';
-import styles from './Editable.module.css';
+import styled from 'styled-components/macro';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 import * as actionsCreatorsApp from '../../store/app/actionCreators';
 import { CATEGORIES } from '../../helpers/constants';
@@ -13,6 +13,12 @@ import {
   isCaretAtBeginningFieldItem,
 } from '../../helpers/common';
 import { getProjectNameFromItem } from '../../selectors/selectors';
+
+const StyledEditable = styled.div`
+  outline: none;
+  word-wrap: break-word;
+  margin-left: 3rem;
+`;
 
 class Editable extends Component {
   constructor(props) {
@@ -169,8 +175,7 @@ class Editable extends Component {
 
   render() {
     return (
-      <div
-        className={styles.editable}
+      <StyledEditable
         onKeyDown={this.onKeyDownHandler}
         onInput={this.onInputHandler}
         ref={(el) => {

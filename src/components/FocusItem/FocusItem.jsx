@@ -2,14 +2,49 @@ import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import styles from './FocusItem.module.css';
+import styled from 'styled-components/macro';
 import { isItemEligible } from '../../selectors/selectors';
 import Dates from '../Dates/Dates';
 import Editable from '../Editable/Editable';
 import Category from '../Category/Category';
+import StyledListItem from '../StyledListItem/StyledListItem';
+
+const StyledFocusItem = styled(StyledListItem)`
+  color: yellow;
+
+  ${props => (props.isFocused
+    ? `
+    margin-top: 15vh;
+    font-size: 4rem;
+  `
+    : null)};
+
+  ${(props) => {
+    const {
+      isDeleteOn, isDone, isEligible, isProcessed,
+    } = props;
+    if (isDeleteOn) {
+      return 'color: red;';
+    }
+    if (isDone) {
+      return `
+      color: grey;
+      text-decoration: line-through;`;
+    }
+    if (isEligible) {
+      return `
+      color: white;
+      opacity: 1;
+      `;
+    }
+    if (isProcessed) {
+      return 'color: grey;';
+    }
+    return null;
+  }}
+`;
 
 const FocusItem = (props) => {
-  let focusItemStyles = [styles.focusitem];
   const {
     isFocusOn,
     focusItemId,
@@ -20,24 +55,19 @@ const FocusItem = (props) => {
   } = props;
   const now = DateTime.local();
   const [isDeleteOn, setDeleteOn] = useState(false);
-  const isFocusOnItem = !!(id === focusItemId && isFocusOn);
-
-  if (isDeleteOn) {
-    focusItemStyles.push(styles.delete);
-  } else if (dates.done !== null) {
-    focusItemStyles.push(styles.done);
-  } else if (isItemEligible(now, { category, dates })) {
-    focusItemStyles.push(styles.eligible);
-  } else if (category.name !== 'inbox') {
-    focusItemStyles.push(styles.processed);
-  }
-  if (isFocusOnItem) {
-    focusItemStyles.push(styles.focused);
-  }
-  focusItemStyles = focusItemStyles.join(' ');
+  const isFocused = !!(id === focusItemId && isFocusOn);
+  const isDone = dates.done !== null;
+  const isEligible = isItemEligible(now, { category, dates });
+  const isProcessed = category.name !== 'inbox';
 
   return (
-    <div className={focusItemStyles}>
+    <StyledFocusItem
+      isDeleteOn={isDeleteOn}
+      isEligible={isEligible}
+      isFocused={isFocused}
+      isDone={isDone}
+      isProcessed={isProcessed}
+    >
       <Category name={category.name} icon={category.icon} isDeleteOn={isDeleteOn} />
 
       <Editable
@@ -49,7 +79,7 @@ const FocusItem = (props) => {
       />
 
       <Dates startdate={dates.start} duedate={dates.due} donedate={dates.done} itemId={id} />
-    </div>
+    </StyledFocusItem>
   );
 };
 

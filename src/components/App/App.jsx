@@ -70,7 +70,7 @@ class App extends Component {
   render() {
     const { history, isFocusOn } = this.props;
     return (
-      <div className="app">
+      <div>
         <Frame>
           {!isFocusOn ? (
             <>

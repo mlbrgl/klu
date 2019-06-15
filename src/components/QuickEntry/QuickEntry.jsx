@@ -4,12 +4,35 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { DateTime } from 'luxon';
+import styled from 'styled-components/macro';
 import ProjectFilter from '../ProjectFilter/ProjectFilter';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 import * as actionCreatorsApp from '../../store/app/actionCreators';
 import { getNewFocusItem } from '../../store/store';
 
-import styles from './QuickEntry.module.css';
+
+const StyledQuickEntry = styled.div`
+  display: flex;
+  flex-shrink: 0;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 4rem;
+  font-size: 2rem;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+`;
+
+const Input = styled.input`
+  display: block;
+  flex-grow: 1;
+  font-family: 'Lato';
+  font-size: 2rem;
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  outline: none;
+`;
 
 class QuickEntry extends PureComponent {
   refInput = React.createRef();
@@ -49,9 +72,8 @@ class QuickEntry extends PureComponent {
   render() {
     const { searchQuery } = this.props;
     return (
-      <div className={styles.wrapper}>
-        <input
-          className={styles.input}
+      <StyledQuickEntry>
+        <Input
           type="text"
           defaultValue={searchQuery}
           onKeyDown={this.onKeyDownHandler}
@@ -60,7 +82,7 @@ class QuickEntry extends PureComponent {
           data-test="quick-entry"
         />
         <ProjectFilter />
-      </div>
+      </StyledQuickEntry>
     );
   }
 }

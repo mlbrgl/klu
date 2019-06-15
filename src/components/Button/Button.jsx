@@ -1,26 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styles from './Button.module.css';
+import styled from 'styled-components/macro';
 
-const button = (props) => {
-  const { className, children, ...otherProps } = props;
-  const allStyles = [styles.button, className];
+const StyledButton = styled.button`
+  transition: 0.3s;
+  cursor: pointer;
+  font-family: inherit;
+  background: none;
+`;
+
+const Button = (props) => {
+  const { children, ...otherProps } = props;
 
   return (
-    <button className={allStyles.join(' ')} type="button" {...otherProps}>
+    <StyledButton type="button" {...otherProps}>
       {children}
-    </button>
+    </StyledButton>
   );
 };
 
-button.defaultProps = {
-  className: null,
+Button.defaultProps = {
   children: null,
 };
 
-button.propTypes = {
-  className: PropTypes.string,
+Button.propTypes = {
   children: PropTypes.node,
 };
 
-export default button;
+export default Button;

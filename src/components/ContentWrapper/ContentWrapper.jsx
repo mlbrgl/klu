@@ -2,34 +2,63 @@ import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import styled from 'styled-components/macro';
 
-import styles from './ContentWrapper.module.css';
+const ViewLink = styled(Link)`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin: 0 0 1rem 1.5rem;
+  font-size: 1.5rem;
+  color: gray;
+  transition: 0.5s;
+  text-decoration: none;
+
+  &:hover {
+    color: white;
+  }
+`;
+
+const StyledContentWrapper = styled.div`
+  overflow: auto;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+
+  &::-webkit-scrollbar {
+    width: 0.8rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #fff;
+  }
+`;
 
 const renderViewLinks = pathname => (pathname === '/projects' ? (
-  <Link className={styles.viewLink} to="/">
-      Items
-  </Link>
+  <ViewLink to="/">Items</ViewLink>
 ) : (
-  <Link className={styles.viewLink} to="/projects">
-      Projects
-  </Link>
+  <ViewLink to="/projects">Projects</ViewLink>
 ));
 
-const contentWrapper = (props) => {
+const ContentWrapper = (props) => {
   const {
     children,
     isFocusOn,
     location: { pathname },
   } = props;
   return (
-    <div className={styles.contentWrapper}>
+    <StyledContentWrapper>
       {children}
       {!isFocusOn ? renderViewLinks(pathname) : null}
-    </div>
+    </StyledContentWrapper>
   );
 };
 
-contentWrapper.propTypes = {
+ContentWrapper.propTypes = {
   children: PropTypes.node.isRequired,
   isFocusOn: PropTypes.bool.isRequired,
   location: PropTypes.shape({
@@ -41,4 +70,4 @@ const mapStateToProps = state => ({
   isFocusOn: state.app.isFocusOn,
 });
 
-export default withRouter(connect(mapStateToProps)(contentWrapper));
+export default withRouter(connect(mapStateToProps)(ContentWrapper));
