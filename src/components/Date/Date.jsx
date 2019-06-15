@@ -2,10 +2,29 @@ import React from 'react';
 import { DateTime } from 'luxon';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import styles from './Date.module.css';
+import styled from 'styled-components/macro';
 import Button from '../Button/Button';
 import * as actionCreatorsFocusItems from '../../store/focusItems/actionCreators';
 import { formatRelativeTimeFromNow } from '../../helpers/dates';
+
+const DateButton = styled(Button)`
+  display: flex;
+  align-items: flex-start;
+  margin-right: 2rem;
+  font-size: 1rem;
+  color: inherit;
+  border: none;
+
+  &:hover {
+    color: red;
+  }
+`;
+
+const Icon = styled.span`
+  ${DateButton} & {
+    padding: 0.22rem 0.8rem 0 0;
+  }
+`;
 
 const Date = (props) => {
   const onRemoveDateHandler = () => {
@@ -21,8 +40,8 @@ const Date = (props) => {
   const format = { weekday: 'short', month: 'numeric', day: '2-digit' };
 
   return (
-    <Button onClick={onRemoveDateHandler} className={styles.date} key={icon}>
-      <span className={icon} />
+    <DateButton onClick={onRemoveDateHandler}>
+      <Icon className={icon} />
       <span>
         {parsedDate.setLocale(locale).toLocaleString(format)}
         {' '}
@@ -30,7 +49,7 @@ const Date = (props) => {
         {formatRelativeTimeFromNow(now, parsedDate)}
 )
       </span>
-    </Button>
+    </DateButton>
   );
 };
 

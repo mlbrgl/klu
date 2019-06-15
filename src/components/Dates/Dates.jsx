@@ -1,7 +1,14 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components/macro';
 import Date from '../Date/Date';
-import styles from './Dates.module.css';
+
+const StyledDates = styled.div`
+  display: flex;
+  align-items: flex-start;
+  margin-left: 3rem;
+  padding-right: 1rem;
+`;
 
 class Dates extends PureComponent {
   render() {
@@ -22,11 +29,11 @@ class Dates extends PureComponent {
     if (dates.length) {
       const { itemId } = this.props;
       return (
-        <div className={styles.dates}>
+        <StyledDates>
           {dates.map(date => (
             <Date key={date.icon} itemId={itemId} {...date} />
           ))}
-        </div>
+        </StyledDates>
       );
     }
     return null;
