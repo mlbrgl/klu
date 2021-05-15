@@ -62,7 +62,7 @@
     "eslint-plugin-jest": "^22.6.4",
     "eslint-plugin-jsx-a11y": "6.2.1",
     "eslint-plugin-react": "7.12.4",
-    "serve": "^11.0.0",
+    "serve": "11.3.2",
     "wait-on": "^3.2.0"
   }
 }
